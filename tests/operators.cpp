@@ -7,7 +7,7 @@
 TEST_CASE("Operators", "[operators]") {
 	std::string moduleName = "m";
 	auto stage =
-	    TestUtil::PybindStage(TestStage::getRootStagePath(), moduleName);
+	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
 
 	auto cppCode = R"(
 #include <string>
@@ -92,7 +92,7 @@ self.assertEqual(my_class(100), 100)
 self.assertEqual(my_class("The inner value is: "), "The inner value is: 0")
 )";
 
-	auto errorCode = stage.runPybindTest(cppCode, pythonTestCode);
+	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Operators");

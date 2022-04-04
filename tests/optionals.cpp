@@ -6,7 +6,7 @@
 TEST_CASE("Using std::optionals", "[optionals]") {
 	std::string moduleName = "m";
 	auto stage =
-	    TestUtil::PybindStage(TestStage::getRootStagePath(), moduleName);
+	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
 
 	auto cppCode = R"(
 #include <optional>
@@ -42,7 +42,7 @@ self.assertEqual(with_function.getNullopt(), None)
 )",
 	                                  fmt::arg("moduleName", moduleName));
 
-	auto errorCode = stage.runPybindTest(cppCode, pythonTestCode);
+	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::optional");

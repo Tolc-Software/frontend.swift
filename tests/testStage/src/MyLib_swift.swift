@@ -34,5 +34,5 @@ public class MyLib {
 // print("UserCount is a static variable: \(MyLibAnimal.userCount)")
 // MyLib_Animal.userCount = 5
 // print("UserCount is a static variable: \(MyLibAnimal.userCount)")
-// print("Hello from Swift")
+// print("Hello from ObjcSwift")
 

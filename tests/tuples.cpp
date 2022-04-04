@@ -6,7 +6,7 @@
 TEST_CASE("Using std::tuples", "[tuples]") {
 	std::string moduleName = "m";
 	auto stage =
-	    TestUtil::PybindStage(TestStage::getRootStagePath(), moduleName);
+	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
 
 	auto cppCode = R"(
 #include <string>
@@ -45,7 +45,7 @@ self.assertAlmostEqual(with_function.sum((1, 2, 3.3, 2.0)), 8.3, delta=0.0001)
 )",
 	                                  fmt::arg("moduleName", moduleName));
 
-	auto errorCode = stage.runPybindTest(cppCode, pythonTestCode);
+	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::tuple");

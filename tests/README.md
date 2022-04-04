@@ -29,11 +29,11 @@ The default files that a `stage` inherits from the `base stage` (if they exists)
 
 When the `stage` runs its destructor, the `stage` directory is removed. This can be overridden for debugging by setting the `m_removeOnDestruction` flag to `false`.
 
-### Pybind11Stage ###
+### ObjcSwift11Stage ###
 
-The `TestUtil` library provides `Pybind11Stage` which extends a normal `stage`, and adds some convenient abstractions to test `pybind11` built modules. If you don't have a reason to dig, you should probably use a `Pybind11Stage`.
+The `TestUtil` library provides `ObjcObjcSwift11Stage` which extends a normal `stage`, and adds some convenient abstractions to test `pybind11` built modules. If you don't have a reason to dig, you should probably use a `ObjcObjcSwift11Stage`.
 
 ## Architecture ##
 
-Typically an integration test follows the flow described below. A `stage` is created from the `base stage` at `tests/testStage/`. A header file containing the `C++` code we want to translate into `python` is added to the `stage`. `Tolc::Parser` is used to produce `Tolc::IR`, that is then fed into our `frontend.swift`. The frontend creates a set of `C++` files containing `pybind11` code and the `Pybind11Stage` ensures that our header is included. We then use `CMake` to generate and build our `pybind11` module. A `python` unittest is placed next to it in our `build` directory, and the `python` builtin test suite is called. As all other test suites, the `python` `unittest` module returns a non zero exit status on failure, so this is typically checked.
+Typically an integration test follows the flow described below. A `stage` is created from the `base stage` at `tests/testStage/`. A header file containing the `C++` code we want to translate into `python` is added to the `stage`. `Tolc::Parser` is used to produce `Tolc::IR`, that is then fed into our `frontend.swift`. The frontend creates a set of `C++` files containing `pybind11` code and the `ObjcSwift11Stage` ensures that our header is included. We then use `CMake` to generate and build our `pybind11` module. A `python` unittest is placed next to it in our `build` directory, and the `python` builtin test suite is called. As all other test suites, the `python` `unittest` module returns a non zero exit status on failure, so this is typically checked.
 

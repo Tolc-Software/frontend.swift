@@ -7,7 +7,7 @@ TEST_CASE("std::filesystem::path gets converted to pathlib.Path",
           "[filesystem_paths]") {
 	std::string moduleName = "m";
 	auto stage =
-	    TestUtil::PybindStage(TestStage::getRootStagePath(), moduleName);
+	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
 
 	auto cppCode = R"(
 #include <filesystem>
@@ -47,7 +47,7 @@ self.assertEqual(result1, p0 / p1)
 )",
 	                                  fmt::arg("moduleName", moduleName));
 
-	auto errorCode = stage.runPybindTest(cppCode, pythonTestCode);
+	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::filesystem::path");

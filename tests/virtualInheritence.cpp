@@ -7,7 +7,7 @@
 TEST_CASE("Virtual inheritence", "[virtualInheritence]") {
 	std::string moduleName = "m";
 	auto stage =
-	    TestUtil::PybindStage(TestStage::getRootStagePath(), moduleName);
+	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
 
 	auto cppCode = R"(
 #include <string>
@@ -65,7 +65,7 @@ self.assertEqual(whiskers.sound(1, not grumpy), "meow! ")
 self.assertEqual(m.call_sound(whiskers), "meow! meow! meow! ")
 )";
 
-	auto errorCode = stage.runPybindTest(cppCode, pythonTestCode);
+	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Overriding virtual in python");

@@ -6,7 +6,7 @@
 TEST_CASE("Namespace name same as module", "[namespaceSameAsModule]") {
 	std::string moduleName = "m";
 	auto stage =
-	    TestUtil::PybindStage(TestStage::getRootStagePath(), moduleName);
+	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
 
 	auto cppCode = R"(
 namespace MyLib {
@@ -23,6 +23,6 @@ self.assertEqual(result, 5)
 )",
 	                                  fmt::arg("moduleName", moduleName));
 
-	auto errorCode = stage.runPybindTest(cppCode, pythonTestCode);
+	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
 	REQUIRE(errorCode == 0);
 }

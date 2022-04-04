@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace Frontend::Python {
+namespace Frontend::ObjcSwift {
 /**
   * Takes a representation of some C++ code.
   * Returns a file and the corresponding file content.
@@ -14,4 +14,4 @@ namespace Frontend::Python {
   */
 std::optional<std::vector<std::pair<std::filesystem::path, std::string>>>
 createModule(IR::Namespace const& rootNamespace, std::string const& moduleName);
-}    // namespace Frontend::Python
+}    // namespace Frontend::ObjcSwift

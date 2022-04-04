@@ -40,7 +40,7 @@ target_link_libraries(${target_name}_objc PRIVATE ${target_name})
 #       and use it as the standard
 set_property(TARGET ${target_name}_objc PROPERTY OBJCXX_STANDARD 17)
 
-# The Swift middle layer
+# The ObjcSwift middle layer
 add_library(${target_name}_swift SHARED src/${target_name}_swift.swift)
 target_link_libraries(${target_name}_swift PRIVATE ${target_name}_objc)
 set_target_properties(${target_name}_swift PROPERTIES
@@ -62,7 +62,7 @@ target_link_libraries(objecty PRIVATE "-framework Foundation")
 add_test(NAME objecty
   COMMAND objecty)
 
-# The Swift exposed layer
+# The ObjcSwift exposed layer
 add_executable(swifty
   tests/main.swift)
 target_link_libraries(swifty PRIVATE

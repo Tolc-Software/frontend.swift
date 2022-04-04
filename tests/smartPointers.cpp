@@ -17,7 +17,7 @@ TEST_CASE("Smart pointers of custom types work", "[smartPointers]") {
 	//   m.def("create_int", []() { return *create_int().get(); });
 	std::string moduleName = "m";
 	auto stage =
-	    TestUtil::PybindStage(TestStage::getRootStagePath(), moduleName);
+	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
 
 	auto cppCode = R"(
 #include <memory>
@@ -52,7 +52,7 @@ self.assertEqual(s.m_hi, 10)
 )",
 	                                  fmt::arg("moduleName", moduleName));
 
-	auto errorCode = stage.runPybindTest(cppCode, pythonTestCode);
+	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Smart Pointers");

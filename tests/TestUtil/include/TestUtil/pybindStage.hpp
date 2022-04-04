@@ -5,15 +5,16 @@
 #include <filesystem>
 
 namespace TestUtil {
-struct PybindStage {
-	PybindStage(std::filesystem::path const& baseStage,
-	            std::string const& moduleName);
+struct ObjcSwiftStage {
+	ObjcSwiftStage(std::filesystem::path const& baseStage,
+	               std::string const& moduleName);
 
 	/**
 	* Compile and run a test
 	*/
-	int runPybindTest(std::string const& cppCode,
-	                  std::string const& pythonUnittestCode);
+	int runObjcSwiftTest(std::string const& cppCode,
+	                     std::string const& objCTestCode,
+	                     std::string const& swiftCode);
 
 	/**
 	* Adds the source file moduleName.hpp to the stage with provided content
@@ -28,8 +29,8 @@ struct PybindStage {
 	                   std::string const& content);
 
 	/**
-	 * Exports as example. Assumes that runPybindTest has been called before
-	 * (to save the cppCode and pythonUnittestCode)
+	 * Exports as example. Assumes that runObjcSwiftTest has been called before
+	 * (to save the code)
 	 */
 	void exportAsExample(std::string const& name);
 

@@ -7,7 +7,7 @@ Note that any restriction this poses only applies to the public interface of you
 
 ## Conversion tables ##
 
-| C++                                 | Python translation             |
+| C++                                 | ObjcSwift translation             |
 |:----------------------------------- |:------------------------------ |
 | Namespace                           | Module                         |
 | Nested namespace                    | Submodule                      |
@@ -42,7 +42,7 @@ Note that any restriction this poses only applies to the public interface of you
 
 \*\*\*\*\* Refers to documentation comments before namespaces, functions, classes etc. See [the examples for more information](examples.md).
 
-| C++ operator      | Python operator       |
+| C++ operator      | ObjcSwift operator       |
 |:----------------- |:--------------------- |
 | operator+         | \_\_add\_\_           |
 | operator-         | \_\_sub\_\_           |
@@ -68,7 +68,7 @@ Note that any restriction this poses only applies to the public interface of you
 | operator++        | Not converted         |
 | operator--        | Not converted         |
 
-| C++ Standard library class      | Python translation                                                |
+| C++ Standard library class      | ObjcSwift translation                                                |
 |:------------------------------- |:----------------------------------------------------------------- |
 | std::array                      | array                                                             |
 | std::complex                    | [complex](https://docs.python.org/3/library/cmath.html)           |
@@ -102,7 +102,7 @@ Note that any restriction this poses only applies to the public interface of you
 
 \*\* When a user defined struct/class is managed by `std::shared_ptr`, it is marked as such in the resulting pybind11. For more info see [the pybind11 documentation on smart pointers](https://pybind11.readthedocs.io/en/stable/advanced/smart_ptrs.html).
 
-| C++ builtin type           | Python translation       |
+| C++ builtin type           | ObjcSwift translation       |
 |:-------------------------- |:------------------------ |
 | bool                       | bool                     |
 | char                       | str                      |

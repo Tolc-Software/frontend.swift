@@ -79,20 +79,20 @@ set_tests_properties(ConfigureTestStage PROPERTIES FIXTURES_SETUP TestStage)
 foreach(
   test
 
-  # Pybind/Builders/attributeBuilder.cpp
-  # Pybind/Builders/classBuilder.cpp
-  # Pybind/Builders/enumBuilder.cpp
-  # Pybind/Builders/functionBuilder.cpp
-  # Pybind/Builders/moduleFileBuilder.cpp
-  # Pybind/Builders/typeToStringBuilder.cpp
-  # Pybind/Helpers/combine.cpp
-  # Pybind/Proxy/attribute.cpp
-  # Pybind/Proxy/class.cpp
-  # Pybind/Proxy/enum.cpp
-  # Pybind/Proxy/function.cpp
-  # Pybind/Proxy/module.cpp
-  # Pybind/Proxy/moduleFile.cpp
-  # Pybind/checkType.cpp
+  # ObjcSwift/Builders/attributeBuilder.cpp
+  # ObjcSwift/Builders/classBuilder.cpp
+  # ObjcSwift/Builders/enumBuilder.cpp
+  # ObjcSwift/Builders/functionBuilder.cpp
+  # ObjcSwift/Builders/moduleFileBuilder.cpp
+  # ObjcSwift/Builders/typeToStringBuilder.cpp
+  # ObjcSwift/Helpers/combine.cpp
+  # ObjcSwift/Proxy/attribute.cpp
+  # ObjcSwift/Proxy/class.cpp
+  # ObjcSwift/Proxy/enum.cpp
+  # ObjcSwift/Proxy/function.cpp
+  # ObjcSwift/Proxy/module.cpp
+  # ObjcSwift/Proxy/moduleFile.cpp
+  # ObjcSwift/checkType.cpp
   # arrays.cpp
   classes.cpp
   # complex.cpp
@@ -126,7 +126,7 @@ foreach(
   # virtualInheritence.cpp
 
   )
-  # Ex: Pybind/Proxy/moduleFile.cpp -> moduleFile
+  # Ex: ObjcSwift/Proxy/moduleFile.cpp -> moduleFile
   get_filename_component(testName ${test} NAME_WLE)
 
   create_catch2_test(

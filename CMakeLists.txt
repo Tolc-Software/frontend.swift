@@ -43,29 +43,29 @@ FetchContent_MakeAvailable(IRSpecification)
 
 add_library(
   Frontend.swift
-  src/Frontend/Python/frontend.cpp
-  src/Pybind/Builders/attributeBuilder.cpp
-  src/Pybind/Builders/classBuilder.cpp
-  src/Pybind/Builders/enumBuilder.cpp
-  src/Pybind/Builders/functionBuilder.cpp
-  src/Pybind/Builders/moduleBuilder.cpp
-  src/Pybind/Builders/moduleFileBuilder.cpp
-  src/Pybind/Builders/typeToStringBuilder.cpp
-  src/Pybind/Helpers/getDocumentationParameter.cpp
-  src/Pybind/Helpers/operatorNames.cpp
-  src/Pybind/Helpers/split.cpp
-  src/Pybind/Helpers/string.cpp
-  src/Pybind/Helpers/trampolineClass.cpp
-  src/Pybind/Helpers/types.cpp
-  src/Pybind/Proxy/attribute.cpp
-  src/Pybind/Proxy/class.cpp
-  src/Pybind/Proxy/enum.cpp
-  src/Pybind/Proxy/function.cpp
-  src/Pybind/Proxy/module.cpp
-  src/Pybind/Proxy/moduleFile.cpp
-  src/Pybind/checkType.cpp
-  src/Pybind/getOverloadedFunctions.cpp
-  src/Pybind/returnValuePolicy.cpp)
+  src/Frontend/ObjcSwift/frontend.cpp
+  src/ObjcSwift/Builders/attributeBuilder.cpp
+  src/ObjcSwift/Builders/classBuilder.cpp
+  src/ObjcSwift/Builders/enumBuilder.cpp
+  src/ObjcSwift/Builders/functionBuilder.cpp
+  src/ObjcSwift/Builders/moduleBuilder.cpp
+  src/ObjcSwift/Builders/moduleFileBuilder.cpp
+  src/ObjcSwift/Builders/typeToStringBuilder.cpp
+  src/ObjcSwift/Helpers/getDocumentationParameter.cpp
+  src/ObjcSwift/Helpers/operatorNames.cpp
+  src/ObjcSwift/Helpers/split.cpp
+  src/ObjcSwift/Helpers/string.cpp
+  src/ObjcSwift/Helpers/trampolineClass.cpp
+  src/ObjcSwift/Helpers/types.cpp
+  src/ObjcSwift/Proxy/attribute.cpp
+  src/ObjcSwift/Proxy/class.cpp
+  src/ObjcSwift/Proxy/enum.cpp
+  src/ObjcSwift/Proxy/function.cpp
+  src/ObjcSwift/Proxy/module.cpp
+  src/ObjcSwift/Proxy/moduleFile.cpp
+  src/ObjcSwift/checkType.cpp
+  src/ObjcSwift/getOverloadedFunctions.cpp
+  src/ObjcSwift/returnValuePolicy.cpp)
 
 add_warnings(TARGET Frontend.swift)
 add_options(TARGET Frontend.swift)
