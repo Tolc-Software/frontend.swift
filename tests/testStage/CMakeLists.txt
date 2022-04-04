@@ -9,8 +9,8 @@ project(
 # autocompletion
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-include(cmake/GetPybind11.cmake)
-get_pybind11(VERSION 2.9.1)
+enable_language(OBJCXX)
+enable_language(Swift)
 
 # Get the variable 'target_name'
 # NOTE: This will be generated for each test
@@ -20,13 +20,53 @@ include(cmake/TargetName.cmake)
 # NOTE: This will be generated for each test
 include(cmake/Sources.cmake)
 
-# Create the python module
-pybind11_add_module(${target_name} ${sources} SYSTEM)
-target_include_directories(${target_name} PRIVATE src)
+# The users C++ library
+add_library(${target_name} ${sources})
+target_include_directories(${target_name} PUBLIC src)
 
 # Use C++17 since the tests are using std::optional etc.
 set_target_properties(
   ${target_name}
   PROPERTIES CXX_STANDARD_REQUIRED ON
-             CXX_EXTENSIONS OFF
-             CXX_STANDARD 17)
+  CXX_EXTENSIONS OFF
+  CXX_STANDARD 17)
+
+# The Objective-C++ middle layer
+add_library(${target_name}_objc src/${target_name}_objc.mm)
+target_include_directories(${target_name}_objc PUBLIC src)
+target_link_libraries(${target_name}_objc PRIVATE ${target_name})
+
+# NOTE: Take the CXX version of the incoming library
+#       and use it as the standard
+set_property(TARGET ${target_name}_objc PROPERTY OBJCXX_STANDARD 17)
+
+# The Swift middle layer
+add_library(${target_name}_swift SHARED src/${target_name}_swift.swift)
+target_link_libraries(${target_name}_swift PRIVATE ${target_name}_objc)
+set_target_properties(${target_name}_swift PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES
+  ${CMAKE_CURRENT_BINARY_DIR}
+  )
+set_property(TARGET ${target_name}_swift
+  APPEND_STRING
+  PROPERTY
+  COMPILE_FLAGS
+  "-import-objc-header ${CMAKE_CURRENT_LIST_DIR}/src/${target_name}-Bridging-Header.h")
+
+include(CTest)
+
+# # The Objective-C exposed layer
+add_executable(objecty tests/main.mm)
+target_link_libraries(objecty PRIVATE ${target_name}_objc)
+target_link_libraries(objecty PRIVATE "-framework Foundation")
+add_test(NAME objecty
+  COMMAND objecty)
+
+# The Swift exposed layer
+add_executable(swifty
+  tests/main.swift)
+target_link_libraries(swifty PRIVATE
+  ${target_name}_swift)
+add_test(NAME swifty
+  COMMAND swifty)
+

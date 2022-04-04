@@ -78,51 +78,54 @@ set_tests_properties(ConfigureTestStage PROPERTIES FIXTURES_SETUP TestStage)
 
 foreach(
   test
-  Pybind/Builders/attributeBuilder.cpp
-  Pybind/Builders/classBuilder.cpp
-  Pybind/Builders/enumBuilder.cpp
-  Pybind/Builders/functionBuilder.cpp
-  Pybind/Builders/moduleFileBuilder.cpp
-  Pybind/Builders/typeToStringBuilder.cpp
-  Pybind/Helpers/combine.cpp
-  Pybind/Proxy/attribute.cpp
-  Pybind/Proxy/class.cpp
-  Pybind/Proxy/enum.cpp
-  Pybind/Proxy/function.cpp
-  Pybind/Proxy/module.cpp
-  Pybind/Proxy/moduleFile.cpp
-  Pybind/checkType.cpp
-  arrays.cpp
+
+  # Pybind/Builders/attributeBuilder.cpp
+  # Pybind/Builders/classBuilder.cpp
+  # Pybind/Builders/enumBuilder.cpp
+  # Pybind/Builders/functionBuilder.cpp
+  # Pybind/Builders/moduleFileBuilder.cpp
+  # Pybind/Builders/typeToStringBuilder.cpp
+  # Pybind/Helpers/combine.cpp
+  # Pybind/Proxy/attribute.cpp
+  # Pybind/Proxy/class.cpp
+  # Pybind/Proxy/enum.cpp
+  # Pybind/Proxy/function.cpp
+  # Pybind/Proxy/module.cpp
+  # Pybind/Proxy/moduleFile.cpp
+  # Pybind/checkType.cpp
+  # arrays.cpp
   classes.cpp
-  complex.cpp
-  deques.cpp
-  documentationStyles.cpp
-  enums.cpp
-  filesystem_paths.cpp
-  functional.cpp
-  functions.cpp
-  globalVariables.cpp
-  inheritence.cpp
-  lists.cpp
-  maps.cpp
-  memberVariables.cpp
-  namespaceSameAsModule.cpp
-  namespaces.cpp
-  operators.cpp
-  optionals.cpp
-  overloadedFunctions.cpp
-  pairs.cpp
-  sets.cpp
-  smartPointers.cpp
-  templates.cpp
-  tuples.cpp
-  unordered_maps.cpp
-  unordered_sets.cpp
-  userDefined.cpp
-  valarrays.cpp
-  variants.cpp
-  vectors.cpp
-  virtualInheritence.cpp)
+  # complex.cpp
+  # deques.cpp
+  # documentationStyles.cpp
+  # enums.cpp
+  # filesystem_paths.cpp
+  # functional.cpp
+  # functions.cpp
+  # globalVariables.cpp
+  # inheritence.cpp
+  # lists.cpp
+  # maps.cpp
+  # memberVariables.cpp
+  # namespaceSameAsModule.cpp
+  # namespaces.cpp
+  # operators.cpp
+  # optionals.cpp
+  # overloadedFunctions.cpp
+  # pairs.cpp
+  # sets.cpp
+  # smartPointers.cpp
+  # templates.cpp
+  # tuples.cpp
+  # unordered_maps.cpp
+  # unordered_sets.cpp
+  # userDefined.cpp
+  # valarrays.cpp
+  # variants.cpp
+  # vectors.cpp
+  # virtualInheritence.cpp
+
+  )
   # Ex: Pybind/Proxy/moduleFile.cpp -> moduleFile
   get_filename_component(testName ${test} NAME_WLE)
 
