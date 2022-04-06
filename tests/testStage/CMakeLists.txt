@@ -16,13 +16,9 @@ enable_language(Swift)
 # NOTE: This will be generated for each test
 include(cmake/TargetName.cmake)
 
-# Get the variable 'sources'
-# NOTE: This will be generated for each test
-include(cmake/Sources.cmake)
-
 # The users C++ library
-add_library(${target_name} ${sources})
-target_include_directories(${target_name} PUBLIC src)
+add_library(${target_name} INTERFACE)
+target_include_directories(${target_name} INTERFACE src)
 
 # Use C++17 since the tests are using std::optional etc.
 set_target_properties(

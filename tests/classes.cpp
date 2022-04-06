@@ -1,6 +1,6 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/files.hpp"
-#include "TestUtil/pybindStage.hpp"
+#include "TestUtil/objcSwiftStage.hpp"
 #include <catch2/catch.hpp>
 #include <fmt/format.h>
 
@@ -8,6 +8,7 @@ TEST_CASE("Classes", "[classes]") {
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 class WithFunction {

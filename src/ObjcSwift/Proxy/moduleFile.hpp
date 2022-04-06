@@ -25,6 +25,24 @@ public:
 
 	std::string getObjcSwift() const;
 
+	/**
+	* The code that uses the C++ input
+	*/
+	std::filesystem::path getObjcHeaderFile() const;
+	std::string getObjcHeader() const;
+
+	/**
+	* The code that exposes the C++ code to Objective-C
+	*/
+	std::filesystem::path getObjcSourceFile() const;
+	std::string getObjcSource() const;
+
+	/**
+	* The code that exposes the C++ code to Swift
+	*/
+	std::filesystem::path getSwiftFile() const;
+	std::string getSwift() const;
+
 private:
 	std::string m_rootModuleName;
 	std::string m_libraryName;

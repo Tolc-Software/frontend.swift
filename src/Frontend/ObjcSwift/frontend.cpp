@@ -13,11 +13,15 @@ std::optional<std::vector<std::pair<std::filesystem::path, std::string>>>
 createModule(IR::Namespace const& rootNamespace,
              std::string const& moduleName) {
 	if (auto maybeModuleFile =
-	        ObjcSwift::Builders::buildModuleFile(rootNamespace, moduleName)) {
+	        ::ObjcSwift::Builders::buildModuleFile(rootNamespace, moduleName)) {
 		auto& moduleFile = maybeModuleFile.value();
 
-		return std::vector {std::make_pair(moduleFile.getFilepath(),
-		                                   moduleFile.getObjcSwift())};
+		return std::vector {
+		    std::make_pair(moduleFile.getObjcHeaderFile(),
+		                   moduleFile.getObjcHeader()),
+		    std::make_pair(moduleFile.getObjcSourceFile(),
+		                   moduleFile.getObjcSource()),
+		    std::make_pair(moduleFile.getSwiftFile(), moduleFile.getSwift())};
 	}
 	return std::nullopt;
 }

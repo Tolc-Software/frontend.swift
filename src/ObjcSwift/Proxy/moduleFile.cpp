@@ -13,7 +13,7 @@ void ModuleFile::addModule(Module const& m) {
 }
 
 std::filesystem::path ModuleFile::getFilepath() const {
-	return m_libraryName + "_python.cpp";
+	return m_libraryName + "_swift.cpp";
 }
 
 void ModuleFile::setTypeInfo(ObjcSwift::Proxy::TypeInfo const& info) {
@@ -57,4 +57,29 @@ PYBIND11_MODULE({libraryName}, {rootModuleName}))",
 
 	return out;
 }
+
+std::string ModuleFile::getObjcHeader() const {
+	return "";
+}
+
+std::string ModuleFile::getObjcSource() const {
+	return "";
+}
+
+std::string ModuleFile::getSwift() const {
+	return "";
+}
+
+std::filesystem::path ModuleFile::getObjcHeaderFile() const {
+	return m_libraryName + "_objc.h";
+}
+
+std::filesystem::path ModuleFile::getObjcSourceFile() const {
+	return m_libraryName + "_objc.mm";
+}
+
+std::filesystem::path ModuleFile::getSwiftFile() const {
+	return m_libraryName + "_swift.swift";
+}
+
 }    // namespace ObjcSwift::Proxy

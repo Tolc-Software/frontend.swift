@@ -35,10 +35,14 @@ struct ObjcSwiftStage {
 	void exportAsExample(std::string const& name);
 
 	/**
-	* Injects input python code testBody into a python unittest file.
-	* The content of testBody will be copied into a function and the unittest module can be used freely.
+	* Injects input code testBody into a swift file and runs the code.
 	*/
-	int runPythonUnittest(std::string const& testBody);
+	int runSwiftUnittest(std::string const& testBody);
+
+	/**
+	* Injects input code testBody into a Objective-C file and runs the code.
+	*/
+	int runObjectiveCUnittest(std::string const& testBody);
 
 	/**
 	* Run this to keep the stage on the filesystem after the test has completed

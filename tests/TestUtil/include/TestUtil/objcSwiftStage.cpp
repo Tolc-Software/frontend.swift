@@ -1,4 +1,4 @@
-#include "TestUtil/pybindStage.hpp"
+#include "TestUtil/objcSwiftStage.hpp"
 #include "Frontend/ObjcSwift/frontend.hpp"
 #include "Stage/cmakeStage.hpp"
 #include "TestStage/paths.hpp"
@@ -15,27 +15,40 @@ namespace TestUtil {
 
 ObjcSwiftStage::ObjcSwiftStage(std::filesystem::path const& baseStage,
                                std::string const& moduleName)
-    : m_stage(baseStage, {"cmake", "CMakeLists.txt", "configureAndBuild.bat"}),
+    : m_stage(baseStage,
+              {"cmake", "tests", "CMakeLists.txt", "configureAndBuild.bat"}),
       m_moduleName(moduleName) {
 	m_stage.setTargetName(m_moduleName);
 	m_stage.setWindowsCMakeBuildAndConfigureScript("configureAndBuild.bat");
 }
 
-int runObjcSwiftTest(std::string const& cppCode,
-                     std::string const& objCTestCode,
-                     std::string const& swiftCode) {
+int ObjcSwiftStage::runObjcSwiftTest(std::string const& cppCode,
+                                     std::string const& objCTestCode,
+                                     std::string const& swiftCode) {
 	// Save as what has been used
 	m_exports = {Code {"cpp", cppCode},
 	             Code {"objc", objCTestCode},
 	             Code {"swift", swiftCode}};
 
-	auto globalNS = parseModuleFile(cppCode);
+	using path = std::filesystem::path;
+	m_stage.addFile(path("tests") / "main.mm", objCTestCode);
+	m_stage.addFile(path("tests") / "main.swift", swiftCode);
 
+	auto globalNS = parseModuleFile(cppCode);
 	if (auto m = Frontend::ObjcSwift::createModule(globalNS, m_moduleName)) {
 		for (auto const& [file, content] : m.value()) {
-			addModuleFile(file, content);
+
+			auto ext = file.extension().string();
+			if (ext == ".h") {
+				addModuleFile(file, content);
+			} else {
+				// Add an Ojective-C++/Swift/whatever file
+				// Assumes to be referred to in CMakeLists.txt properly
+				m_stage.addFile(path("src") / file, content);
+			}
 		}
-		return runPythonUnittest(pythonUnittestCode);
+		return runSwiftUnittest(swiftCode) +
+		       runObjectiveCUnittest(objCTestCode);
 	}
 
 	return 1;
@@ -52,7 +65,11 @@ IR::Namespace ObjcSwiftStage::parseModuleFile(std::string const& content) {
 	return TestUtil::parseFile(testFile.string());
 }
 
-int ObjcSwiftStage::runPythonUnittest(std::string const& testBody) {
+int ObjcSwiftStage::runObjectiveCUnittest(std::string const&) {
+	return 0;
+}
+
+int ObjcSwiftStage::runSwiftUnittest(std::string const& testBody) {
 	// Make sure the module is built
 	if (auto setupError = m_stage.configureAndBuild(); setupError != 0) {
 		return setupError;
