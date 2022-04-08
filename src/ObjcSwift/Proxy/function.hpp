@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ObjcSwift/Type.hpp"
 #include <optional>
 #include <string>
 #include <vector>
@@ -16,12 +17,27 @@ public:
 	*/
 	std::string getObjcSwift() const;
 
+	std::string getObjcSource(bool isClassFunction) const;
+	std::string getObjcHeader(bool isClassFunction) const;
+
+	std::string getSwift(bool isClassFunction) const;
+
+	struct Argument {
+		// E.g.
+		//   f(int i)
+		// Would result in
+		//   typeName = "int"
+		//   name = "i"
+		std::string name;
+		ObjcSwift::Type type;
+	};
+
 	/**
 	* Adds an argument name.
 	* E.g.
 	*   f(int i) would require addArgument("int", "i")
 	*/
-	void addArgument(std::string const& typeName, std::string const& name = "");
+	void addArgument(Argument const& argument);
 
 	/**
 	* Documentation for the corresponding C++ function
@@ -36,9 +52,7 @@ public:
 
 	void setAsStatic();
 
-	// E.g. std::string f();
-	// should call setReturnType("std::string")
-	void setReturnType(std::string const& typeName);
+	void setReturnType(ObjcSwift::Type const& type);
 
 	// As it will be called in python
 	void setPythonName(std::string const& name);
@@ -46,44 +60,17 @@ public:
 
 	std::string getName() const;
 
-	std::string getReturnType() const;
+	ObjcSwift::Type getReturnType() const;
 
 	std::string getArgumentTypes(bool withNames = false) const;
 	std::string getArgumentNames() const;
 
-	// These are all 1-to-1 with pybind11
-	enum class return_value_policy {
-		take_ownership,
-		copy,
-		move,
-		reference,
-		reference_internal,
-		automatic,
-		automatic_reference
-	};
-
-	/**
-	* Sets the return value policy for the function.
-	* E.g.
-	*   An input of "return_value_policy::take_ownership"
-	*   would result in python calling delete on the object
-	*   when it's garbage collected
-	* NOTE: If not put in, the return_value_policy::automatic is used
-	*/
-	void setReturnValuePolicy(return_value_policy policy);
-
 private:
+	enum class Language { Objc, Swift };
 	std::string getSignature() const;
+	std::string getArguments(Language lang) const;
 
-	struct Argument {
-		// E.g.
-		//   f(int i)
-		// Would result in
-		//   typeName = "int"
-		//   name = "i"
-		std::string typeName;
-		std::string name;
-	};
+	std::string getFunctionCall(Language lang) const;
 
 	// User defined name of the function
 	std::string m_name;
@@ -93,8 +80,7 @@ private:
 	std::string m_fullyQualifiedName;
 	std::string m_documentation;
 	// Defaults to void
-	std::string m_returnType;
-	std::optional<return_value_policy> m_returnValuePolicy;
+	ObjcSwift::Type m_returnType;
 	std::vector<Argument> m_arguments;
 	bool m_isConstructor;
 	bool m_isOverloaded;

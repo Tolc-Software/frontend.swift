@@ -16,6 +16,65 @@ std::string getInherited(std::vector<std::string> const& inheritedClasses) {
 }
 }    // namespace
 
+std::string Class::getObjcSource(std::string const& moduleName) const {
+	bool isSource = true;
+	std::string out =
+	    fmt::format(R"(
+@implementation {moduleName}{className}
+
+// The corresponding C++ object
+std::unique_ptr<{fullyQualifiedName}> m_object;
+
+-(instancetype)init {{
+  if (self = [super init]) {{
+    m_object = std::unique_ptr<{fullyQualifiedName}>(new {fullyQualifiedName}());
+  }}
+  return self;
+}}
+
+{functions}
+@end)",
+	                fmt::arg("moduleName", moduleName),
+	                fmt::arg("className", m_name),
+	                fmt::arg("fullyQualifiedName", m_fullyQualifiedName),
+	                fmt::arg("functions", joinObjcFunctions(isSource)));
+
+	return out;
+}
+
+std::string Class::getObjcHeader(std::string const& moduleName) const {
+	bool isSource = false;
+	std::string out =
+	    fmt::format(R"(
+@interface {moduleName}{className} : NSObject
+
+{functions}
+@end)",
+	                fmt::arg("moduleName", moduleName),
+	                fmt::arg("className", m_name),
+	                fmt::arg("functions", joinObjcFunctions(isSource)));
+
+	return out;
+}
+
+std::string Class::getSwift(std::string const& moduleName) const {
+	std::string out = fmt::format(R"(
+public class {className} {{
+    private var m_object: {moduleName}{className}
+
+    public init() {{
+        m_object = {moduleName}{className}()
+    }}
+
+{functions}
+}})",
+	                              fmt::arg("moduleName", moduleName),
+	                              fmt::arg("className", m_name),
+	                              fmt::arg("functions", joinSwiftFunctions()));
+
+	return out;
+}
+
 std::string Class::getObjcSwift(std::string const& moduleName) const {
 	// Should this class be managed by a shared_ptr on the python side?
 	std::string managedByShared =
@@ -79,6 +138,30 @@ std::string Class::getObjcSwift(std::string const& moduleName) const {
 	return out;
 }
 
+std::string Class::joinSwiftFunctions() const {
+	bool isClassFunction = true;
+	std::string out;
+	for (auto const& f : m_functions) {
+		out += f.getSwift(isClassFunction);
+	}
+	return out;
+}
+
+std::string Class::joinObjcFunctions(bool isSource) const {
+	bool isClassFunction = true;
+	std::string out;
+	if (isSource) {
+		for (auto const& f : m_functions) {
+			out += f.getObjcSource(isClassFunction);
+		}
+	} else {
+		for (auto const& f : m_functions) {
+			out += f.getObjcHeader(isClassFunction);
+		}
+	}
+	return out;
+}
+
 Class::Class(std::string const& name, std::string const& fullyQualifiedName)
     : m_name(name), m_fullyQualifiedName(fullyQualifiedName), m_constructors(),
       m_functions(), m_memberVariables(), m_enums(),
@@ -122,7 +205,4 @@ void Class::setInherited(std::vector<std::string> const& inherited) {
 	}
 }
 
-void Class::addTrampolineClass(std::string const& trampolineClass) {
-	m_inherited.push_back(trampolineClass);
-}
 }    // namespace ObjcSwift::Proxy

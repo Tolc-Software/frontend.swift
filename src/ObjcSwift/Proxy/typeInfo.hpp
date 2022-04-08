@@ -16,12 +16,6 @@ struct TypeInfo {
 	std::set<std::string> m_classesMarkedShared;
 
 	std::string m_extraFunctionsNamespace = "Tolc_";
-	// If a class has virtual functions they need to have a 'trampoline' class defined.
-	// This allows python classes to override the C++ classes.
-	// Also allows binding of purely virtual classes
-	// This is the full definition of that trampoline class.
-	// https://pybind11.readthedocs.io/en/stable/advanced/classes.html#overriding-virtual-functions-in-python
-	std::set<std::string> m_trampolineClasses;
 };
 
 }    // namespace ObjcSwift::Proxy

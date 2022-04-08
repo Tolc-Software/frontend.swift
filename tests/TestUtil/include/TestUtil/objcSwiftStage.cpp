@@ -13,6 +13,33 @@
 
 namespace TestUtil {
 
+namespace {
+void addObjcSwiftTestBodies(Stage::CMakeStage& stage,
+                            std::string const& moduleName,
+                            std::string const& objc,
+                            std::string const& swift) {
+	using path = std::filesystem::path;
+	stage.addFile(path("tests") / "main.mm",
+	              fmt::format(R"(
+#include <{moduleName}_objc.h>
+
+int main() {{
+{code}
+}}
+)",
+	                          fmt::arg("moduleName", moduleName),
+	                          fmt::arg("code", objc)));
+	stage.addFile(path("tests") / "main.swift",
+	              fmt::format(R"(
+import {moduleName}_swift
+
+{code}
+)",
+	                          fmt::arg("moduleName", moduleName),
+	                          fmt::arg("code", swift)));
+}
+}    // namespace
+
 ObjcSwiftStage::ObjcSwiftStage(std::filesystem::path const& baseStage,
                                std::string const& moduleName)
     : m_stage(baseStage,
@@ -30,28 +57,29 @@ int ObjcSwiftStage::runObjcSwiftTest(std::string const& cppCode,
 	             Code {"objc", objCTestCode},
 	             Code {"swift", swiftCode}};
 
-	using path = std::filesystem::path;
-	m_stage.addFile(path("tests") / "main.mm", objCTestCode);
-	m_stage.addFile(path("tests") / "main.swift", swiftCode);
+	addObjcSwiftTestBodies(m_stage, m_moduleName, objCTestCode, swiftCode);
 
 	auto globalNS = parseModuleFile(cppCode);
 	if (auto m = Frontend::ObjcSwift::createModule(globalNS, m_moduleName)) {
 		for (auto const& [file, content] : m.value()) {
 
 			auto ext = file.extension().string();
-			if (ext == ".h") {
+			if (ext == ".mm") {
 				addModuleFile(file, content);
 			} else {
 				// Add an Ojective-C++/Swift/whatever file
 				// Assumes to be referred to in CMakeLists.txt properly
-				m_stage.addFile(path("src") / file, content);
+				m_stage.addFile(std::filesystem::path("src") / file, content);
 			}
 		}
-		return runSwiftUnittest(swiftCode) +
-		       runObjectiveCUnittest(objCTestCode);
+		return m_stage.configureAndBuild() && runCtest();
 	}
 
 	return 1;
+}
+
+int ObjcSwiftStage::runCtest() {
+	return m_stage.runCommand("ctest --output-on-failure -j1", "build");
 }
 
 void ObjcSwiftStage::addModuleFile(std::filesystem::path const& file,
@@ -63,38 +91,6 @@ void ObjcSwiftStage::addModuleFile(std::filesystem::path const& file,
 IR::Namespace ObjcSwiftStage::parseModuleFile(std::string const& content) {
 	auto testFile = m_stage.addSourceFile(m_moduleName + ".hpp", content);
 	return TestUtil::parseFile(testFile.string());
-}
-
-int ObjcSwiftStage::runObjectiveCUnittest(std::string const&) {
-	return 0;
-}
-
-int ObjcSwiftStage::runSwiftUnittest(std::string const& testBody) {
-	// Make sure the module is built
-	if (auto setupError = m_stage.configureAndBuild(); setupError != 0) {
-		return setupError;
-	}
-
-	std::vector<std::string> includes = {m_moduleName};
-	std::string testName = "default";
-
-	// Store all the lines in the test
-	// Necessary since python cares about indentation
-	std::vector<std::string> body;
-	std::string::size_type pos = 0;
-	std::string::size_type prev = 0;
-	while ((pos = testBody.find('\n', prev)) != std::string::npos) {
-		body.push_back(testBody.substr(prev, pos - prev));
-		prev = pos + 1;
-	}
-
-	// To get the last substring (or only, if delimiter is not found)
-	body.push_back(testBody.substr(prev));
-
-	TestStage::addPythonUnittest(
-	    m_stage.m_stage, m_moduleName, testName, body, includes);
-
-	return TestStage::runPythonUnittest(m_stage.m_stage, m_moduleName);
 }
 
 namespace {

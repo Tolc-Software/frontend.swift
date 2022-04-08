@@ -6,6 +6,30 @@
 
 namespace ObjcSwift::Proxy {
 
+std::string Module::getObjcSource() const {
+	std::string out;
+	for (auto const& cls : m_classes) {
+		out += fmt::format("{}\n", cls.getObjcSource(m_variableName));
+	}
+	return out;
+}
+
+std::string Module::getObjcHeader() const {
+	std::string out;
+	for (auto const& cls : m_classes) {
+		out += fmt::format("{}\n", cls.getObjcHeader(m_variableName));
+	}
+	return out;
+}
+
+std::string Module::getSwift() const {
+	std::string out;
+	for (auto const& cls : m_classes) {
+		out += fmt::format("{}\n", cls.getSwift(m_variableName));
+	}
+	return out;
+}
+
 std::string Module::getObjcSwift() const {
 	std::string out;
 	for (auto const& cls : m_classes) {

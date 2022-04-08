@@ -29,6 +29,11 @@ struct Module {
 
 	std::string getObjcSwift() const;
 
+	std::string getObjcHeader() const;
+	std::string getObjcSource() const;
+
+	std::string getSwift() const;
+
 private:
 	std::string m_variableName;
 

@@ -29,16 +29,21 @@ public:
 
 	void setInherited(std::vector<std::string> const& inherited);
 
-	// This class has virtual functions, so therefore it has a trampoline
-	void addTrampolineClass(std::string const& trampolineClass);
-
 	// Will be managed by a std::shared_ptr on the python side
 	// instead of the default std::unique_ptr
 	void setAsManagedByShared();
 
 	std::string getObjcSwift(std::string const& moduleName) const;
 
+	std::string getObjcSource(std::string const& moduleName) const;
+	std::string getObjcHeader(std::string const& moduleName) const;
+
+	std::string getSwift(std::string const& moduleName) const;
+
 private:
+	std::string joinObjcFunctions(bool isSource) const;
+	std::string joinSwiftFunctions() const;
+
 	struct MemberVariable {
 		// User defined name of the member variable
 		std::string m_name;

@@ -6,6 +6,10 @@ public class MyLib {
             animal = MyLibAnimal()
         }
 
+        public function roar(sound: String) -> String {
+            return sound
+        }
+
         public var name: String? {
             get {
                 return animal.name()

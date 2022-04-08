@@ -21,14 +21,14 @@ public:
 
 	auto objCTestCode = R"(
 // Member functions are available after construction
-mWitFunction* withFunction = [[mWitFunction alloc] init];
+mWithFunction* withFunction = [[mWithFunction alloc] init];
 assert([withFunction add: 2 j: 5] == 7);
 )";
 
 	auto swiftTestCode = R"(
 // Member functions are available after construction
-with_function = m.WithFunction()
-assert(with_function.add(2, 5) == 7)
+var with_function: m.WithFunction = m.WithFunction()
+assert(with_function.add(i: 2, j: 5) == 7)
 )";
 
 	auto errorCode =

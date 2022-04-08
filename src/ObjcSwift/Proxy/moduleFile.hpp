@@ -43,6 +43,12 @@ public:
 	std::filesystem::path getSwiftFile() const;
 	std::string getSwift() const;
 
+	/**
+	* Connects Objective-C++ to Swift
+	*/
+	std::filesystem::path getBridgingHeaderFile() const;
+	std::string getBridgingHeader() const;
+
 private:
 	std::string m_rootModuleName;
 	std::string m_libraryName;

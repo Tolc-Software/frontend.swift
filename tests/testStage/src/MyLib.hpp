@@ -9,5 +9,3 @@ public:
   std::string name;
   int i;
 };
-
-void fromCpp();

@@ -1,12 +1,97 @@
 #include "ObjcSwift/Proxy/function.hpp"
 #include "ObjcSwift/Helpers/getDocumentationParameter.hpp"
 #include "ObjcSwift/Helpers/string.hpp"
-#include "ObjcSwift/returnValuePolicy.hpp"
 #include <algorithm>
 #include <fmt/format.h>
 #include <string>
 
 namespace ObjcSwift::Proxy {
+
+namespace {
+namespace Objc {
+
+std::string getClassFunctionDeclaration(std::string const& returnType,
+                                        std::string const& name,
+                                        std::string const& arguments) {
+	return fmt::format(R"(- ({returnType}){functionName}:{arguments})",
+	                   fmt::arg("returnType", returnType),
+	                   fmt::arg("functionName", name),
+	                   fmt::arg("arguments", arguments));
+}
+}    // namespace Objc
+}    // namespace
+
+std::string Function::getFunctionCall(Language lang) const {
+	switch (lang) {
+		case Language::Swift: {
+			std::vector<std::string> names;
+			bool isFirst = true;
+			for (auto const& arg : m_arguments) {
+				names.push_back(fmt::format(
+				    "{maybePre}{name}",
+				    fmt::arg("maybePre", !isFirst ? arg.name + ": " : ""),
+				    fmt::arg("name", arg.name)));
+				isFirst = false;
+			}
+
+			return fmt::format("{name}({args})",
+			                   fmt::arg("name", m_name),
+			                   fmt::arg("args", fmt::join(names, ", ")));
+		}
+		case Language::Objc: {
+			return m_name + '(' + getArgumentNames() + ')';
+		}
+	}
+	return "";
+}
+
+std::string Function::getObjcSource(bool isClassFunction) const {
+	if (isClassFunction) {
+		return fmt::format(
+		    R"(
+{functionDeclaration} {{
+	{maybeReturn}m_object->{functionCall};
+}})",
+		    fmt::arg("functionDeclaration",
+		             Objc::getClassFunctionDeclaration(
+		                 m_returnType.cppName,
+		                 m_name,
+		                 getArguments(Language::Objc))),
+		    fmt::arg("maybeReturn",
+		             m_returnType.cppName == "void" ? "" : "return "),
+		    fmt::arg("functionCall", getFunctionCall(Language::Objc)));
+	}
+	return "// ObjcSource bare function not implemented";
+}
+
+std::string Function::getObjcHeader(bool isClassFunction) const {
+	if (isClassFunction) {
+		// - (int)add:(int)x y:(int)y;
+		return Objc::getClassFunctionDeclaration(
+		           m_returnType.cppName, m_name, getArguments(Language::Objc)) +
+		       ';';
+	}
+	return "// ObjcHeader bare function not implemented";
+}
+
+std::string Function::getSwift(bool isClassFunction) const {
+	if (isClassFunction) {
+		// public func f() -> String { }
+		return fmt::format(
+		    R"(
+public func {name}({arguments}) -> {returnType} {{
+	{maybeReturn}m_object.{functionCall};
+}}
+		)",
+		    fmt::arg("name", m_name),
+		    fmt::arg("arguments", getArguments(Language::Swift)),
+		    fmt::arg("returnType", m_returnType.swiftName),
+		    fmt::arg("maybeReturn",
+		             m_returnType.cppName == "void" ? "" : "return "),
+		    fmt::arg("functionCall", getFunctionCall(Language::Swift)));
+	}
+	return "// Swift bare function not implemented";
+}
 
 std::string Function::getObjcSwift() const {
 	std::string f;
@@ -29,13 +114,6 @@ std::string Function::getObjcSwift() const {
 		    fmt::arg("docs",
 		             ObjcSwift::Helpers::getDocumentationParameter(
 		                 m_documentation)));
-
-		if (m_returnValuePolicy) {
-			f += fmt::format(", py::{returnPolicy}",
-			                 fmt::arg("returnPolicy",
-			                          ObjcSwift::returnValuePolicyToString(
-			                              m_returnValuePolicy.value())));
-		}
 	}
 
 	// Add named arguments
@@ -55,22 +133,17 @@ std::string Function::getObjcSwift() const {
 
 Function::Function(std::string const& name,
                    std::string const& fullyQualifiedName)
-    : m_name(name), m_fullyQualifiedName(fullyQualifiedName),
-      m_returnType("void"), m_returnValuePolicy(std::nullopt), m_arguments({}),
-      m_isConstructor(false), m_isOverloaded(false), m_isStatic(false) {}
+    : m_name(name), m_fullyQualifiedName(fullyQualifiedName), m_returnType(),
+      m_arguments({}), m_isConstructor(false), m_isOverloaded(false),
+      m_isStatic(false) {}
 
-void Function::addArgument(std::string const& typeName,
-                           std::string const& name) {
-	m_arguments.push_back({typeName, name});
+void Function::addArgument(Argument const& argument) {
+	m_arguments.push_back(argument);
 };
 
-void Function::setReturnType(std::string const& typeName) {
-	m_returnType = typeName;
+void Function::setReturnType(ObjcSwift::Type const& type) {
+	m_returnType = type;
 }
-
-void Function::setReturnValuePolicy(return_value_policy policy) {
-	m_returnValuePolicy = policy;
-};
 
 void Function::setAsConstructor() {
 	m_isConstructor = true;
@@ -102,23 +175,57 @@ std::string Function::getArgumentNames() const {
 	return fmt::format("{}", fmt::join(names, ", "));
 }
 
+std::string Function::getArguments(Language lang) const {
+	switch (lang) {
+		case Language::Swift: {
+			// person: String, alreadyGreeted: Bool
+			std::vector<std::string> out;
+			for (auto const& arg : m_arguments) {
+				out.push_back(fmt::format("{name}: {type}",
+				                          fmt::arg("type", arg.type.swiftName),
+				                          fmt::arg("name", arg.name)));
+			}
+			return fmt::format("{}", fmt::join(out, ", "));
+		}
+		case Language::Objc: {
+			// (int)x y:(int)y z:(int)z
+			// Get the typenames of the arguments
+			// The first one doesn't start with a name
+			bool isFirst = true;
+			std::string out;
+			for (auto const& arg : m_arguments) {
+				if (!isFirst) {
+					out += arg.name + ':';
+				}
+				isFirst = false;
+				out += fmt::format("({type}){name} ",
+				                   fmt::arg("type", arg.type.cppName),
+				                   fmt::arg("name", arg.name));
+			}
+			return out;
+		}
+	}
+	return "";
+}
+
 std::string Function::getArgumentTypes(bool withNames) const {
 	// Get the typenames of the arguments
+	// The first one doesn't start with a name
 	std::vector<std::string> typeNames;
 	std::transform(m_arguments.begin(),
 	               m_arguments.end(),
 	               std::back_inserter(typeNames),
 	               [=](auto const& argument) {
 		               return withNames ?
-		                          argument.typeName + " " + argument.name :
-                                  argument.typeName;
+                                  argument.type.cppName + " " + argument.name :
+                                  argument.type.cppName;
 	               });
 	return fmt::format("{}", fmt::join(typeNames, ", "));
 }
 
 std::string Function::getSignature() const {
 	return fmt::format(R"(({returnType}({namespace}*)({arguments})))",
-	                   fmt::arg("returnType", m_returnType),
+	                   fmt::arg("returnType", m_returnType.cppName),
 	                   fmt::arg("namespace",
 	                            ObjcSwift::Helpers::removeSubString(
 	                                m_fullyQualifiedName, m_name)),
@@ -133,7 +240,7 @@ std::string Function::getName() const {
 	return m_name;
 }
 
-std::string Function::getReturnType() const {
+ObjcSwift::Type Function::getReturnType() const {
 	return m_returnType;
 }
 

@@ -4,10 +4,6 @@
 #include <iostream>
 #include <memory>
 
-void MyLibfromCpp() {
-  fromCpp();
-}
-
 @implementation MyLibAnimal
 
 // This is the actual value
@@ -44,9 +40,12 @@ static int _userCount = 0;
   a->i = newi;
 }
 
+- (int)add:(int)x y:(int)y {
+  return x + y;
+}
+
 -(void)sayHi {
   NSLog(@"Hello from Objective-C++");
-  fromCpp();
 }
 
 

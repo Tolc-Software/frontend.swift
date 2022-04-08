@@ -34,15 +34,7 @@ struct ObjcSwiftStage {
 	 */
 	void exportAsExample(std::string const& name);
 
-	/**
-	* Injects input code testBody into a swift file and runs the code.
-	*/
-	int runSwiftUnittest(std::string const& testBody);
-
-	/**
-	* Injects input code testBody into a Objective-C file and runs the code.
-	*/
-	int runObjectiveCUnittest(std::string const& testBody);
+	int runCtest();
 
 	/**
 	* Run this to keep the stage on the filesystem after the test has completed

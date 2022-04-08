@@ -4,7 +4,6 @@
 #include "ObjcSwift/Builders/typeToStringBuilder.hpp"
 #include "ObjcSwift/Helpers/combine.hpp"
 #include "ObjcSwift/Helpers/operatorNames.hpp"
-#include "ObjcSwift/Helpers/trampolineClass.hpp"
 #include "ObjcSwift/Helpers/types.hpp"
 #include "ObjcSwift/Proxy/function.hpp"
 #include "ObjcSwift/Proxy/typeInfo.hpp"
@@ -49,21 +48,6 @@ struct TrampolineFunctions {
 	std::vector<ObjcSwift::Proxy::Function> pureVirtualFunctions;
 };
 
-void addIfVirtual(IR::Polymorphic polymorphic,
-                  ObjcSwift::Proxy::Function const& pyFunction,
-                  TrampolineFunctions& trampoline) {
-	using IR::Polymorphic;
-	switch (polymorphic) {
-		case Polymorphic::PureVirtual:
-			trampoline.pureVirtualFunctions.push_back(pyFunction);
-			break;
-		case Polymorphic::Virtual:
-			trampoline.virtualFunctions.push_back(pyFunction);
-			break;
-		case Polymorphic::NA: break;
-	}
-}
-
 }    // namespace
 
 std::optional<ObjcSwift::Proxy::Class>
@@ -76,7 +60,6 @@ buildClass(IR::Struct const& cppClass, ObjcSwift::Proxy::TypeInfo& typeInfo) {
 	pyClass.setDocumentation(cppClass.m_documentation);
 
 	pyClass.setInherited(cppClass.m_public.m_inherited);
-	TrampolineFunctions trampoline;
 
 	// Ignore private functions
 	auto overloadedFunctions =
@@ -86,8 +69,6 @@ buildClass(IR::Struct const& cppClass, ObjcSwift::Proxy::TypeInfo& typeInfo) {
 			auto& pyFunction = maybePyFunction.value();
 
 			buildMemberFunction(pyFunction, function, overloadedFunctions);
-
-			addIfVirtual(function.m_polymorphic, pyFunction, trampoline);
 
 			pyClass.addFunction(pyFunction);
 		} else {
@@ -106,8 +87,6 @@ buildClass(IR::Struct const& cppClass, ObjcSwift::Proxy::TypeInfo& typeInfo) {
 				pyFunction.setPythonName(maybeName.value());
 
 				buildMemberFunction(pyFunction, function, overloadedOperators);
-
-				addIfVirtual(function.m_polymorphic, pyFunction, trampoline);
 
 				pyClass.addFunction(pyFunction);
 			}
@@ -129,8 +108,6 @@ buildClass(IR::Struct const& cppClass, ObjcSwift::Proxy::TypeInfo& typeInfo) {
 			}
 
 			pyFunction.setAsConstructor();
-
-			addIfVirtual(constructor.m_polymorphic, pyFunction, trampoline);
 
 			pyClass.addConstructor(pyFunction);
 		}
@@ -154,20 +131,6 @@ buildClass(IR::Struct const& cppClass, ObjcSwift::Proxy::TypeInfo& typeInfo) {
 
 	for (auto const& e : cppClass.m_public.m_enums) {
 		pyClass.addEnum(buildEnum(e));
-	}
-
-	if (!trampoline.virtualFunctions.empty() ||
-	    !trampoline.pureVirtualFunctions.empty()) {
-		// There are virtual functions
-		auto [name, cls] = ObjcSwift::Helpers::getTrampolineClass(
-		    cppClass.m_name,
-		    cppClass.m_representation,
-		    trampoline.virtualFunctions,
-		    trampoline.pureVirtualFunctions);
-
-		typeInfo.m_trampolineClasses.insert(cls);
-		pyClass.addTrampolineClass(typeInfo.m_extraFunctionsNamespace +
-		                           "::" + name);
 	}
 
 	if (typeInfo.m_classesMarkedShared.contains(cppClass.m_representation)) {

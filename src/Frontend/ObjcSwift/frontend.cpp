@@ -21,6 +21,8 @@ createModule(IR::Namespace const& rootNamespace,
 		                   moduleFile.getObjcHeader()),
 		    std::make_pair(moduleFile.getObjcSourceFile(),
 		                   moduleFile.getObjcSource()),
+		    std::make_pair(moduleFile.getBridgingHeaderFile(),
+		                   moduleFile.getBridgingHeader()),
 		    std::make_pair(moduleFile.getSwiftFile(), moduleFile.getSwift())};
 	}
 	return std::nullopt;
