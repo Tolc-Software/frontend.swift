@@ -45,28 +45,43 @@ add_library(
   Frontend.swift
 
   src/Frontend/ObjcSwift/frontend.cpp
-  src/ObjcSwift/Builders/attributeBuilder.cpp
-  src/ObjcSwift/Builders/classBuilder.cpp
-  src/ObjcSwift/Builders/enumBuilder.cpp
-  src/ObjcSwift/Builders/functionBuilder.cpp
-  src/ObjcSwift/Builders/moduleBuilder.cpp
-  src/ObjcSwift/Builders/moduleFileBuilder.cpp
-  src/ObjcSwift/Builders/typeToStringBuilder.cpp
   src/ObjcSwift/Helpers/getDocumentationParameter.cpp
   src/ObjcSwift/Helpers/operatorNames.cpp
   src/ObjcSwift/Helpers/split.cpp
   src/ObjcSwift/Helpers/string.cpp
   src/ObjcSwift/Helpers/types.cpp
-  src/ObjcSwift/Proxy/attribute.cpp
-  src/ObjcSwift/Proxy/class.cpp
-  src/ObjcSwift/Proxy/enum.cpp
-  src/ObjcSwift/Proxy/function.cpp
-  src/ObjcSwift/Proxy/module.cpp
-  src/ObjcSwift/Proxy/moduleFile.cpp
-  src/ObjcSwift/checkType.cpp
   src/ObjcSwift/getOverloadedFunctions.cpp
-  src/ObjcSwift/Builders/typeBuilder.cpp
+
   src/Swift/types.cpp
+  src/Swift/Proxy/function.cpp
+  src/Swift/Proxy/attribute.cpp
+  src/Swift/Proxy/class.cpp
+  src/Swift/Proxy/enum.cpp
+  src/Swift/Proxy/function.cpp
+  src/Swift/Proxy/module.cpp
+  src/Swift/Proxy/moduleFile.cpp
+  src/Swift/Builders/attributeBuilder.cpp
+  src/Swift/Builders/classBuilder.cpp
+  src/Swift/Builders/enumBuilder.cpp
+  src/Swift/Builders/functionBuilder.cpp
+  src/Swift/Builders/moduleBuilder.cpp
+  src/Swift/Builders/moduleFileBuilder.cpp
+  src/Swift/Builders/typeToStringBuilder.cpp
+
+  src/Objc/Proxy/function.cpp
+  src/Objc/Proxy/attribute.cpp
+  src/Objc/Proxy/class.cpp
+  src/Objc/Proxy/enum.cpp
+  src/Objc/Proxy/function.cpp
+  src/Objc/Proxy/module.cpp
+  src/Objc/Proxy/moduleFile.cpp
+  src/Objc/Builders/attributeBuilder.cpp
+  src/Objc/Builders/classBuilder.cpp
+  src/Objc/Builders/enumBuilder.cpp
+  src/Objc/Builders/functionBuilder.cpp
+  src/Objc/Builders/moduleBuilder.cpp
+  src/Objc/Builders/moduleFileBuilder.cpp
+  src/Objc/Builders/typeToStringBuilder.cpp
 
 )
 

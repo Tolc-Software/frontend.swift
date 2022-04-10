@@ -92,7 +92,6 @@ foreach(
   # ObjcSwift/Proxy/function.cpp
   # ObjcSwift/Proxy/module.cpp
   # ObjcSwift/Proxy/moduleFile.cpp
-  # ObjcSwift/checkType.cpp
   # arrays.cpp
   classes.cpp
   # complex.cpp

@@ -14,9 +14,7 @@ TEST_CASE("Can build simple attributes", "[attributeBuilder]") {
 	std::string moduleName = "Module";
 	auto fullyQualifiedName = moduleName + "::" + variableName;
 
-	ObjcSwift::Proxy::TypeInfo typeInfo;
-	auto proxyAttribute =
-	    ObjcSwift::Builders::buildAttribute(moduleName, v, typeInfo);
+	auto proxyAttribute = ObjcSwift::Builders::buildAttribute(moduleName, v);
 	auto pybind = proxyAttribute.getObjcSwift();
 	CAPTURE(pybind);
 

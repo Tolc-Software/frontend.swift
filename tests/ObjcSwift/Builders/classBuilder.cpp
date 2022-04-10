@@ -41,8 +41,7 @@ TEST_CASE("Class with static member variables", "[classBuilder]") {
 		s.m_public.m_memberVariables.push_back(v);
 	}
 
-	ObjcSwift::Proxy::TypeInfo typeInfo;
-	auto myStruct = ObjcSwift::Builders::buildClass(s, typeInfo).value();
+	auto myStruct = ObjcSwift::Builders::buildClass(s).value();
 	auto pybind = myStruct.getObjcSwift(moduleName);
 	CAPTURE(pybind);
 
@@ -74,8 +73,7 @@ TEST_CASE("Class with static function", "[classBuilder]") {
 
 	s.m_public.m_functions.push_back(f);
 
-	ObjcSwift::Proxy::TypeInfo typeInfo;
-	auto myStruct = ObjcSwift::Builders::buildClass(s, typeInfo).value();
+	auto myStruct = ObjcSwift::Builders::buildClass(s).value();
 	auto pybind = myStruct.getObjcSwift(moduleName);
 	CAPTURE(pybind);
 
@@ -100,8 +98,7 @@ TEST_CASE("Templated class", "[classBuilder]") {
 	t.m_type = v;
 	s.m_templateArguments.push_back(t);
 
-	ObjcSwift::Proxy::TypeInfo typeInfo;
-	auto myStruct = ObjcSwift::Builders::buildClass(s, typeInfo).value();
+	auto myStruct = ObjcSwift::Builders::buildClass(s).value();
 	auto pybind = myStruct.getObjcSwift(moduleName);
 	auto expectedContains = fmt::format(
 	    R"(py::class_<{fullyQualifiedClassName}>({moduleName}, "{className}")",
@@ -121,8 +118,7 @@ TEST_CASE("Class within namespace", "[classBuilder]") {
 	                                 fmt::arg("className", s.m_name));
 	s.m_hasImplicitDefaultConstructor = true;
 
-	ObjcSwift::Proxy::TypeInfo typeInfo;
-	auto myStruct = ObjcSwift::Builders::buildClass(s, typeInfo).value();
+	auto myStruct = ObjcSwift::Builders::buildClass(s).value();
 	auto pybind = myStruct.getObjcSwift(moduleName);
 	CAPTURE(pybind);
 
@@ -142,8 +138,7 @@ TEST_CASE("Empty class gets default constructor", "[classBuilder]") {
 	s.m_representation = s.m_name;
 	s.m_hasImplicitDefaultConstructor = true;
 
-	ObjcSwift::Proxy::TypeInfo typeInfo;
-	auto myStruct = ObjcSwift::Builders::buildClass(s, typeInfo).value();
+	auto myStruct = ObjcSwift::Builders::buildClass(s).value();
 	auto pybind = myStruct.getObjcSwift(moduleName);
 	CAPTURE(pybind);
 
@@ -171,8 +166,7 @@ TEST_CASE("Class with a constructor", "[classBuilder]") {
 	f.m_arguments.push_back(v);
 	s.m_public.m_constructors.push_back(f);
 
-	ObjcSwift::Proxy::TypeInfo typeInfo;
-	auto myStruct = ObjcSwift::Builders::buildClass(s, typeInfo).value();
+	auto myStruct = ObjcSwift::Builders::buildClass(s).value();
 	auto pybind = myStruct.getObjcSwift(moduleName);
 	CAPTURE(pybind);
 
@@ -216,8 +210,7 @@ TEST_CASE("Class with functions", "[classBuilder]") {
 		s.m_public.m_functions.push_back(f);
 	}
 
-	ObjcSwift::Proxy::TypeInfo typeInfo;
-	auto myStruct = ObjcSwift::Builders::buildClass(s, typeInfo).value();
+	auto myStruct = ObjcSwift::Builders::buildClass(s).value();
 	auto pybind = myStruct.getObjcSwift(moduleName);
 	CAPTURE(pybind);
 
@@ -252,8 +245,7 @@ TEST_CASE("Class with member variables", "[classBuilder]") {
 		s.m_public.m_memberVariables.push_back(v);
 	}
 
-	ObjcSwift::Proxy::TypeInfo typeInfo;
-	auto myStruct = ObjcSwift::Builders::buildClass(s, typeInfo).value();
+	auto myStruct = ObjcSwift::Builders::buildClass(s).value();
 	auto pybind = myStruct.getObjcSwift(moduleName);
 	CAPTURE(pybind);
 
@@ -269,54 +261,6 @@ TEST_CASE("Class with member variables", "[classBuilder]") {
 	}
 }
 
-TEST_CASE("Class with vector in constructor gives the correct include",
-          "[classBuilder]") {
-	std::string moduleName = "MyModule";
-	IR::Struct s;
-	s.m_name = "MyStruct";
-	s.m_hasImplicitDefaultConstructor = true;
-	IR::Function constructor;
-	constructor.m_name = s.m_name;
-	constructor.m_isStatic = false;
-	IR::Type arg;
-	IR::Type::Container c;
-	c.m_container = IR::ContainerType::Vector;
-	arg.m_type = c;
-	constructor.m_arguments.push_back({"myVar", "", arg});
-	s.m_public.m_functions.push_back(constructor);
-
-	ObjcSwift::Proxy::TypeInfo typeInfo;
-	auto myStruct = ObjcSwift::Builders::buildClass(s, typeInfo).value();
-	REQUIRE(typeInfo.m_includes.size() == 1);
-	for (auto const& include : typeInfo.m_includes) {
-		REQUIRE(include == "#include <pybind11/stl.h>");
-	}
-}
-
-TEST_CASE("Class with vector in member function gives the correct include",
-          "[classBuilder]") {
-	std::string moduleName = "MyModule";
-	IR::Struct s;
-	s.m_name = "SomeClass";
-	s.m_hasImplicitDefaultConstructor = true;
-	IR::Function constructor;
-	constructor.m_name = s.m_name;
-	constructor.m_isStatic = false;
-	IR::Type arg;
-	IR::Type::Container c;
-	c.m_container = IR::ContainerType::Vector;
-	arg.m_type = c;
-	constructor.m_arguments.push_back({"myVar", "", arg});
-	s.m_public.m_functions.push_back(constructor);
-
-	ObjcSwift::Proxy::TypeInfo typeInfo;
-	auto myStruct = ObjcSwift::Builders::buildClass(s, typeInfo).value();
-	REQUIRE(typeInfo.m_includes.size() == 1);
-	for (auto const& include : typeInfo.m_includes) {
-		REQUIRE(include == "#include <pybind11/stl.h>");
-	}
-}
-
 TEST_CASE("Class with enum", "[classBuilder]") {
 	std::string moduleName = "MyModule";
 	IR::Struct s;
@@ -329,8 +273,7 @@ TEST_CASE("Class with enum", "[classBuilder]") {
 	e.m_values.push_back("Hi");
 	s.m_public.m_enums.push_back(e);
 
-	ObjcSwift::Proxy::TypeInfo typeInfo;
-	auto myStruct = ObjcSwift::Builders::buildClass(s, typeInfo).value();
+	auto myStruct = ObjcSwift::Builders::buildClass(s).value();
 	auto pybind = myStruct.getObjcSwift(moduleName);
 	auto expectedContains = fmt::format(
 	    R"(py::enum_<{representation}>({structureName}, "{enumName}")",
