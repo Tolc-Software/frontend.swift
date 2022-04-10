@@ -72,7 +72,9 @@ int ObjcSwiftStage::runObjcSwiftTest(std::string const& cppCode,
 				m_stage.addFile(std::filesystem::path("src") / file, content);
 			}
 		}
-		return m_stage.configureAndBuild() && runCtest();
+		if (m_stage.configureAndBuild() == 0) {
+			return runCtest();
+		}
 	}
 
 	return 1;

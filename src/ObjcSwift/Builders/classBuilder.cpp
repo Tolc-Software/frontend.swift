@@ -83,9 +83,6 @@ buildClass(IR::Struct const& cppClass, ObjcSwift::Proxy::TypeInfo& typeInfo) {
 			if (auto maybeName = ObjcSwift::Helpers::getOperatorName(op)) {
 				auto& pyFunction = maybePyFunction.value();
 
-				// The python operators have special names
-				pyFunction.setPythonName(maybeName.value());
-
 				buildMemberFunction(pyFunction, function, overloadedOperators);
 
 				pyClass.addFunction(pyFunction);

@@ -11,6 +11,15 @@ TEST_CASE("Classes", "[classes]") {
 	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
+class WithConstructor {
+public:
+	explicit WithConstructor(int v) : m_v(v) {}
+
+	int getV() { return m_v; }
+private:
+	int m_v;
+};
+
 class WithFunction {
 public:
 	int add(int i, int j) {

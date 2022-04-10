@@ -13,10 +13,11 @@ namespace Objc {
 std::string getClassFunctionDeclaration(std::string const& returnType,
                                         std::string const& name,
                                         std::string const& arguments) {
-	return fmt::format(R"(- ({returnType}){functionName}:{arguments})",
-	                   fmt::arg("returnType", returnType),
-	                   fmt::arg("functionName", name),
-	                   fmt::arg("arguments", arguments));
+	return fmt::format(
+	    R"(- ({returnType}){functionName}{arguments})",
+	    fmt::arg("returnType", returnType),
+	    fmt::arg("functionName", name),
+	    fmt::arg("arguments", arguments.empty() ? arguments : ':' + arguments));
 }
 }    // namespace Objc
 }    // namespace
@@ -108,7 +109,7 @@ std::string Function::getObjcSwift() const {
 		f = fmt::format(
 		    R"(def{static}("{name}", {overload}&{fqName}, {docs})",
 		    fmt::arg("static", m_isStatic ? "_static" : ""),
-		    fmt::arg("name", getPythonName()),
+		    fmt::arg("name", m_name),
 		    fmt::arg("overload", m_isOverloaded ? getSignature() : ""),
 		    fmt::arg("fqName", m_fullyQualifiedName),
 		    fmt::arg("docs",
@@ -155,10 +156,6 @@ void Function::setAsStatic() {
 
 void Function::setAsOverloaded() {
 	m_isOverloaded = true;
-};
-
-void Function::setPythonName(std::string const& name) {
-	m_pythonName = name;
 };
 
 void Function::setDocumentation(std::string const& documentation) {
@@ -208,6 +205,10 @@ std::string Function::getArguments(Language lang) const {
 	return "";
 }
 
+std::vector<Function::Argument> const& Function::getArgumentsRaw() const {
+	return m_arguments;
+}
+
 std::string Function::getArgumentTypes(bool withNames) const {
 	// Get the typenames of the arguments
 	// The first one doesn't start with a name
@@ -230,10 +231,6 @@ std::string Function::getSignature() const {
 	                            ObjcSwift::Helpers::removeSubString(
 	                                m_fullyQualifiedName, m_name)),
 	                   fmt::arg("arguments", getArgumentTypes()));
-}
-
-std::string Function::getPythonName() const {
-	return m_pythonName ? m_pythonName.value() : m_name;
 }
 
 std::string Function::getName() const {

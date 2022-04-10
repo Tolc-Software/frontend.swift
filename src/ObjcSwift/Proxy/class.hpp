@@ -43,6 +43,7 @@ public:
 private:
 	std::string joinObjcFunctions(bool isSource) const;
 	std::string joinSwiftFunctions() const;
+	std::string getObjcConstructors() const;
 
 	struct MemberVariable {
 		// User defined name of the member variable

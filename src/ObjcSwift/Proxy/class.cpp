@@ -14,31 +14,55 @@ std::string getInherited(std::vector<std::string> const& inheritedClasses) {
 	}
 	return inherited;
 }
+
+std::string getInitNamePadding(ObjcSwift::Proxy::Function const& constructor) {
+	auto args = constructor.getArgumentsRaw();
+	if (args.empty()) {
+		return "";
+	}
+	std::string out = "With";
+	return out;
+}
 }    // namespace
 
 std::string Class::getObjcSource(std::string const& moduleName) const {
 	bool isSource = true;
 	std::string out =
 	    fmt::format(R"(
-@implementation {moduleName}{className}
+@implementation {moduleName}{className} {{
 
 // The corresponding C++ object
 std::unique_ptr<{fullyQualifiedName}> m_object;
 
--(instancetype)init {{
-  if (self = [super init]) {{
-    m_object = std::unique_ptr<{fullyQualifiedName}>(new {fullyQualifiedName}());
-  }}
-  return self;
 }}
+
+{constructors}
 
 {functions}
 @end)",
 	                fmt::arg("moduleName", moduleName),
 	                fmt::arg("className", m_name),
 	                fmt::arg("fullyQualifiedName", m_fullyQualifiedName),
+	                fmt::arg("constructors", getObjcConstructors()),
 	                fmt::arg("functions", joinObjcFunctions(isSource)));
 
+	return out;
+}
+
+std::string Class::getObjcConstructors() const {
+	std::string out;
+	for (auto const& constructor : m_constructors) {
+		out += fmt::format(
+		    R"(
+-(instancetype)init{namePadding} {{
+  if (self = [super init]) {{
+    m_object = std::unique_ptr<{fullyQualifiedName}>(new {fullyQualifiedName}());
+  }}
+  return self;
+}})",
+		    fmt::arg("fullyQualifiedName", m_fullyQualifiedName),
+		    fmt::arg("namePadding", getInitNamePadding(constructor)));
+	}
 	return out;
 }
 

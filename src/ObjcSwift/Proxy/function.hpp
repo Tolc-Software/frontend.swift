@@ -54,16 +54,13 @@ public:
 
 	void setReturnType(ObjcSwift::Type const& type);
 
-	// As it will be called in python
-	void setPythonName(std::string const& name);
-	std::string getPythonName() const;
-
 	std::string getName() const;
 
 	ObjcSwift::Type getReturnType() const;
 
 	std::string getArgumentTypes(bool withNames = false) const;
 	std::string getArgumentNames() const;
+	std::vector<Argument> const& getArgumentsRaw() const;
 
 private:
 	enum class Language { Objc, Swift };
