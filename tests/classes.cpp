@@ -34,6 +34,13 @@ public:
 		return 3.14;
 	}
 };
+
+class WithMember {
+public:
+	explicit WithMember() : i(10) {}
+
+	int i;
+};
 )";
 
 	auto objCTestCode = R"(
@@ -49,7 +56,11 @@ mWithFunction* withFunction = [[mWithFunction alloc] init];
 assert([withFunction add: 2 j: 5] == 7);
 
 // Static functions can be called without instantiating the class
-assert([mWithFunction getPi] == 3.14);
+assert([mWithStatic getPi] == 3.14);
+
+// Member variables
+mWithMember* withMember = [[mWithMember alloc] init];
+assert(mWithStatic.i == 3.14);
 )";
 
 	auto swiftTestCode = R"(
@@ -63,6 +74,9 @@ assert(five.getV() == 5)
 // Member functions are available after construction
 var with_function: m.WithFunction = m.WithFunction()
 assert(with_function.add(i: 2, j: 5) == 7)
+
+// Static functions can be called without instantiating the class
+assert(m.WithStatic.getPi() == 3.14)
 )";
 
 	auto errorCode =

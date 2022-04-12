@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Frontend/ObjcSwift/Config.hpp"
 #include <IR/ir.hpp>
 #include <filesystem>
 #include <optional>
@@ -13,5 +14,8 @@ namespace Frontend::ObjcSwift {
   * The file content is the converted IR into pybind11 bindings.
   */
 std::optional<std::vector<std::pair<std::filesystem::path, std::string>>>
-createModule(IR::Namespace const& rootNamespace, std::string const& moduleName);
+createModule(
+    IR::Namespace const& rootNamespace,
+    std::string const& moduleName,
+    Frontend::ObjcSwift::Config config = Frontend::ObjcSwift::Config());
 }    // namespace Frontend::ObjcSwift
