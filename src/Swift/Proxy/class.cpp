@@ -24,11 +24,13 @@ public class {className} {{
 
 {constructors}
 {functions}
+{memberVariables}
 }})",
 	                fmt::arg("className", m_name),
 	                fmt::arg("objcClassName", m_objcClassName),
 	                fmt::arg("constructors", joinFunctions(m_constructors)),
-	                fmt::arg("functions", joinFunctions(m_functions)));
+	                fmt::arg("functions", joinFunctions(m_functions)),
+	                fmt::arg("memberVariables", joinMemberVariables()));
 
 	return out;
 }
@@ -70,6 +72,30 @@ void Class::setInherited(std::vector<std::string> const& inherited) {
 	for (auto const& i : inherited) {
 		m_inherited.push_back(i);
 	}
+}
+std::string Class::joinMemberVariables() const {
+	std::string out;
+	for (auto const& m : m_memberVariables) {
+		out += fmt::format(R"(
+public var {name}: {type} {{
+    get {{
+        return m_object.{name}
+    }}
+)",
+		                   fmt::arg("name", m.m_name),
+		                   fmt::arg("type", m.m_type));
+		if (!m.m_isConst) {
+			// Not const -> Add a setter
+			out += fmt::format(R"(
+    set(new{name}) {{
+        m_object.{name} = new{name}
+    }}
+)",
+			                   fmt::arg("name", m.m_name));
+		}
+		out += "}\n";
+	}
+	return out;
 }
 
 }    // namespace Swift::Proxy

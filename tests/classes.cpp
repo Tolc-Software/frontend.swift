@@ -85,6 +85,17 @@ assert(withFunction.add(i: 2, j: 5) == 7)
 
 // Static functions can be called without instantiating the class
 assert(m.WithStatic.getPi() == 3.14)
+
+// Member variables
+var member: m.WithMember = m.WithMember()
+assert(member.i == 10);
+// i is not marked const
+member.i = 5;
+assert(member.i == 5);
+
+// phi is marked const
+// Cannot be assigned
+assert(member.phi == 1.618);
 )";
 
 	auto errorCode =

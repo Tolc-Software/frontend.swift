@@ -8,6 +8,7 @@
 #include "Swift/Builders/functionBuilder.hpp"
 #include "Swift/Proxy/function.hpp"
 #include "Swift/getName.hpp"
+#include "Swift/types.hpp"
 #include <IR/ir.hpp>
 #include <numeric>
 #include <optional>
@@ -104,10 +105,14 @@ std::optional<Swift::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	}
 
 	for (auto const& variable : cppClass.m_public.m_memberVariables) {
-		swiftClass.addMemberVariable({variable.m_name,
-		                              variable.m_documentation,
-		                              variable.m_type.m_isConst,
-		                              variable.m_type.m_isStatic});
+		Swift::Proxy::Class::MemberVariable m;
+		m.m_name = variable.m_name;
+		m.m_documentation = variable.m_documentation;
+		m.m_type = Swift::toSwiftType(variable.m_type);
+		m.m_isConst = variable.m_type.m_isConst;
+		m.m_isStatic = variable.m_type.m_isStatic;
+
+		swiftClass.addMemberVariable(m);
 	}
 
 	// Add default constructor

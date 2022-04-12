@@ -21,6 +21,8 @@ public:
 	struct MemberVariable {
 		// User defined name of the member variable
 		std::string m_name;
+		// Swift type
+		std::string m_type;
 		std::string m_documentation;
 		bool m_isConst;
 		bool m_isStatic;
@@ -41,6 +43,7 @@ public:
 	std::string getSwift() const;
 
 private:
+	std::string joinMemberVariables() const;
 
 	// User defined name of the class
 	std::string m_name;
@@ -54,5 +57,5 @@ private:
 	std::vector<Enum> m_enums;
 
 	bool m_isManagedByShared;
-};
+	};
 }    // namespace Swift::Proxy
