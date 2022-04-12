@@ -136,10 +136,6 @@ std::string Function::getArguments() const {
 	return fmt::format("{}", fmt::join(out, ", "));
 }
 
-std::vector<Function::Argument> const& Function::getArgumentsRaw() const {
-	return m_arguments;
-}
-
 std::string Function::getName() const {
 	return m_name;
 }

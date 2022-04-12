@@ -20,6 +20,7 @@ std::string joinFunctions(std::vector<Objc::Proxy::Function> const& functions,
 	}
 	return out;
 }
+
 }    // namespace
 
 std::string Class::getObjcSource() const {
@@ -27,17 +28,18 @@ std::string Class::getObjcSource() const {
 	std::string out = fmt::format(
 	    R"(
 @implementation {className} {{
-	// The corresponding C++ object
-	std::unique_ptr<{fullyQualifiedName}> m_object;
+    // The corresponding C++ object
+    std::unique_ptr<{fullyQualifiedName}> m_object;
 }}
 {constructors}
 {functions}
-
+{memberVariables}
 @end)",
 	    fmt::arg("className", m_name),
 	    fmt::arg("fullyQualifiedName", m_fullyQualifiedName),
 	    fmt::arg("constructors", joinFunctions(m_constructors, isSource)),
-	    fmt::arg("functions", joinFunctions(m_functions, isSource)));
+	    fmt::arg("functions", joinFunctions(m_functions, isSource)),
+	    fmt::arg("memberVariables", joinMemberVariables(isSource)));
 
 	return out;
 }
@@ -49,11 +51,12 @@ std::string Class::getObjcHeader() const {
 @interface {className} : NSObject
 {constructors}
 {functions}
-
+{memberVariables}
 @end)",
 	    fmt::arg("className", m_name),
 	    fmt::arg("constructors", joinFunctions(m_constructors, isSource)),
-	    fmt::arg("functions", joinFunctions(m_functions, isSource)));
+	    fmt::arg("functions", joinFunctions(m_functions, isSource)),
+	    fmt::arg("memberVariables", joinMemberVariables(isSource)));
 
 	return out;
 }
@@ -75,12 +78,8 @@ void Class::addConstructor(Function const& constructor) {
 	m_constructors.push_back(constructor);
 }
 
-void Class::addMemberVariable(std::string const& variableName,
-                              std::string const& documentation,
-                              bool isConst,
-                              bool isStatic) {
-	m_memberVariables.push_back(
-	    {variableName, documentation, isConst, isStatic});
+void Class::addMemberVariable(MemberVariable const& variable) {
+	m_memberVariables.push_back(variable);
 }
 
 std::string const& Class::getName() const {
@@ -99,6 +98,48 @@ void Class::setInherited(std::vector<std::string> const& inherited) {
 	for (auto const& i : inherited) {
 		m_inherited.push_back(i);
 	}
+}
+
+std::string getPropertyOptions(bool isConst, std::string const name) {
+	if (isConst) {
+		return "(readonly)";
+	}
+
+	return fmt::format("(setter={}:)", name);
+}
+
+std::string Class::joinMemberVariables(bool isSource) const {
+	std::string out;
+	if (isSource) {
+		for (auto const& m : m_memberVariables) {
+			out += fmt::format(R"(
+-({type}) {name} {{
+    return m_object->{name};
+}}
+)",
+			                   fmt::arg("name", m.m_name),
+			                   fmt::arg("type", m.m_type));
+			if (!m.m_isConst) {
+				// Not const -> Add a setter
+				out += fmt::format(R"(
+-(void) {name}:({type})new{name} {{
+    m_object->{name} = new{name};
+}}
+)",
+				                   fmt::arg("name", m.m_name),
+				                   fmt::arg("type", m.m_type));
+			}
+		}
+	} else {
+		for (auto const& m : m_memberVariables) {
+			out += fmt::format(
+			    "\n@property {options} {type} {name};\n",
+			    fmt::arg("options", getPropertyOptions(m.m_isConst, m.m_name)),
+			    fmt::arg("name", m.m_name),
+			    fmt::arg("type", m.m_type));
+		}
+	}
+	return out;
 }
 
 }    // namespace Objc::Proxy

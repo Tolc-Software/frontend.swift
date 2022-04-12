@@ -48,9 +48,7 @@ public:
 
 	std::string getName() const;
 
-	std::string getArgumentTypes(bool withNames = false) const;
 	std::string getArgumentNames() const;
-	std::vector<Argument> const& getArgumentsRaw() const;
 
 	/**
 	* An overloaded init with parameters is named
@@ -66,7 +64,6 @@ public:
 	void setObjcFirstConstructorParameter(std::string const& variableName);
 
 private:
-	std::string getSignature() const;
 	std::string getArguments() const;
 
 	std::string getFunctionCall() const;

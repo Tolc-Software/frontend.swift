@@ -42,10 +42,10 @@ std::string Function::getFunctionBody() const {
 	if (m_isClassFunction) {
 		if (m_isConstructor) {
 			return fmt::format(
-			    R"(	if (self = [super init]) {{
-		m_object = std::unique_ptr<{qualifiedClassName}>(new {qualifiedClassName}({arguments}));
-	}}
-	return self;)",
+			    R"(    if (self = [super init]) {{
+        m_object = std::unique_ptr<{qualifiedClassName}>(new {qualifiedClassName}({arguments}));
+    }}
+    return self;)",
 			    fmt::arg("qualifiedClassName", m_fullyQualifiedClassName),
 			    fmt::arg("arguments", getArgumentNames()),
 			    fmt::arg("name", m_name));
@@ -53,7 +53,7 @@ std::string Function::getFunctionBody() const {
 
 		// Class function
 		return fmt::format(
-		    "\t{maybeReturn}{functionCall};",
+		    "    {maybeReturn}{functionCall};",
 		    fmt::arg("maybeReturn", m_returnType == "void" ? "" : "return "),
 		    fmt::arg("functionCall", getFunctionCall()));
 	}
@@ -136,10 +136,6 @@ std::string Function::getArguments() const {
 	return out;
 }
 
-std::vector<Function::Argument> const& Function::getArgumentsRaw() const {
-	return m_arguments;
-}
-
 std::string Function::getArgumentTypes(bool withNames) const {
 	// Get the typenames of the arguments
 	// The first one doesn't start with a name
@@ -152,15 +148,6 @@ std::string Function::getArgumentTypes(bool withNames) const {
                                           argument.type;
 	               });
 	return fmt::format("{}", fmt::join(typeNames, ", "));
-}
-
-std::string Function::getSignature() const {
-	return fmt::format(R"(({returnType}({namespace}*)({arguments})))",
-	                   fmt::arg("returnType", m_returnType),
-	                   fmt::arg("namespace",
-	                            ObjcSwift::Helpers::removeSubString(
-	                                m_fullyQualifiedName, m_name)),
-	                   fmt::arg("arguments", getArgumentTypes()));
 }
 
 std::string Function::getName() const {

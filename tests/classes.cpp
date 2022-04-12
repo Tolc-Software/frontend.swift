@@ -37,19 +37,20 @@ public:
 
 class WithMember {
 public:
-	explicit WithMember() : i(10) {}
+	explicit WithMember() : i(10), phi(1.618) {}
 
 	int i;
+	double const phi;
 };
 )";
 
 	auto objCTestCode = R"(
 // Constructors are overloaded with their argument types
-mWithConstructor* defaultToTen = [[mWithConstructor alloc] init];
-assert([defaultToTen getV] == 10);
+mWithConstructor* ten = [[mWithConstructor alloc] init];
+assert([ten getV] == 10);
 
-mWithConstructor* withConstructor = [[mWithConstructor alloc] initWithInt:5];
-assert([mWithConstructor getV] == 5);
+mWithConstructor* five = [[mWithConstructor alloc] initWithInt:5];
+assert([five getV] == 5);
 
 // Member functions are available after construction
 mWithFunction* withFunction = [[mWithFunction alloc] init];
@@ -59,21 +60,28 @@ assert([withFunction add: 2 j: 5] == 7);
 assert([mWithStatic getPi] == 3.14);
 
 // Member variables
-mWithMember* withMember = [[mWithMember alloc] init];
-assert(mWithStatic.i == 3.14);
+mWithMember* member = [[mWithMember alloc] init];
+assert(member.i == 10);
+// i is not marked const
+member.i = 5;
+assert(member.i == 5);
+
+// phi is marked const
+// Cannot be assigned
+assert(member.phi == 1.618);
 )";
 
 	auto swiftTestCode = R"(
 // Constructors in swift does not need different names
-var default_ten: m.WithConstructor = m.WithConstructor()
-assert(default_ten.getV() == 10)
+var ten: m.WithConstructor = m.WithConstructor()
+assert(ten.getV() == 10)
 
 var five: m.WithConstructor = m.WithConstructor(v: 5)
 assert(five.getV() == 5)
 
 // Member functions are available after construction
-var with_function: m.WithFunction = m.WithFunction()
-assert(with_function.add(i: 2, j: 5) == 7)
+var withFunction: m.WithFunction = m.WithFunction()
+assert(withFunction.add(i: 2, j: 5) == 7)
 
 // Static functions can be called without instantiating the class
 assert(m.WithStatic.getPi() == 3.14)

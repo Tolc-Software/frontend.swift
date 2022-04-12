@@ -4,6 +4,7 @@
 #include "Objc/Builders/typeToStringBuilder.hpp"
 #include "Objc/Proxy/function.hpp"
 #include "Objc/getName.hpp"
+#include "Objc/types.hpp"
 #include "ObjcSwift/Helpers/combine.hpp"
 #include "ObjcSwift/Helpers/operatorNames.hpp"
 #include "ObjcSwift/Helpers/types.hpp"
@@ -103,10 +104,14 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	}
 
 	for (auto const& variable : cppClass.m_public.m_memberVariables) {
-		objcClass.addMemberVariable(variable.m_name,
-		                            variable.m_documentation,
-		                            variable.m_type.m_isConst,
-		                            variable.m_type.m_isStatic);
+		Objc::Proxy::Class::MemberVariable m;
+		m.m_name = variable.m_name;
+		m.m_documentation = variable.m_documentation;
+		m.m_type = Objc::toObjcType(variable.m_type);
+		m.m_isConst = variable.m_type.m_isConst;
+		m.m_isStatic = variable.m_type.m_isStatic;
+
+		objcClass.addMemberVariable(m);
 	}
 
 	// Add default constructor

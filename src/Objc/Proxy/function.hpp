@@ -51,10 +51,8 @@ public:
 
 	std::string getArgumentTypes(bool withNames = false) const;
 	std::string getArgumentNames() const;
-	std::vector<Argument> const& getArgumentsRaw() const;
 
 private:
-	std::string getSignature() const;
 	std::string getArguments() const;
 
 	std::string getFunctionCall() const;

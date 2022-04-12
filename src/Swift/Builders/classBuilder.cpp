@@ -104,10 +104,10 @@ std::optional<Swift::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	}
 
 	for (auto const& variable : cppClass.m_public.m_memberVariables) {
-		swiftClass.addMemberVariable(variable.m_name,
-		                             variable.m_documentation,
-		                             variable.m_type.m_isConst,
-		                             variable.m_type.m_isStatic);
+		swiftClass.addMemberVariable({variable.m_name,
+		                              variable.m_documentation,
+		                              variable.m_type.m_isConst,
+		                              variable.m_type.m_isStatic});
 	}
 
 	// Add default constructor

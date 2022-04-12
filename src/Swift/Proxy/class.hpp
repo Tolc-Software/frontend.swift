@@ -18,10 +18,15 @@ public:
 
 	void addConstructor(Function const& constructor);
 
-	void addMemberVariable(std::string const& variableName,
-	                       std::string const& documentation,
-	                       bool isConst,
-	                       bool isStatic);
+	struct MemberVariable {
+		// User defined name of the member variable
+		std::string m_name;
+		std::string m_documentation;
+		bool m_isConst;
+		bool m_isStatic;
+	};
+
+	void addMemberVariable(MemberVariable const& variable);
 
 	std::string const& getName() const;
 
@@ -36,13 +41,6 @@ public:
 	std::string getSwift() const;
 
 private:
-	struct MemberVariable {
-		// User defined name of the member variable
-		std::string m_name;
-		std::string m_documentation;
-		bool m_isConst;
-		bool m_isStatic;
-	};
 
 	// User defined name of the class
 	std::string m_name;

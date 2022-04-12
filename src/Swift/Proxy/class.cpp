@@ -50,12 +50,8 @@ void Class::addConstructor(Function const& constructor) {
 	m_constructors.push_back(constructor);
 }
 
-void Class::addMemberVariable(std::string const& variableName,
-                              std::string const& documentation,
-                              bool isConst,
-                              bool isStatic) {
-	m_memberVariables.push_back(
-	    {variableName, documentation, isConst, isStatic});
+void Class::addMemberVariable(MemberVariable const& variable) {
+	m_memberVariables.push_back(variable);
 }
 
 std::string const& Class::getName() const {
