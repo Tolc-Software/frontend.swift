@@ -7,56 +7,82 @@
 
 namespace Objc::Proxy {
 
-namespace {
-namespace Objc {
-
-std::string getClassFunctionDeclaration(std::string const& returnType,
-                                        std::string const& name,
-                                        std::string const& arguments) {
-	return fmt::format(
-	    R"(- ({returnType}){functionName}{arguments})",
-	    fmt::arg("returnType", returnType),
-	    fmt::arg("functionName", name),
-	    fmt::arg("arguments", arguments.empty() ? arguments : ':' + arguments));
+std::string Function::getFunctionDeclaration() const {
+	if (m_isClassFunction) {
+		// - (int)add:(int)x y:(int)y;
+		auto arguments = getArguments();
+		return fmt::format(
+		    R"({static} ({returnType}){functionName}{arguments})",
+		    fmt::arg("static", m_isStatic ? "+" : "-"),
+		    fmt::arg("returnType", m_returnType),
+		    fmt::arg("functionName", m_name),
+		    fmt::arg("arguments",
+		             arguments.empty() ? arguments : ':' + arguments));
+	}
+	return "// Objc function declaration for bare function not implemented";
 }
-}    // namespace Objc
-}    // namespace
 
 std::string Function::getFunctionCall() const {
+	if (m_isClassFunction) {
+		if (m_isStatic) {
+			return fmt::format(
+			    R"({fullyQualifiedClassName}::{name}({arguments}))",
+			    fmt::arg("fullyQualifiedClassName", m_fullyQualifiedClassName),
+			    fmt::arg("name", m_name),
+			    fmt::arg("arguments", getArgumentNames()));
+		}
+		return fmt::format("m_object->{name}({arguments})",
+		                   fmt::arg("name", m_name),
+		                   fmt::arg("arguments", getArgumentNames()));
+	}
 	return m_name + '(' + getArgumentNames() + ')';
 }
 
-std::string Function::getObjcSource(bool isClassFunction) const {
-	if (isClassFunction) {
+std::string Function::getFunctionBody() const {
+	if (m_isClassFunction) {
+		if (m_isConstructor) {
+			return fmt::format(
+			    R"(	if (self = [super init]) {{
+		m_object = std::unique_ptr<{qualifiedClassName}>(new {qualifiedClassName}({arguments}));
+	}}
+	return self;)",
+			    fmt::arg("qualifiedClassName", m_fullyQualifiedClassName),
+			    fmt::arg("arguments", getArgumentNames()),
+			    fmt::arg("name", m_name));
+		}
+
+		// Class function
 		return fmt::format(
-		    R"(
-{functionDeclaration} {{
-	{maybeReturn}m_object->{functionCall};
-}})",
-		    fmt::arg("functionDeclaration",
-		             Objc::getClassFunctionDeclaration(
-		                 m_returnType, m_name, getArguments())),
+		    "\t{maybeReturn}{functionCall};",
 		    fmt::arg("maybeReturn", m_returnType == "void" ? "" : "return "),
 		    fmt::arg("functionCall", getFunctionCall()));
 	}
-	return "// ObjcSource bare function not implemented";
+	// Simple function
+	return "// Objc function body not implemented";
 }
 
-std::string Function::getObjcHeader(bool isClassFunction) const {
-	if (isClassFunction) {
-		// - (int)add:(int)x y:(int)y;
-		return Objc::getClassFunctionDeclaration(
-		           m_returnType, m_name, getArguments()) +
-		       ';';
-	}
-	return "// ObjcHeader bare function not implemented";
+std::string Function::getObjcSource() const {
+	return fmt::format(
+	    R"(
+{declaration} {{
+{body}
+}}
+)",
+	    fmt::arg("declaration", getFunctionDeclaration()),
+	    fmt::arg("body", getFunctionBody()));
+}
+
+std::string Function::getObjcHeader() const {
+	// E.g.
+	// - (int)add:(int)x y:(int)y;
+	return '\n' + getFunctionDeclaration() + ";\n";
 }
 
 Function::Function(std::string const& name,
                    std::string const& fullyQualifiedName)
     : m_name(name), m_fullyQualifiedName(fullyQualifiedName), m_returnType(),
-      m_arguments({}), m_isConstructor(false), m_isOverloaded(false),
-      m_isStatic(false) {}
+      m_arguments({}), m_isOverloaded(false), m_isStatic(false),
+      m_isClassFunction(false), m_isConstructor(false) {}
 
 void Function::addArgument(Argument const& argument) {
 	m_arguments.push_back(argument);
@@ -65,10 +91,6 @@ void Function::addArgument(Argument const& argument) {
 void Function::setReturnType(std::string const& type) {
 	m_returnType = type;
 }
-
-void Function::setAsConstructor() {
-	m_isConstructor = true;
-};
 
 void Function::setAsStatic() {
 	m_isStatic = true;
@@ -107,6 +129,10 @@ std::string Function::getArguments() const {
 		                   fmt::arg("type", arg.type),
 		                   fmt::arg("name", arg.name));
 	}
+	if (!m_arguments.empty()) {
+		// Remove the last space
+		out.pop_back();
+	}
 	return out;
 }
 
@@ -141,4 +167,12 @@ std::string Function::getName() const {
 	return m_name;
 }
 
+void Function::setAsClassFunction(std::string const& fullyQualifiedClassName) {
+	m_fullyQualifiedClassName = fullyQualifiedClassName;
+	m_isClassFunction = true;
+}
+
+void Function::setAsConstructor() {
+	m_isConstructor = true;
+}
 }    // namespace Objc::Proxy

@@ -3,6 +3,7 @@
 #include "Objc/Builders/functionBuilder.hpp"
 #include "Objc/Builders/typeToStringBuilder.hpp"
 #include "Objc/Proxy/function.hpp"
+#include "Objc/getName.hpp"
 #include "ObjcSwift/Helpers/combine.hpp"
 #include "ObjcSwift/Helpers/operatorNames.hpp"
 #include "ObjcSwift/Helpers/types.hpp"
@@ -17,57 +18,46 @@ namespace Objc::Builders {
 
 namespace {
 
-std::string
-getTemplateParameterString(std::vector<IR::Type> const& parameters) {
-	return std::accumulate(parameters.begin(),
-	                       parameters.end(),
-	                       std::string() /* Start with empty string */,
-	                       [](std::string soFar, IR::Type const& current) {
-		                       return std::move(soFar) + "_" +
-		                              buildTypeString(current);
-	                       });
-}
-
-void buildMemberFunction(Objc::Proxy::Function& pyFunction,
+void buildMemberFunction(std::string const& fullyQualifiedClassName,
+                         Objc::Proxy::Function& objcFunction,
                          IR::Function const& cppFunction,
                          std::set<std::string> const& overloadedFunctions) {
+	objcFunction.setAsClassFunction(fullyQualifiedClassName);
+
 	if (cppFunction.m_isStatic) {
-		pyFunction.setAsStatic();
+		objcFunction.setAsStatic();
 	}
 
 	if (overloadedFunctions.find(cppFunction.m_representation) !=
 	    overloadedFunctions.end()) {
-		pyFunction.setAsOverloaded();
+		objcFunction.setAsOverloaded();
 	}
 }
 
-struct TrampolineFunctions {
-	std::vector<Objc::Proxy::Function> virtualFunctions;
-	std::vector<Objc::Proxy::Function> pureVirtualFunctions;
-};
-
 }    // namespace
 
-std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass) {
-	Objc::Proxy::Class pyClass(
-	    ObjcSwift::Helpers::removeCppTemplate(cppClass.m_name) +
-	        getTemplateParameterString(cppClass.m_templateArguments),
-	    cppClass.m_representation);
+std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
+                                             std::string const& moduleName) {
+	Objc::Proxy::Class objcClass(Objc::getClassName(cppClass, moduleName),
+	                             cppClass.m_representation);
 
-	pyClass.setDocumentation(cppClass.m_documentation);
+	objcClass.setDocumentation(cppClass.m_documentation);
 
-	pyClass.setInherited(cppClass.m_public.m_inherited);
+	objcClass.setInherited(cppClass.m_public.m_inherited);
 
 	// Ignore private functions
 	auto overloadedFunctions =
 	    ObjcSwift::getOverloadedFunctions(cppClass.m_public.m_functions);
 	for (auto const& function : cppClass.m_public.m_functions) {
-		if (auto maybePyFunction = buildFunction(function)) {
-			auto& pyFunction = maybePyFunction.value();
+		if (auto maybeobjcFunction = buildFunction(function)) {
+			auto& objcFunction = maybeobjcFunction.value();
 
-			buildMemberFunction(pyFunction, function, overloadedFunctions);
+			buildMemberFunction(cppClass.m_representation,
+			                    objcFunction,
+			                    function,
+			                    overloadedFunctions);
 
-			pyClass.addFunction(pyFunction);
+			objcClass.addFunction(objcFunction);
 		} else {
 			return std::nullopt;
 		}
@@ -76,13 +66,16 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass) {
 	auto overloadedOperators =
 	    ObjcSwift::getOverloadedFunctions(cppClass.m_public.m_operators);
 	for (auto const& [op, function] : cppClass.m_public.m_operators) {
-		if (auto maybePyFunction = buildFunction(function)) {
+		if (auto maybeobjcFunction = buildFunction(function)) {
 			if (auto maybeName = ObjcSwift::Helpers::getOperatorName(op)) {
-				auto& pyFunction = maybePyFunction.value();
+				auto& objcFunction = maybeobjcFunction.value();
 
-				buildMemberFunction(pyFunction, function, overloadedOperators);
+				buildMemberFunction(cppClass.m_representation,
+				                    objcFunction,
+				                    function,
+				                    overloadedOperators);
 
-				pyClass.addFunction(pyFunction);
+				objcClass.addFunction(objcFunction);
 			}
 		} else {
 			return std::nullopt;
@@ -90,42 +83,45 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass) {
 	}
 
 	for (auto const& constructor : cppClass.m_public.m_constructors) {
-		if (auto maybePyFunction = buildFunction(constructor)) {
-			auto& pyFunction = maybePyFunction.value();
+		if (auto maybeobjcFunction = buildFunction(constructor, true)) {
+			auto& objcFunction = maybeobjcFunction.value();
 
 			if (constructor.m_isStatic) {
-				pyFunction.setAsStatic();
+				objcFunction.setAsStatic();
 			}
 
 			if (cppClass.m_public.m_constructors.size() > 1) {
-				pyFunction.setAsOverloaded();
+				objcFunction.setAsOverloaded();
 			}
 
-			pyFunction.setAsConstructor();
+			objcFunction.setAsClassFunction(cppClass.m_representation);
 
-			pyClass.addConstructor(pyFunction);
+			objcFunction.setAsConstructor();
+
+			objcClass.addConstructor(objcFunction);
 		}
 	}
 
 	for (auto const& variable : cppClass.m_public.m_memberVariables) {
-		pyClass.addMemberVariable(variable.m_name,
-		                          variable.m_documentation,
-		                          variable.m_type.m_isConst,
-		                          variable.m_type.m_isStatic);
+		objcClass.addMemberVariable(variable.m_name,
+		                            variable.m_documentation,
+		                            variable.m_type.m_isConst,
+		                            variable.m_type.m_isStatic);
 	}
 
 	// Add default constructor
 	if (cppClass.m_hasImplicitDefaultConstructor) {
-		auto constructor =
-		    Objc::Proxy::Function(pyClass.getName(), pyClass.getName());
+		auto constructor = Objc::Proxy::Function("init", objcClass.getName());
+		constructor.setAsClassFunction(cppClass.m_representation);
+		constructor.setReturnType("instancetype");
 		constructor.setAsConstructor();
-		pyClass.addConstructor(constructor);
+		objcClass.addConstructor(constructor);
 	}
 
 	for (auto const& e : cppClass.m_public.m_enums) {
-		pyClass.addEnum(buildEnum(e));
+		objcClass.addEnum(buildEnum(e));
 	}
 
-	return pyClass;
+	return objcClass;
 }
 }    // namespace Objc::Builders

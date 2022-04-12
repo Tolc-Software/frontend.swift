@@ -53,6 +53,7 @@ add_library(
   src/ObjcSwift/getOverloadedFunctions.cpp
 
   src/Swift/types.cpp
+  src/Swift/getName.cpp
   src/Swift/Proxy/function.cpp
   src/Swift/Proxy/attribute.cpp
   src/Swift/Proxy/class.cpp
@@ -68,6 +69,8 @@ add_library(
   src/Swift/Builders/moduleFileBuilder.cpp
   src/Swift/Builders/typeToStringBuilder.cpp
 
+  src/Objc/types.cpp
+  src/Objc/getName.cpp
   src/Objc/Proxy/function.cpp
   src/Objc/Proxy/attribute.cpp
   src/Objc/Proxy/class.cpp

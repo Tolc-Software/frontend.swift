@@ -5,35 +5,36 @@
 
 namespace Swift::Proxy {
 
-std::string Class::getSwift(std::string const& moduleName) const {
-	std::string out = fmt::format(R"(
-public class {className} {{
-    private var m_object: {moduleName}{className}
-
-    public init() {{
-        m_object = {moduleName}{className}()
-    }}
-
-{functions}
-}})",
-	                              fmt::arg("moduleName", moduleName),
-	                              fmt::arg("className", m_name),
-	                              fmt::arg("functions", joinSwiftFunctions()));
-
-	return out;
-}
-
-std::string Class::joinSwiftFunctions() const {
-	bool isClassFunction = true;
+namespace {
+std::string
+joinFunctions(std::vector<Swift::Proxy::Function> const& functions) {
 	std::string out;
-	for (auto const& f : m_functions) {
-		out += f.getSwift(isClassFunction);
+	for (auto const& f : functions) {
+		out += f.getSwift();
 	}
 	return out;
 }
+}    // namespace
 
-Class::Class(std::string const& name, std::string const& fullyQualifiedName)
-    : m_name(name), m_fullyQualifiedName(fullyQualifiedName), m_constructors(),
+std::string Class::getSwift() const {
+	std::string out =
+	    fmt::format(R"(
+public class {className} {{
+    private var m_object: {objcClassName}
+
+{constructors}
+{functions}
+}})",
+	                fmt::arg("className", m_name),
+	                fmt::arg("objcClassName", m_objcClassName),
+	                fmt::arg("constructors", joinFunctions(m_constructors)),
+	                fmt::arg("functions", joinFunctions(m_functions)));
+
+	return out;
+}
+
+Class::Class(std::string const& name, std::string const& objcClassName)
+    : m_name(name), m_objcClassName(objcClassName), m_constructors(),
       m_functions(), m_memberVariables(), m_enums(),
       m_isManagedByShared(false) {}
 

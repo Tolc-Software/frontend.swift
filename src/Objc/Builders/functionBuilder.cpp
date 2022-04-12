@@ -1,5 +1,7 @@
 #include "Objc/Builders/functionBuilder.hpp"
 #include "Objc/Proxy/function.hpp"
+#include "Objc/getName.hpp"
+#include "Objc/types.hpp"
 #include "ObjcSwift/Helpers/types.hpp"
 #include "Swift/types.hpp"
 #include <optional>
@@ -8,9 +10,9 @@
 namespace Objc::Builders {
 
 std::optional<Objc::Proxy::Function>
-buildFunction(IR::Function const& cppFunction) {
-	Objc::Proxy::Function middleFunction(
-	    ObjcSwift::Helpers::removeCppTemplate(cppFunction.m_name),
+buildFunction(IR::Function const& cppFunction, bool isConstructor) {
+	Objc::Proxy::Function objcFunction(
+	    Objc::getFunctionName(cppFunction, isConstructor),
 	    cppFunction.m_representation);
 
 	for (auto const& arg : cppFunction.m_arguments) {
@@ -19,8 +21,8 @@ buildFunction(IR::Function const& cppFunction) {
 
 			Objc::Proxy::Function::Argument proxyArg;
 			proxyArg.name = arg.m_name;
-			proxyArg.type = arg.m_type.m_representation;
-			middleFunction.addArgument(proxyArg);
+			proxyArg.type = Objc::toObjcType(arg.m_type);
+			objcFunction.addArgument(proxyArg);
 		} else {
 			spdlog::error(
 			    R"(The function {} takes a std::unique_ptr as one of its argument. Python cannot give up ownership of an object to a function. See https://pybind11.readthedocs.io/en/stable/advanced/smart_ptrs.html for more info.)",
@@ -29,9 +31,11 @@ buildFunction(IR::Function const& cppFunction) {
 		}
 	}
 
-	middleFunction.setReturnType(cppFunction.m_returnType.m_representation);
-	middleFunction.setDocumentation(cppFunction.m_documentation);
+	objcFunction.setReturnType(isConstructor ?
+                                   "instancetype" :
+                                   Objc::toObjcType(cppFunction.m_returnType));
+	objcFunction.setDocumentation(cppFunction.m_documentation);
 
-	return middleFunction;
+	return objcFunction;
 }
 }    // namespace Objc::Builders

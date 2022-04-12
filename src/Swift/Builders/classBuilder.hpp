@@ -3,6 +3,7 @@
 #include "Swift/Proxy/class.hpp"
 #include <IR/ir.hpp>
 #include <optional>
+#include <string>
 
 namespace Swift::Builders {
 
@@ -12,5 +13,6 @@ namespace Swift::Builders {
 *       the default constructor is added
 * Fails if any member functions takes unique_ptr as an argument
 */
-std::optional<Swift::Proxy::Class> buildClass(IR::Struct const& s);
+std::optional<Swift::Proxy::Class> buildClass(IR::Struct const& s,
+                                              std::string const& moduleName);
 }    // namespace Swift::Builders

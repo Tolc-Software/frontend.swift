@@ -62,7 +62,7 @@ buildModule(IR::Namespace const& ns, std::string const& rootModuleName) {
 	}
 
 	for (auto const& cls : ns.m_structs) {
-		if (auto maybeC = Objc::Builders::buildClass(cls)) {
+		if (auto maybeC = Objc::Builders::buildClass(cls, rootModuleName)) {
 			auto c = maybeC.value();
 			builtModule.addClass(c);
 		} else {

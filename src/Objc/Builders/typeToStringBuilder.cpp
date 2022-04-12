@@ -27,29 +27,29 @@ std::string toString(IR::ContainerType type) {
 	using IR::ContainerType;
 
 	switch (type) {
-		case ContainerType::Array: return "array";
-		case ContainerType::Deque: return "deque";
-		case ContainerType::ForwardList: return "forwardlist";
-		case ContainerType::List: return "list";
-		case ContainerType::Map: return "map";
-		case ContainerType::MultiMap: return "multimap";
-		case ContainerType::MultiSet: return "multiset";
-		case ContainerType::Optional: return "optional";
-		case ContainerType::Pair: return "pair";
-		case ContainerType::PriorityQueue: return "priorityqueue";
-		case ContainerType::Queue: return "queue";
-		case ContainerType::Set: return "set";
-		case ContainerType::SharedPtr: return "sharedptr";
-		case ContainerType::Stack: return "stack";
-		case ContainerType::Tuple: return "tuple";
-		case ContainerType::UniquePtr: return "uniqueptr";
-		case ContainerType::UnorderedMap: return "unorderedmap";
-		case ContainerType::UnorderedMultiMap: return "unorderedmultimap";
-		case ContainerType::UnorderedMultiSet: return "unorderedmultiset";
-		case ContainerType::UnorderedSet: return "unorderedset";
-		case ContainerType::Valarray: return "valarray";
-		case ContainerType::Variant: return "variant";
-		case ContainerType::Vector: return "vector";
+		case ContainerType::Array: return "Array";
+		case ContainerType::Deque: return "Deque";
+		case ContainerType::ForwardList: return "Forwardlist";
+		case ContainerType::List: return "List";
+		case ContainerType::Map: return "Map";
+		case ContainerType::MultiMap: return "Multimap";
+		case ContainerType::MultiSet: return "Multiset";
+		case ContainerType::Optional: return "Optional";
+		case ContainerType::Pair: return "Pair";
+		case ContainerType::PriorityQueue: return "Priorityqueue";
+		case ContainerType::Queue: return "Queue";
+		case ContainerType::Set: return "Set";
+		case ContainerType::SharedPtr: return "Sharedptr";
+		case ContainerType::Stack: return "Stack";
+		case ContainerType::Tuple: return "Tuple";
+		case ContainerType::UniquePtr: return "Uniqueptr";
+		case ContainerType::UnorderedMap: return "Unorderedmap";
+		case ContainerType::UnorderedMultiMap: return "Unorderedmultimap";
+		case ContainerType::UnorderedMultiSet: return "Unorderedmultiset";
+		case ContainerType::UnorderedSet: return "Unorderedset";
+		case ContainerType::Valarray: return "Valarray";
+		case ContainerType::Variant: return "Variant";
+		case ContainerType::Vector: return "Vector";
 
 		// These are usually "hidden" within defaulted template parameters in e.g. vector, so no generated string
 		case ContainerType::Allocator:
@@ -65,29 +65,29 @@ std::string toString(IR::ContainerType type) {
 std::string toString(IR::BaseType type) {
 	using IR::BaseType;
 	switch (type) {
-		case BaseType::Bool: return "bool";
-		case BaseType::Char16_t: return "char16t";
-		case BaseType::Char32_t: return "char32t";
-		case BaseType::Char: return "char";
-		case BaseType::Complex: return "complex";
-		case BaseType::Double: return "double";
-		case BaseType::FilesystemPath: return "string";
-		case BaseType::Float: return "float";
-		case BaseType::Int: return "int";
-		case BaseType::LongDouble: return "longdouble";
-		case BaseType::LongInt: return "longint";
-		case BaseType::LongLongInt: return "longlongint";
-		case BaseType::ShortInt: return "shortint";
-		case BaseType::SignedChar: return "signedchar";
-		case BaseType::String: return "string";
-		case BaseType::StringView: return "stringview";
-		case BaseType::UnsignedChar: return "unsignedchar";
-		case BaseType::UnsignedInt: return "unsignedint";
-		case BaseType::UnsignedLongInt: return "unsignedlongint";
-		case BaseType::UnsignedLongLongInt: return "unsignedlonglongint";
-		case BaseType::UnsignedShortInt: return "unsignedshortint";
-		case BaseType::Void: return "void";
-		case BaseType::Wchar_t: return "wchart";
+		case BaseType::Bool: return "Bool";
+		case BaseType::Char16_t: return "Char16t";
+		case BaseType::Char32_t: return "Char32t";
+		case BaseType::Char: return "Char";
+		case BaseType::Complex: return "Complex";
+		case BaseType::Double: return "Double";
+		case BaseType::FilesystemPath: return "String";
+		case BaseType::Float: return "Float";
+		case BaseType::Int: return "Int";
+		case BaseType::LongDouble: return "Longdouble";
+		case BaseType::LongInt: return "Longint";
+		case BaseType::LongLongInt: return "Longlongint";
+		case BaseType::ShortInt: return "Shortint";
+		case BaseType::SignedChar: return "Signedchar";
+		case BaseType::String: return "String";
+		case BaseType::StringView: return "Stringview";
+		case BaseType::UnsignedChar: return "Unsignedchar";
+		case BaseType::UnsignedInt: return "Unsignedint";
+		case BaseType::UnsignedLongInt: return "Unsignedlongint";
+		case BaseType::UnsignedLongLongInt: return "Unsignedlonglongint";
+		case BaseType::UnsignedShortInt: return "Unsignedshortint";
+		case BaseType::Void: return "Void";
+		case BaseType::Wchar_t: return "Wchart";
 	}
 	return "";
 }
@@ -116,12 +116,12 @@ std::string toString(IR::Type::Container const& type) {
 	// Ex:
 	//   map<int, vector<char>>
 	//   (Make tree) ->
-	//   map
-	//   |-- int
-	//   `-- vector
-	//       `-- char
+	//   Map
+	//   |-- Int
+	//   `-- Vector
+	//       `-- Char
 	//   (Make string) ->
-	//   map_int_vector_char
+	//   MapIntVectorChar
 
 	std::stack<IR::Type> typesToStringify;
 	// Reverse add so int comes before vector in the example above
@@ -155,7 +155,7 @@ std::string toString(IR::Type::Container const& type) {
 		        },
 		        [&typeString](IR::Type::Function) {
 			        // NOTE: Function to string is too complicated -> Give up
-			        typeString.push_back("f");
+			        typeString.push_back("F");
 		        },
 		        [&typeString, &current](IR::Type::Integral) {
 			        typeString.push_back(current.m_representation);
@@ -163,39 +163,39 @@ std::string toString(IR::Type::Container const& type) {
 		    current.m_type);
 	}
 
-	return fmt::format("{}", fmt::join(typeString, "_"));
+	return fmt::format("{}", fmt::join(typeString, ""));
 }
 
 std::string buildTypeString(IR::Type const& t) {
-	std::vector<std::string> typeString;
+	std::string typeString;
 
 	std::visit(
 	    overload {[&typeString](IR::Type::Value type) {
 		              if (auto s = toString(type); !s.empty()) {
-			              typeString.push_back(toString(type));
+			              typeString += toString(type);
 		              }
 	              },
 	              [&typeString](IR::Type::Container type) {
 		              if (auto s = toString(type); !s.empty()) {
-			              typeString.push_back(toString(type));
+			              typeString += toString(type);
 		              }
 	              },
 	              [&typeString](IR::Type::EnumValue type) {
-		              typeString.push_back(toString(type));
+		              typeString += toString(type);
 	              },
 	              [&typeString](IR::Type::UserDefined type) {
-		              typeString.push_back(toString(type));
+		              typeString += toString(type);
 	              },
 	              [&typeString](IR::Type::Function) {
 		              // NOTE: Function to string is too complicated -> Give up
-		              typeString.push_back("f");
+		              typeString += "F";
 	              },
 	              [&typeString, &t](IR::Type::Integral) {
-		              typeString.push_back(t.m_representation);
+		              typeString += t.m_representation;
 	              }},
 	    // , std::variant<Value, Container, EnumValue, UserDefined, Function, Integral> m_type;
 	    t.m_type);
 
-	return fmt::format("{}", fmt::join(typeString, "_"));
+	return fmt::format("{}", typeString);
 }
 }    // namespace Objc::Builders

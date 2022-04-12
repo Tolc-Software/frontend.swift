@@ -10,8 +10,8 @@ class Function {
 public:
 	Function(std::string const& name, std::string const& fullyQualifiedName);
 
-	std::string getObjcSource(bool isClassFunction) const;
-	std::string getObjcHeader(bool isClassFunction) const;
+	std::string getObjcSource() const;
+	std::string getObjcHeader() const;
 
 	struct Argument {
 		// E.g.
@@ -36,12 +36,14 @@ public:
 	*/
 	void setDocumentation(std::string const& documentation);
 
-	void setAsConstructor();
-
 	// Is there another function with the same name but with different arguments?
 	void setAsOverloaded();
 
 	void setAsStatic();
+
+	void setAsClassFunction(std::string const& fullyQualifiedClassName);
+
+	void setAsConstructor();
 
 	void setReturnType(std::string const& type);
 
@@ -56,6 +58,8 @@ private:
 	std::string getArguments() const;
 
 	std::string getFunctionCall() const;
+	std::string getFunctionDeclaration() const;
+	std::string getFunctionBody() const;
 
 	// User defined name of the function
 	std::string m_name;
@@ -63,9 +67,11 @@ private:
 	std::string m_documentation;
 	// Defaults to void
 	std::string m_returnType;
+	std::string m_fullyQualifiedClassName;
 	std::vector<Argument> m_arguments;
-	bool m_isConstructor;
 	bool m_isOverloaded;
 	bool m_isStatic;
+	bool m_isClassFunction;
+	bool m_isConstructor;
 };
 }    // namespace Objc::Proxy

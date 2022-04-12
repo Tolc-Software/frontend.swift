@@ -12,5 +12,6 @@ namespace Objc::Builders {
 *       the default constructor is added
 * Fails if any member functions takes unique_ptr as an argument
 */
-std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& s);
+std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& s,
+                                             std::string const& moduleName);
 }    // namespace Objc::Builders

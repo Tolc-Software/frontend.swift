@@ -14,7 +14,7 @@ std::string toSwiftType(IR::BaseType type) {
 		case BaseType::Char32_t: return "char32t";
 		case BaseType::Char: return "char";
 		case BaseType::Complex: return "complex";
-		case BaseType::Double: return "double";
+		case BaseType::Double: return "Double";
 		case BaseType::FilesystemPath: return "String";
 		case BaseType::Float: return "Float";
 		case BaseType::Int: return "Int32";

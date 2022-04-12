@@ -9,7 +9,7 @@ namespace Objc::Proxy {
 std::string Module::getObjcSource() const {
 	std::string out;
 	for (auto const& cls : m_classes) {
-		out += fmt::format("{}\n", cls.getObjcSource(m_variableName));
+		out += fmt::format("{}\n", cls.getObjcSource());
 	}
 	return out;
 }
@@ -17,7 +17,7 @@ std::string Module::getObjcSource() const {
 std::string Module::getObjcHeader() const {
 	std::string out;
 	for (auto const& cls : m_classes) {
-		out += fmt::format("{}\n", cls.getObjcHeader(m_variableName));
+		out += fmt::format("{}\n", cls.getObjcHeader());
 	}
 	return out;
 }

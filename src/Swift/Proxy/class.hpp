@@ -33,11 +33,9 @@ public:
 	// instead of the default std::unique_ptr
 	void setAsManagedByShared();
 
-	std::string getSwift(std::string const& moduleName) const;
+	std::string getSwift() const;
 
 private:
-	std::string joinSwiftFunctions() const;
-
 	struct MemberVariable {
 		// User defined name of the member variable
 		std::string m_name;
@@ -48,7 +46,7 @@ private:
 
 	// User defined name of the class
 	std::string m_name;
-	std::string m_fullyQualifiedName;
+	std::string m_objcClassName;
 	std::string m_documentation;
 
 	std::vector<std::string> m_inherited;

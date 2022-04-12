@@ -5,83 +5,56 @@
 
 namespace Objc::Proxy {
 
-std::string getInitNamePadding(Objc::Proxy::Function const& constructor) {
-	auto args = constructor.getArgumentsRaw();
-	if (args.empty()) {
-		return "";
-	}
-	std::string out = "With";
-	return out;
-}
-
-std::string Class::getObjcSource(std::string const& moduleName) const {
-	bool isSource = true;
-	std::string out =
-	    fmt::format(R"(
-@implementation {moduleName}{className} {{
-
-// The corresponding C++ object
-std::unique_ptr<{fullyQualifiedName}> m_object;
-
-}}
-
-{constructors}
-
-{functions}
-@end)",
-	                fmt::arg("moduleName", moduleName),
-	                fmt::arg("className", m_name),
-	                fmt::arg("fullyQualifiedName", m_fullyQualifiedName),
-	                fmt::arg("constructors", getObjcConstructors()),
-	                fmt::arg("functions", joinObjcFunctions(isSource)));
-
-	return out;
-}
-
-std::string Class::getObjcConstructors() const {
-	std::string out;
-	for (auto const& constructor : m_constructors) {
-		out += fmt::format(
-		    R"(
--(instancetype)init{namePadding} {{
-  if (self = [super init]) {{
-    m_object = std::unique_ptr<{fullyQualifiedName}>(new {fullyQualifiedName}());
-  }}
-  return self;
-}})",
-		    fmt::arg("fullyQualifiedName", m_fullyQualifiedName),
-		    fmt::arg("namePadding", getInitNamePadding(constructor)));
-	}
-	return out;
-}
-
-std::string Class::getObjcHeader(std::string const& moduleName) const {
-	bool isSource = false;
-	std::string out =
-	    fmt::format(R"(
-@interface {moduleName}{className} : NSObject
-
-{functions}
-@end)",
-	                fmt::arg("moduleName", moduleName),
-	                fmt::arg("className", m_name),
-	                fmt::arg("functions", joinObjcFunctions(isSource)));
-
-	return out;
-}
-
-std::string Class::joinObjcFunctions(bool isSource) const {
-	bool isClassFunction = true;
+namespace {
+std::string joinFunctions(std::vector<Objc::Proxy::Function> const& functions,
+                          bool isSource) {
 	std::string out;
 	if (isSource) {
-		for (auto const& f : m_functions) {
-			out += f.getObjcSource(isClassFunction);
+		for (auto const& f : functions) {
+			out += f.getObjcSource();
 		}
 	} else {
-		for (auto const& f : m_functions) {
-			out += f.getObjcHeader(isClassFunction);
+		for (auto const& f : functions) {
+			out += f.getObjcHeader();
 		}
 	}
+	return out;
+}
+}    // namespace
+
+std::string Class::getObjcSource() const {
+	bool isSource = true;
+	std::string out = fmt::format(
+	    R"(
+@implementation {className} {{
+	// The corresponding C++ object
+	std::unique_ptr<{fullyQualifiedName}> m_object;
+}}
+{constructors}
+{functions}
+
+@end)",
+	    fmt::arg("className", m_name),
+	    fmt::arg("fullyQualifiedName", m_fullyQualifiedName),
+	    fmt::arg("constructors", joinFunctions(m_constructors, isSource)),
+	    fmt::arg("functions", joinFunctions(m_functions, isSource)));
+
+	return out;
+}
+
+std::string Class::getObjcHeader() const {
+	bool isSource = false;
+	std::string out = fmt::format(
+	    R"(
+@interface {className} : NSObject
+{constructors}
+{functions}
+
+@end)",
+	    fmt::arg("className", m_name),
+	    fmt::arg("constructors", joinFunctions(m_constructors, isSource)),
+	    fmt::arg("functions", joinFunctions(m_functions, isSource)));
+
 	return out;
 }
 

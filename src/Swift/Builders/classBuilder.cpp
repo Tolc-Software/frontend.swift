@@ -1,12 +1,13 @@
 #include "Swift/Builders/classBuilder.hpp"
+#include "Objc/getName.hpp"
 #include "ObjcSwift/Helpers/combine.hpp"
 #include "ObjcSwift/Helpers/operatorNames.hpp"
 #include "ObjcSwift/Helpers/types.hpp"
 #include "ObjcSwift/getOverloadedFunctions.hpp"
 #include "Swift/Builders/enumBuilder.hpp"
 #include "Swift/Builders/functionBuilder.hpp"
-#include "Swift/Builders/typeToStringBuilder.hpp"
 #include "Swift/Proxy/function.hpp"
+#include "Swift/getName.hpp"
 #include <IR/ir.hpp>
 #include <numeric>
 #include <optional>
@@ -17,57 +18,47 @@ namespace Swift::Builders {
 
 namespace {
 
-std::string
-getTemplateParameterString(std::vector<IR::Type> const& parameters) {
-	return std::accumulate(parameters.begin(),
-	                       parameters.end(),
-	                       std::string() /* Start with empty string */,
-	                       [](std::string soFar, IR::Type const& current) {
-		                       return std::move(soFar) + "_" +
-		                              buildTypeString(current);
-	                       });
-}
-
-void buildMemberFunction(Swift::Proxy::Function& pyFunction,
+void buildMemberFunction(std::string const& objcClassName,
+                         Swift::Proxy::Function& swiftFunction,
                          IR::Function const& cppFunction,
                          std::set<std::string> const& overloadedFunctions) {
+	swiftFunction.setAsClassFunction(objcClassName);
+
 	if (cppFunction.m_isStatic) {
-		pyFunction.setAsStatic();
+		swiftFunction.setAsStatic();
 	}
 
 	if (overloadedFunctions.find(cppFunction.m_representation) !=
 	    overloadedFunctions.end()) {
-		pyFunction.setAsOverloaded();
+		swiftFunction.setAsOverloaded();
 	}
 }
 
-struct TrampolineFunctions {
-	std::vector<Swift::Proxy::Function> virtualFunctions;
-	std::vector<Swift::Proxy::Function> pureVirtualFunctions;
-};
-
 }    // namespace
 
-std::optional<Swift::Proxy::Class> buildClass(IR::Struct const& cppClass) {
-	Swift::Proxy::Class pyClass(
-	    ObjcSwift::Helpers::removeCppTemplate(cppClass.m_name) +
-	        getTemplateParameterString(cppClass.m_templateArguments),
-	    cppClass.m_representation);
+std::optional<Swift::Proxy::Class> buildClass(IR::Struct const& cppClass,
+                                              std::string const& moduleName) {
+	auto objcClassName = Objc::getClassName(cppClass, moduleName);
 
-	pyClass.setDocumentation(cppClass.m_documentation);
+	Swift::Proxy::Class swiftClass(
+	    Swift::getClassName(cppClass.m_name, cppClass.m_templateArguments),
+	    objcClassName);
 
-	pyClass.setInherited(cppClass.m_public.m_inherited);
+	swiftClass.setDocumentation(cppClass.m_documentation);
+
+	swiftClass.setInherited(cppClass.m_public.m_inherited);
 
 	// Ignore private functions
 	auto overloadedFunctions =
 	    ObjcSwift::getOverloadedFunctions(cppClass.m_public.m_functions);
 	for (auto const& function : cppClass.m_public.m_functions) {
-		if (auto maybePyFunction = buildFunction(function)) {
-			auto& pyFunction = maybePyFunction.value();
+		if (auto maybeswiftFunction = buildFunction(function)) {
+			auto& swiftFunction = maybeswiftFunction.value();
 
-			buildMemberFunction(pyFunction, function, overloadedFunctions);
+			buildMemberFunction(
+			    objcClassName, swiftFunction, function, overloadedFunctions);
 
-			pyClass.addFunction(pyFunction);
+			swiftClass.addFunction(swiftFunction);
 		} else {
 			return std::nullopt;
 		}
@@ -76,13 +67,16 @@ std::optional<Swift::Proxy::Class> buildClass(IR::Struct const& cppClass) {
 	auto overloadedOperators =
 	    ObjcSwift::getOverloadedFunctions(cppClass.m_public.m_operators);
 	for (auto const& [op, function] : cppClass.m_public.m_operators) {
-		if (auto maybePyFunction = buildFunction(function)) {
+		if (auto maybeswiftFunction = buildFunction(function)) {
 			if (auto maybeName = ObjcSwift::Helpers::getOperatorName(op)) {
-				auto& pyFunction = maybePyFunction.value();
+				auto& swiftFunction = maybeswiftFunction.value();
 
-				buildMemberFunction(pyFunction, function, overloadedOperators);
+				buildMemberFunction(objcClassName,
+				                    swiftFunction,
+				                    function,
+				                    overloadedOperators);
 
-				pyClass.addFunction(pyFunction);
+				swiftClass.addFunction(swiftFunction);
 			}
 		} else {
 			return std::nullopt;
@@ -90,42 +84,44 @@ std::optional<Swift::Proxy::Class> buildClass(IR::Struct const& cppClass) {
 	}
 
 	for (auto const& constructor : cppClass.m_public.m_constructors) {
-		if (auto maybePyFunction = buildFunction(constructor)) {
-			auto& pyFunction = maybePyFunction.value();
+		if (auto maybeswiftFunction = buildFunction(constructor, true)) {
+			auto& swiftFunction = maybeswiftFunction.value();
 
 			if (constructor.m_isStatic) {
-				pyFunction.setAsStatic();
+				swiftFunction.setAsStatic();
 			}
 
 			if (cppClass.m_public.m_constructors.size() > 1) {
-				pyFunction.setAsOverloaded();
+				swiftFunction.setAsOverloaded();
 			}
 
-			pyFunction.setAsConstructor();
+			swiftFunction.setAsClassFunction(objcClassName);
 
-			pyClass.addConstructor(pyFunction);
+			swiftFunction.setAsConstructor();
+
+			swiftClass.addConstructor(swiftFunction);
 		}
 	}
 
 	for (auto const& variable : cppClass.m_public.m_memberVariables) {
-		pyClass.addMemberVariable(variable.m_name,
-		                          variable.m_documentation,
-		                          variable.m_type.m_isConst,
-		                          variable.m_type.m_isStatic);
+		swiftClass.addMemberVariable(variable.m_name,
+		                             variable.m_documentation,
+		                             variable.m_type.m_isConst,
+		                             variable.m_type.m_isStatic);
 	}
 
 	// Add default constructor
 	if (cppClass.m_hasImplicitDefaultConstructor) {
-		auto constructor =
-		    Swift::Proxy::Function(pyClass.getName(), pyClass.getName());
+		auto constructor = Swift::Proxy::Function("init", swiftClass.getName());
+		constructor.setAsClassFunction(objcClassName);
 		constructor.setAsConstructor();
-		pyClass.addConstructor(constructor);
+		swiftClass.addConstructor(constructor);
 	}
 
 	for (auto const& e : cppClass.m_public.m_enums) {
-		pyClass.addEnum(buildEnum(e));
+		swiftClass.addEnum(buildEnum(e));
 	}
 
-	return pyClass;
+	return swiftClass;
 }
 }    // namespace Swift::Builders

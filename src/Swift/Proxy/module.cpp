@@ -9,7 +9,7 @@ namespace Swift::Proxy {
 std::string Module::getSwift() const {
 	std::string out;
 	for (auto const& cls : m_classes) {
-		out += fmt::format("{}\n", cls.getSwift(m_variableName));
+		out += fmt::format("{}\n", cls.getSwift());
 	}
 	return out;
 }

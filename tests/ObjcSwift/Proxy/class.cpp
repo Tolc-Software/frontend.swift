@@ -81,7 +81,6 @@ TEST_CASE("Class with constructor", "[class]") {
 	for (auto const& argument : arguments) {
 		constructor.addArgument(argument);
 	}
-	constructor.setAsConstructor();
 	c.addConstructor(constructor);
 
 	auto pybindCode = c.getObjcSwift(moduleName);

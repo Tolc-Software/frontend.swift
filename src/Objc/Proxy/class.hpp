@@ -33,13 +33,10 @@ public:
 	// instead of the default std::unique_ptr
 	void setAsManagedByShared();
 
-	std::string getObjcSource(std::string const& moduleName) const;
-	std::string getObjcHeader(std::string const& moduleName) const;
+	std::string getObjcSource() const;
+	std::string getObjcHeader() const;
 
 private:
-	std::string joinObjcFunctions(bool isSource) const;
-	std::string getObjcConstructors() const;
-
 	struct MemberVariable {
 		// User defined name of the member variable
 		std::string m_name;
