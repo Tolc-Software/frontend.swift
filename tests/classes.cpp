@@ -8,6 +8,13 @@ TEST_CASE("Classes", "[classes]") {
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+	// Add instantiation in a source file.
+	// This cannot be just declared, must be instantiated
+	// And https://en.cppreference.com/w/cpp/language/static
+	//
+	// Instantiation (must be in a source file):
+	stage.addModuleFile("test.cpp", "int const WithStatic::answer;");
+
 	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
@@ -33,6 +40,8 @@ public:
 	static double getPi() {
 		return 3.14;
 	}
+
+	static int const answer = 42;
 };
 
 class WithMember {
@@ -56,8 +65,12 @@ assert([five getV] == 5);
 mWithFunction* withFunction = [[mWithFunction alloc] init];
 assert([withFunction add: 2 j: 5] == 7);
 
-// Static functions can be called without instantiating the class
+// Static functions can be called
+// without instantiating the class
 assert([mWithStatic getPi] == 3.14);
+// You can access static variables
+// without instantiating the class
+assert([mWithStatic answer] == 42);
 
 // Member variables
 mWithMember* member = [[mWithMember alloc] init];
@@ -72,7 +85,8 @@ assert(member.phi == 1.618);
 )";
 
 	auto swiftTestCode = R"(
-// Constructors in swift does not need different names
+// Constructors in swift
+// does not need different names
 var ten: m.WithConstructor = m.WithConstructor()
 assert(ten.getV() == 10)
 
@@ -83,8 +97,11 @@ assert(five.getV() == 5)
 var withFunction: m.WithFunction = m.WithFunction()
 assert(withFunction.add(i: 2, j: 5) == 7)
 
-// Static functions can be called without instantiating the class
+// Static functions can be called
+// and static variables accessed
+// without instantiating the class
 assert(m.WithStatic.getPi() == 3.14)
+assert(m.WithStatic.answer == 42);
 
 // Member variables
 var member: m.WithMember = m.WithMember()

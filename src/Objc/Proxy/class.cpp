@@ -100,43 +100,58 @@ void Class::setInherited(std::vector<std::string> const& inherited) {
 	}
 }
 
-std::string getPropertyOptions(bool isConst, std::string const name) {
-	if (isConst) {
-		return "(readonly)";
+std::string getPropertyOptions(Class::MemberVariable const& v) {
+	std::vector<std::string> options;
+	if (v.m_isConst) {
+		options.push_back("readonly");
+	} else {
+		// Add a setter
+		options.push_back(fmt::format("setter={}:", v.m_name));
 	}
 
-	return fmt::format("(setter={}:)", name);
+	if (v.m_isStatic) {
+		options.push_back("class");
+	}
+
+	return fmt::format("({})", fmt::join(options, ", "));
 }
 
 std::string Class::joinMemberVariables(bool isSource) const {
 	std::string out;
 	if (isSource) {
 		for (auto const& m : m_memberVariables) {
+			auto stat = m.m_isStatic ? "+" : "-";
+			// How to access the variable
+			auto access =
+			    m.m_isStatic ? m_fullyQualifiedName + "::" : "m_object->";
 			out += fmt::format(R"(
--({type}) {name} {{
-    return m_object->{name};
+{static}({type}) {name} {{
+    return {access}{name};
 }}
 )",
+			                   fmt::arg("static", stat),
+			                   fmt::arg("type", m.m_type),
 			                   fmt::arg("name", m.m_name),
-			                   fmt::arg("type", m.m_type));
+			                   fmt::arg("access", access));
 			if (!m.m_isConst) {
 				// Not const -> Add a setter
 				out += fmt::format(R"(
--(void) {name}:({type})new{name} {{
-    m_object->{name} = new{name};
+{static}(void) {name}:({type})new{name} {{
+    {access}{name} = new{name};
 }}
 )",
+				                   fmt::arg("static", stat),
 				                   fmt::arg("name", m.m_name),
-				                   fmt::arg("type", m.m_type));
+				                   fmt::arg("type", m.m_type),
+				                   fmt::arg("access", access));
 			}
 		}
 	} else {
 		for (auto const& m : m_memberVariables) {
-			out += fmt::format(
-			    "\n@property {options} {type} {name};\n",
-			    fmt::arg("options", getPropertyOptions(m.m_isConst, m.m_name)),
-			    fmt::arg("name", m.m_name),
-			    fmt::arg("type", m.m_type));
+			out += fmt::format("\n@property {options} {type} {name};\n",
+			                   fmt::arg("options", getPropertyOptions(m)),
+			                   fmt::arg("name", m.m_name),
+			                   fmt::arg("type", m.m_type));
 		}
 	}
 	return out;

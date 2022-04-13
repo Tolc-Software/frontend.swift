@@ -16,10 +16,10 @@ Note that any restriction this poses only applies to the public interface of you
 | Private function                    | Not converted                  | Not converted                  |
 | Virtual function                    | ???                            | ???                            |
 | Operator                            | ???                            | ???                            |
-| Static member function              | ???                            | ???                            |
-| Static member variable              | ???                            | ???                            |
-| Public const member variable        | ???                            | ???                            |
-| Public non const member variable    | ???                            | ???                            |
+| Static member function              | Static class function          | Static class function          |
+| Static member variable              | Static class variable          | Static class variable          |
+| Public const member variable        | Readonly property              | Readonly property              |
+| Public non const member variable    | Readwrite property             | Readwrite property             |
 | Private member variable             | Not converted                  | Not converted                  |
 | Global variable                     | ???                            | ???                            |
 | Global static variable              | ???                            | ???                            |

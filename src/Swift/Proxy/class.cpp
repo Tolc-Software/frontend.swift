@@ -76,24 +76,28 @@ void Class::setInherited(std::vector<std::string> const& inherited) {
 std::string Class::joinMemberVariables() const {
 	std::string out;
 	for (auto const& m : m_memberVariables) {
+		auto access = m.m_isStatic ? m_objcClassName : "m_object";
 		out += fmt::format(R"(
-public var {name}: {type} {{
-    get {{
-        return m_object.{name}
-    }}
+    public {static}var {name}: {type} {{
+        get {{
+            return {access}.{name}
+        }}
 )",
+		                   fmt::arg("static", m.m_isStatic ? "static " : ""),
 		                   fmt::arg("name", m.m_name),
-		                   fmt::arg("type", m.m_type));
+		                   fmt::arg("type", m.m_type),
+		                   fmt::arg("access", access));
 		if (!m.m_isConst) {
 			// Not const -> Add a setter
 			out += fmt::format(R"(
-    set(new{name}) {{
-        m_object.{name} = new{name}
-    }}
+        set(new{name}) {{
+            {access}.{name} = new{name}
+        }}
 )",
-			                   fmt::arg("name", m.m_name));
+			                   fmt::arg("name", m.m_name),
+			                   fmt::arg("access", access));
 		}
-		out += "}\n";
+		out += "    }\n";
 	}
 	return out;
 }
