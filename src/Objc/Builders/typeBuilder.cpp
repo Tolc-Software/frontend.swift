@@ -1,9 +1,10 @@
-#include "Objc/types.hpp"
+#include "Objc/Builders/typeBuilder.hpp"
+#include "Objc/getName.hpp"
 #include <IR/ir.hpp>
 #include <string>
 #include <variant>
 
-namespace Objc {
+namespace Objc::Builders {
 
 namespace {
 std::string toObjcType(IR::BaseType type) {
@@ -37,11 +38,20 @@ std::string toObjcType(IR::BaseType type) {
 }
 }    // namespace
 
-std::string toObjcType(IR::Type const& type) {
+Objc::Proxy::Type buildType(IR::Type const& type,
+                            std::string const& rootModuleName) {
+	Objc::Proxy::Type t;
 	if (auto baseType = std::get_if<IR::Type::Value>(&type.m_type)) {
-		return toObjcType(baseType->m_base);
+		t.m_name = toObjcType(baseType->m_base);
+		t.m_toObjc = "";
+		t.m_toCpp = "";
+	} else if (auto enumType = std::get_if<IR::Type::EnumValue>(&type.m_type)) {
+		t.m_name =
+		    Objc::getEnumName(enumType->m_representation, rootModuleName);
+		t.m_toObjc = "";
+		t.m_toCpp = "";
 	}
-	return "";
+	return t;
 }
 
-}    // namespace Objc
+}    // namespace Objc::Builders

@@ -7,6 +7,7 @@ TEST_CASE("Testing enums", "[enums]") {
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 enum Unscoped {
@@ -40,27 +41,49 @@ namespace NS {
 
 )";
 
-	auto pythonTestCode = fmt::format(R"(
-# C++11 enums work
-scoped = {moduleName}.Scoped.Snail
-enumTest = {moduleName}.EnumTest(scoped)
-self.assertEqual(enumTest.s, scoped)
+	auto objcTestCode = R"(
+// C++11 enums work
+mWithConstructor* ten = [[mWithConstructor alloc] init];
+assert([ten getV] == 10);
+scoped = m.Scoped.Snail
+enumTest = m.EnumTest(scoped)
+assert(enumTest.s == scoped)
 
-# Aswell as legacy enums
-unscoped = {moduleName}.Unscoped.Uboat
-u = {moduleName}.f(unscoped)
-self.assertEqual(u, unscoped)
+// Aswell as legacy enums
+unscoped = m.Unscoped.Uboat
+u = m.f(unscoped)
+assert(u == unscoped)
 
-# Enums under namespaces are available under the corresponding submodule
-deep = {moduleName}.NS.Deep.Down
-self.assertNotEqual(deep, {moduleName}.NS.Deep.Double)
+// Enums under namespaces are available
+// under the corresponding submodule
+deep = m.NS.Deep.Down
+assert(deep != m.NS.Deep.Double)
 
-# Documentation carries over from C++
-self.assertIn("Documentation describing the enum", {moduleName}.NS.Deep.__doc__)
-)",
-	                                  fmt::arg("moduleName", moduleName));
+// Documentation carries over from C++
+// self.assertIn("Documentation describing the enum", m.NS.Deep.__doc__)
+)";
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+	auto swiftTestCode = R"(
+// C++11 enums work
+scoped = m.Scoped.Snail
+enumTest = m.EnumTest(scoped)
+assert(enumTest.s == scoped)
+
+// Aswell as legacy enums
+unscoped = m.Unscoped.Uboat
+u = m.f(unscoped)
+assert(u == unscoped)
+
+// Enums under namespaces are available
+// under the corresponding submodule
+deep = m.NS.Deep.Down
+assert(deep != m.NS.Deep.Double)
+
+// Documentation carries over from C++
+// self.assertIn("Documentation describing the enum", m.NS.Deep.__doc__)
+)";
+	auto errorCode =
+	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Enums");

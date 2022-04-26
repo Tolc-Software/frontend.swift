@@ -5,39 +5,19 @@
 
 namespace Objc::Proxy {
 
-Enum::Enum(std::string const& name, std::string const& fullyQualifiedName)
-    : m_name(name), m_fullyQualifiedName(fullyQualifiedName), m_values({}),
-      m_isScoped(false) {};
+Enum::Enum(std::string const& name)
+    : m_name(name), m_values({}), m_isScoped(false) {};
 
-std::string Enum::getObjc(std::string const& moduleOrClass) const {
-	std::string out = fmt::format(
-	    "\t\tpy::enum_<{fullyQualifiedName}>({moduleOrClass}, \"{name}\"",
-	    fmt::arg("fullyQualifiedName", m_fullyQualifiedName),
-	    fmt::arg("name", m_name),
-	    fmt::arg("moduleOrClass", moduleOrClass));
+std::string Enum::getObjcSource() const {
+	return "";
+}
 
-	if (m_isScoped) {
-		out += ", py::arithmetic()";
-	}
-	out += fmt::format(
-	    ", {})\n",
-	    ObjcSwift::Helpers::getDocumentationParameter(m_documentation));
-
-	for (auto const& value : m_values) {
-		out += fmt::format(
-		    "\t\t.value(\"{value}\", {fullyQualifiedName}::{value})\n",
-		    fmt::arg("fullyQualifiedName", m_fullyQualifiedName),
-		    fmt::arg("value", value));
-	}
-
-	if (!m_isScoped) {
-		out += "\t\t.export_values()\n";
-	}
-	// Remove the last newline
-	out.pop_back();
-	out += ";\n";
-
-	return out;
+std::string Enum::getObjcHeader() const {
+	return fmt::format(R"(
+typedef NS_ENUM(int, {name}) {{ {values} }};
+)",
+	                   fmt::arg("name", m_name),
+	                   fmt::arg("values", fmt::join(m_values, ", ")));
 }
 
 void Enum::setScoped(bool isScoped) {
@@ -50,6 +30,14 @@ void Enum::addValue(std::string const& value) {
 
 void Enum::setDocumentation(std::string const& documentation) {
 	m_documentation = documentation;
+}
+
+std::string Enum::getName() const {
+	return m_name;
+}
+
+std::vector<std::string> Enum::getValues() const {
+	return m_values;
 }
 
 }    // namespace Objc::Proxy

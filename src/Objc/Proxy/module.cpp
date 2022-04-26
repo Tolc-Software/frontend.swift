@@ -8,6 +8,10 @@ namespace Objc::Proxy {
 
 std::string Module::getObjcSource() const {
 	std::string out;
+	for (auto const& e : m_enums) {
+		out += fmt::format("{}\n", e.getObjcSource());
+	}
+
 	for (auto const& cls : m_classes) {
 		out += fmt::format("{}\n", cls.getObjcSource());
 	}
@@ -16,6 +20,11 @@ std::string Module::getObjcSource() const {
 
 std::string Module::getObjcHeader() const {
 	std::string out;
+
+	for (auto const& e : m_enums) {
+		out += fmt::format("{}\n", e.getObjcHeader());
+	}
+
 	for (auto const& cls : m_classes) {
 		out += fmt::format("{}\n", cls.getObjcHeader());
 	}

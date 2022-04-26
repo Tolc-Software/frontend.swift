@@ -28,8 +28,8 @@ std::string Class::getObjcSource() const {
 	std::string out = fmt::format(
 	    R"(
 @implementation {className} {{
-    // The corresponding C++ object
-    std::unique_ptr<{fullyQualifiedName}> m_object;
+  // The corresponding C++ object
+  std::unique_ptr<{fullyQualifiedName}> m_object;
 }}
 {constructors}
 {functions}
@@ -126,23 +126,23 @@ std::string Class::joinMemberVariables(bool isSource) const {
 			    m.m_isStatic ? m_fullyQualifiedName + "::" : "m_object->";
 			out += fmt::format(R"(
 {static}({type}) {name} {{
-    return {access}{name};
+  return {access}{name};
 }}
 )",
 			                   fmt::arg("static", stat),
-			                   fmt::arg("type", m.m_type),
+			                   fmt::arg("type", m.m_type.m_name),
 			                   fmt::arg("name", m.m_name),
 			                   fmt::arg("access", access));
 			if (!m.m_isConst) {
 				// Not const -> Add a setter
 				out += fmt::format(R"(
 {static}(void) {name}:({type})new{name} {{
-    {access}{name} = new{name};
+  {access}{name} = new{name};
 }}
 )",
 				                   fmt::arg("static", stat),
 				                   fmt::arg("name", m.m_name),
-				                   fmt::arg("type", m.m_type),
+				                   fmt::arg("type", m.m_type.m_name),
 				                   fmt::arg("access", access));
 			}
 		}
@@ -151,7 +151,7 @@ std::string Class::joinMemberVariables(bool isSource) const {
 			out += fmt::format("\n@property {options} {type} {name};\n",
 			                   fmt::arg("options", getPropertyOptions(m)),
 			                   fmt::arg("name", m.m_name),
-			                   fmt::arg("type", m.m_type));
+			                   fmt::arg("type", m.m_type.m_name));
 		}
 	}
 	return out;

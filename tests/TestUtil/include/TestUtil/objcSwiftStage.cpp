@@ -3,9 +3,10 @@
 #include "Stage/cmakeStage.hpp"
 #include "TestStage/paths.hpp"
 #include "TestStage/stageFunctions.hpp"
-#include "TestUtil/parse.hpp"
+#include "TestUtil/parserConfig.hpp"
 #include <IR/ir.hpp>
 #include <Parser/Parse.hpp>
+#include <catch2/catch.hpp>
 #include <filesystem>
 #include <fmt/format.h>
 #include <string>
@@ -14,6 +15,21 @@
 namespace TestUtil {
 
 namespace {
+/**
+* Adds the source file moduleName.hpp to the stage with provided content
+* Uses Tolc::Parser to parse the file and returns the parsed data
+*/
+std::pair<IR::Namespace, Parser::MetaData>
+parseModuleFile(Stage::CMakeStage& stage,
+                std::string const& moduleName,
+                std::string const& content) {
+	auto testFile = stage.addSourceFile(moduleName + ".hpp", content);
+
+	auto parsed = Parser::parseFile(testFile, TestUtil::getParserConfig());
+	REQUIRE(parsed.has_value());
+	return parsed.value();
+}
+
 void addObjcSwiftTestBodies(Stage::CMakeStage& stage,
                             std::string const& moduleName,
                             std::string const& objc,
@@ -38,6 +54,12 @@ import {moduleName}_swift
 	                          fmt::arg("moduleName", moduleName),
 	                          fmt::arg("code", swift)));
 }
+
+std::string makeValidFileName(std::string s) {
+	std::replace(s.begin(), s.end(), ' ', '_');
+	std::replace(s.begin(), s.end(), ':', '_');
+	return s;
+}
 }    // namespace
 
 ObjcSwiftStage::ObjcSwiftStage(std::filesystem::path const& baseStage,
@@ -59,7 +81,7 @@ int ObjcSwiftStage::runObjcSwiftTest(std::string const& cppCode,
 
 	addObjcSwiftTestBodies(m_stage, m_moduleName, objCTestCode, swiftCode);
 
-	auto globalNS = parseModuleFile(cppCode);
+	auto [globalNS, meta] = parseModuleFile(m_stage, m_moduleName, cppCode);
 	if (auto m = Frontend::ObjcSwift::createModule(globalNS, m_moduleName)) {
 		for (auto const& [file, content] : m.value()) {
 
@@ -89,19 +111,6 @@ void ObjcSwiftStage::addModuleFile(std::filesystem::path const& file,
 	m_stage.addSourceFile(file,
 	                      "#include \"" + m_moduleName + ".hpp\"\n" + content);
 }
-
-IR::Namespace ObjcSwiftStage::parseModuleFile(std::string const& content) {
-	auto testFile = m_stage.addSourceFile(m_moduleName + ".hpp", content);
-	return TestUtil::parseFile(testFile.string());
-}
-
-namespace {
-std::string makeValidFileName(std::string s) {
-	std::replace(s.begin(), s.end(), ' ', '_');
-	std::replace(s.begin(), s.end(), ':', '_');
-	return s;
-}
-}    // namespace
 
 void ObjcSwiftStage::exportAsExample(std::string const& name) {
 	std::filesystem::path fileName =

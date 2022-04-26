@@ -17,12 +17,6 @@ struct ObjcSwiftStage {
 	                     std::string const& swiftCode);
 
 	/**
-	* Adds the source file moduleName.hpp to the stage with provided content
-	* Uses Tolc::Parser to parse the file and returns the global namespace
-	*/
-	IR::Namespace parseModuleFile(std::string const& content);
-
-	/**
 	* Adds a source file to the stage and imports the module file (moduleName.hpp)
 	*/
 	void addModuleFile(std::filesystem::path const& file,

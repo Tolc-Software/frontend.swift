@@ -41,6 +41,10 @@ buildModule(IR::Namespace const& ns, std::string const& rootModuleName) {
 	Swift::Proxy::Module builtModule(
 	    getVariableName(ns.m_representation, rootModuleName));
 
+	for (auto const& e : ns.m_enums) {
+		builtModule.addEnum(Swift::Builders::buildEnum(e));
+	}
+
 	auto overloadedFunctions =
 	    ObjcSwift::getOverloadedFunctions(ns.m_functions);
 	for (auto const& function : ns.m_functions) {
@@ -68,10 +72,6 @@ buildModule(IR::Namespace const& ns, std::string const& rootModuleName) {
 		} else {
 			return std::nullopt;
 		}
-	}
-
-	for (auto const& e : ns.m_enums) {
-		builtModule.addEnum(Swift::Builders::buildEnum(e));
 	}
 
 	for (auto const& subNamespace : ns.m_namespaces) {

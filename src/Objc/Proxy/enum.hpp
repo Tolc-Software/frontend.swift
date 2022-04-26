@@ -6,14 +6,11 @@
 namespace Objc::Proxy {
 class Enum {
 public:
-	Enum(std::string const& name, std::string const& fullyQualifiedName);
+	Enum(std::string const& name);
 
-	/**
-	* Creates a string corresponding to the pybind11 conversion of this enum.
-	* E.g.
-	*   py::enum_<Pet::Kind>(pet, "Kind", py::arithmetic())
-	*/
-	std::string getObjc(std::string const& moduleOrClassName) const;
+	std::string getObjcSource() const;
+
+	std::string getObjcHeader() const;
 
 	/**
 	* Add an enum value. Should be just the value name.
@@ -25,6 +22,9 @@ public:
 	*/
 	void addValue(std::string const& value);
 
+	std::string getName() const;
+	std::vector<std::string> getValues() const;
+
 	void setScoped(bool isScoped);
 
 	void setDocumentation(std::string const& documentation);
@@ -32,7 +32,6 @@ public:
 private:
 	// The user defined name of the enum
 	std::string m_name;
-	std::string m_fullyQualifiedName;
 	std::string m_documentation;
 	std::vector<std::string> m_values;
 	bool m_isScoped;

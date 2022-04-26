@@ -1,6 +1,7 @@
 #include "Objc/Builders/moduleFileBuilder.hpp"
 #include "Objc/Builders/moduleBuilder.hpp"
 #include "Objc/Proxy/moduleFile.hpp"
+#include "Objc/cache.hpp"
 #include "ObjcSwift/Helpers/combine.hpp"
 #include <IR/ir.hpp>
 #include <optional>
@@ -20,15 +21,16 @@ namespace Objc::Builders {
 std::optional<Objc::Proxy::ModuleFile>
 buildModuleFile(IR::Namespace const& rootNamespace,
                 std::string const& rootModuleName) {
+	Objc::Cache cache;
 	if (auto maybeRootModule =
-	        Objc::Builders::buildModule(rootNamespace, rootModuleName)) {
+	        Objc::Builders::buildModule(rootNamespace, rootModuleName, cache)) {
 		auto rootModule = maybeRootModule.value();
 		Objc::Proxy::ModuleFile moduleFile(rootModule, rootModuleName);
 
 		std::queue<ModulePair> namespaces;
 		for (auto const& subNamespace : rootNamespace.m_namespaces) {
-			if (auto m =
-			        Objc::Builders::buildModule(subNamespace, rootModuleName)) {
+			if (auto m = Objc::Builders::buildModule(
+			        subNamespace, rootModuleName, cache)) {
 				namespaces.push({subNamespace, m.value()});
 			} else {
 				return std::nullopt;
@@ -42,8 +44,8 @@ buildModuleFile(IR::Namespace const& rootNamespace,
 
 			// Go deeper into the nested namespaces
 			for (auto const& subNamespace : currentNamespace.m_namespaces) {
-				if (auto m = Objc::Builders::buildModule(subNamespace,
-				                                         rootModuleName)) {
+				if (auto m = Objc::Builders::buildModule(
+				        subNamespace, rootModuleName, cache)) {
 					namespaces.push({subNamespace, m.value()});
 				} else {
 					return std::nullopt;
@@ -54,6 +56,7 @@ buildModuleFile(IR::Namespace const& rootNamespace,
 			namespaces.pop();
 		}
 
+		moduleFile.setCache(cache);
 		return moduleFile;
 	}
 

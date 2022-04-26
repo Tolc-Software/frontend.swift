@@ -15,8 +15,6 @@ TEST_CASE("Classes", "[classes]") {
 	// Instantiation (must be in a source file):
 	stage.addModuleFile("test.cpp", "int const WithStatic::answer;");
 
-	stage.keepAliveAfterTest();
-
 	auto cppCode = R"(
 class WithConstructor {
 public:

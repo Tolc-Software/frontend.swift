@@ -12,5 +12,8 @@ std::string getFunctionName(IR::Function const& cppFunction,
                             bool isConstructor);
 
 // Joins a set of arguments as a string
-std::string getParameterString(std::vector<IR::Variable> const& parameters);
-}
+std::string getParameterString(std::vector<IR::Argument> const& parameters);
+
+std::string getEnumName(std::string const& qualifiedEnumName,
+                        std::string const& moduleName);
+}    // namespace Objc

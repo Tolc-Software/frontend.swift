@@ -37,7 +37,7 @@ include(FetchContent)
 FetchContent_Declare(
   IRSpecification
   GIT_REPOSITORY https://github.com/Tolc-Software/IntermediateRepresentation.git
-  GIT_TAG v0.14.0)
+  GIT_TAG v0.15.0)
 
 FetchContent_MakeAvailable(IRSpecification)
 
@@ -69,7 +69,7 @@ add_library(
   src/Swift/Builders/moduleFileBuilder.cpp
   src/Swift/Builders/typeToStringBuilder.cpp
 
-  src/Objc/types.cpp
+  src/Objc/Conversions/enum.cpp
   src/Objc/getName.cpp
   src/Objc/Proxy/function.cpp
   src/Objc/Proxy/attribute.cpp
@@ -84,6 +84,7 @@ add_library(
   src/Objc/Builders/functionBuilder.cpp
   src/Objc/Builders/moduleBuilder.cpp
   src/Objc/Builders/moduleFileBuilder.cpp
+  src/Objc/Builders/typeBuilder.cpp
   src/Objc/Builders/typeToStringBuilder.cpp
 
 )

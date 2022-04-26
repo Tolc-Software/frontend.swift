@@ -1,4 +1,5 @@
 #include "Objc/Proxy/moduleFile.hpp"
+#include "Objc/cache.hpp"
 #include <fmt/format.h>
 #include <string>
 
@@ -17,11 +18,7 @@ std::filesystem::path ModuleFile::getFilepath() const {
 }
 
 std::string ModuleFile::getObjcHeader() const {
-	std::string out =
-	    R"(
-#import <Foundation/Foundation.h>
-
-)";
+	std::string out = "#import <Foundation/Foundation.h>";
 
 	for (auto const& m : m_modules) {
 		out += m.getObjcHeader();
@@ -30,14 +27,29 @@ std::string ModuleFile::getObjcHeader() const {
 	return out;
 }
 
+std::string createExtraFunctions(Objc::Cache const& cache) {
+	std::string out;
+	if (!cache.m_extraFunctions.empty()) {
+		out += fmt::format(R"(
+namespace {} {{
+{}
+
+}})",
+		                   cache.m_extraFunctionsNamespace,
+		                   fmt::join(cache.m_extraFunctions, "\n"));
+	}
+	return out;
+}
+
 std::string ModuleFile::getObjcSource() const {
 	std::string out = fmt::format(R"(
 #include "{libraryName}_objc.h"
 #import <Foundation/Foundation.h>
 #include <memory>
-
 )",
 	                              fmt::arg("libraryName", m_libraryName));
+
+	out += createExtraFunctions(m_cache);
 
 	for (auto const& m : m_modules) {
 		out += m.getObjcSource();
@@ -61,6 +73,10 @@ std::filesystem::path ModuleFile::getObjcSourceFile() const {
 
 std::filesystem::path ModuleFile::getBridgingHeaderFile() const {
 	return m_libraryName + "-Bridging-Header.h";
+}
+
+void ModuleFile::setCache(Objc::Cache const& cache) {
+	m_cache = cache;
 }
 
 }    // namespace Objc::Proxy

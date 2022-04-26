@@ -4,6 +4,7 @@
 #include "Objc/Builders/enumBuilder.hpp"
 #include "Objc/Builders/functionBuilder.hpp"
 #include "Objc/Proxy/module.hpp"
+#include "Objc/cache.hpp"
 #include "ObjcSwift/Helpers/combine.hpp"
 #include "ObjcSwift/Helpers/split.hpp"
 #include "ObjcSwift/getOverloadedFunctions.hpp"
@@ -37,14 +38,32 @@ std::string getVariableName(std::string qualifiedName,
 }
 
 std::optional<Objc::Proxy::Module>
-buildModule(IR::Namespace const& ns, std::string const& rootModuleName) {
+buildModule(IR::Namespace const& ns,
+            std::string const& rootModuleName,
+            Objc::Cache& cache) {
 	Objc::Proxy::Module builtModule(
 	    getVariableName(ns.m_representation, rootModuleName));
+
+	for (auto const& e : ns.m_enums) {
+		builtModule.addEnum(
+		    Objc::Builders::buildEnum(e, rootModuleName, cache));
+	}
+
+	for (auto const& cls : ns.m_structs) {
+		if (auto maybeC =
+		        Objc::Builders::buildClass(cls, rootModuleName, cache)) {
+			auto c = maybeC.value();
+			builtModule.addClass(c);
+		} else {
+			return std::nullopt;
+		}
+	}
 
 	auto overloadedFunctions =
 	    ObjcSwift::getOverloadedFunctions(ns.m_functions);
 	for (auto const& function : ns.m_functions) {
-		if (auto maybeF = Objc::Builders::buildFunction(function)) {
+		if (auto maybeF = Objc::Builders::buildFunction(
+		        function, rootModuleName, cache)) {
 			auto f = maybeF.value();
 			if (overloadedFunctions.find(function.m_representation) !=
 			    overloadedFunctions.end()) {
@@ -59,19 +78,6 @@ buildModule(IR::Namespace const& ns, std::string const& rootModuleName) {
 	for (auto const& variable : ns.m_variables) {
 		auto v = Objc::Builders::buildAttribute(ns.m_representation, variable);
 		builtModule.addAttribute(v);
-	}
-
-	for (auto const& cls : ns.m_structs) {
-		if (auto maybeC = Objc::Builders::buildClass(cls, rootModuleName)) {
-			auto c = maybeC.value();
-			builtModule.addClass(c);
-		} else {
-			return std::nullopt;
-		}
-	}
-
-	for (auto const& e : ns.m_enums) {
-		builtModule.addEnum(Objc::Builders::buildEnum(e));
 	}
 
 	for (auto const& subNamespace : ns.m_namespaces) {

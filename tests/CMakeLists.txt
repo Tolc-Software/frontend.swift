@@ -1,7 +1,7 @@
 include_guard()
 
 include(${modules}/GetParser.cmake)
-get_parser(VERSION v0.4.1)
+get_parser(VERSION v0.5.4)
 
 # Set the include path for the system library in the variable
 # We are using the standard library shipped
@@ -69,7 +69,6 @@ if(ENABLE_COVERAGE)
 endif()
 
 # Create a test fixture for downloading dependencies in the test stage
-# In this case pybind11
 add_test(
   NAME ConfigureTestStage
   WORKING_DIRECTORY ${test_stage}
@@ -81,7 +80,7 @@ foreach(
 
   # ObjcSwift/Builders/attributeBuilder.cpp
   # ObjcSwift/Builders/classBuilder.cpp
-  # ObjcSwift/Builders/enumBuilder.cpp
+  Objc/Builders/enumBuilder.cpp
   # ObjcSwift/Builders/functionBuilder.cpp
   # ObjcSwift/Builders/moduleFileBuilder.cpp
   # ObjcSwift/Builders/typeToStringBuilder.cpp
@@ -97,7 +96,7 @@ foreach(
   # complex.cpp
   # deques.cpp
   # documentationStyles.cpp
-  # enums.cpp
+  enums.cpp
   # filesystem_paths.cpp
   # functional.cpp
   # functions.cpp

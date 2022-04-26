@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ObjcSwift/Type.hpp"
 #include <optional>
 #include <string>
 #include <vector>

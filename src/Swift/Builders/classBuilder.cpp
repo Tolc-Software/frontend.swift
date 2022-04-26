@@ -45,6 +45,10 @@ std::optional<Swift::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	    Swift::getClassName(cppClass.m_name, cppClass.m_templateArguments),
 	    objcClassName);
 
+	for (auto const& e : cppClass.m_public.m_enums) {
+		swiftClass.addEnum(buildEnum(e));
+	}
+
 	swiftClass.setDocumentation(cppClass.m_documentation);
 
 	swiftClass.setInherited(cppClass.m_public.m_inherited);
@@ -121,10 +125,6 @@ std::optional<Swift::Proxy::Class> buildClass(IR::Struct const& cppClass,
 		constructor.setAsClassFunction(objcClassName);
 		constructor.setAsConstructor();
 		swiftClass.addConstructor(constructor);
-	}
-
-	for (auto const& e : cppClass.m_public.m_enums) {
-		swiftClass.addEnum(buildEnum(e));
 	}
 
 	return swiftClass;

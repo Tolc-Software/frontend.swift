@@ -2,6 +2,7 @@
 
 #include "Objc/Proxy/enum.hpp"
 #include "Objc/Proxy/function.hpp"
+#include "Objc/Proxy/type.hpp"
 #include <string>
 #include <vector>
 
@@ -21,8 +22,7 @@ public:
 	struct MemberVariable {
 		// User defined name of the member variable
 		std::string m_name;
-		// Objc type
-		std::string m_type;
+		Objc::Proxy::Type m_type;
 		std::string m_documentation;
 		bool m_isConst;
 		bool m_isStatic;

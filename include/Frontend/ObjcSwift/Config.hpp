@@ -19,5 +19,8 @@ struct Config {
 	// Absolute paths to system headers
 	Frontend::ObjcSwift::Language m_language =
 	    Frontend::ObjcSwift::Language::Swift;
+
+	// Order in which objects should be initialized
+	std::vector<size_t> m_definitionOrder = {};
 };
 }    // namespace Frontend::ObjcSwift
