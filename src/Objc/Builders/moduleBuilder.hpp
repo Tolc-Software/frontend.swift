@@ -16,6 +16,5 @@ namespace Objc::Builders {
 */
 std::optional<Objc::Proxy::Module>
 buildModule(IR::Namespace const& ns,
-            std::string const& rootModuleName,
             Objc::Cache& cache);
 }    // namespace Objc::Builders

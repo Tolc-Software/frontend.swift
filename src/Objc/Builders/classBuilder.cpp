@@ -56,8 +56,7 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	auto overloadedFunctions =
 	    ObjcSwift::getOverloadedFunctions(cppClass.m_public.m_functions);
 	for (auto const& function : cppClass.m_public.m_functions) {
-		if (auto maybeobjcFunction =
-		        buildFunction(function, moduleName, cache)) {
+		if (auto maybeobjcFunction = buildFunction(function, cache)) {
 			auto& objcFunction = maybeobjcFunction.value();
 
 			buildMemberFunction(cppClass.m_representation,
@@ -74,8 +73,7 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	auto overloadedOperators =
 	    ObjcSwift::getOverloadedFunctions(cppClass.m_public.m_operators);
 	for (auto const& [op, function] : cppClass.m_public.m_operators) {
-		if (auto maybeobjcFunction =
-		        buildFunction(function, moduleName, cache)) {
+		if (auto maybeobjcFunction = buildFunction(function, cache)) {
 			if (auto maybeName = ObjcSwift::Helpers::getOperatorName(op)) {
 				auto& objcFunction = maybeobjcFunction.value();
 
@@ -92,8 +90,7 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	}
 
 	for (auto const& constructor : cppClass.m_public.m_constructors) {
-		if (auto maybeobjcFunction =
-		        buildFunction(constructor, moduleName, cache, true)) {
+		if (auto maybeobjcFunction = buildFunction(constructor, cache, true)) {
 			auto& objcFunction = maybeobjcFunction.value();
 
 			if (constructor.m_isStatic) {
@@ -116,7 +113,7 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 		Objc::Proxy::Class::MemberVariable m;
 		m.m_name = variable.m_name;
 		m.m_documentation = variable.m_documentation;
-		m.m_type = Objc::Builders::buildType(variable.m_type, moduleName);
+		m.m_type = Objc::Builders::buildType(variable.m_type, cache);
 		m.m_isConst = variable.m_type.m_isConst;
 		m.m_isStatic = variable.m_type.m_isStatic;
 
@@ -127,7 +124,11 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	if (cppClass.m_hasImplicitDefaultConstructor) {
 		auto constructor = Objc::Proxy::Function("init", objcClass.getName());
 		constructor.setAsClassFunction(cppClass.m_representation);
-		constructor.setReturnType({"instancetype", "", ""});
+		Objc::Proxy::Type returnType;
+		returnType.m_name = "instancetype";
+		returnType.m_conversions.m_toObjc = "";
+		returnType.m_conversions.m_toCpp = "";
+		constructor.setReturnType(returnType);
 		constructor.setAsConstructor();
 		objcClass.addConstructor(constructor);
 	}

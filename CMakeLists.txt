@@ -47,6 +47,7 @@ add_library(
   src/Frontend/ObjcSwift/frontend.cpp
   src/ObjcSwift/Helpers/getDocumentationParameter.cpp
   src/ObjcSwift/Helpers/operatorNames.cpp
+  src/ObjcSwift/Helpers/wrapInFunction.cpp
   src/ObjcSwift/Helpers/split.cpp
   src/ObjcSwift/Helpers/string.cpp
   src/ObjcSwift/Helpers/types.cpp
@@ -71,6 +72,7 @@ add_library(
 
   src/Objc/Conversions/enum.cpp
   src/Objc/getName.cpp
+  src/Objc/Conversions/getConversionName.cpp
   src/Objc/Proxy/function.cpp
   src/Objc/Proxy/attribute.cpp
   src/Objc/Proxy/class.cpp

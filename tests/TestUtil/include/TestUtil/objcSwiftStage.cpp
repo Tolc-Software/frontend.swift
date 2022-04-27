@@ -2,13 +2,13 @@
 #include "Frontend/ObjcSwift/frontend.hpp"
 #include "Stage/cmakeStage.hpp"
 #include "TestStage/paths.hpp"
-#include "TestStage/stageFunctions.hpp"
 #include "TestUtil/parserConfig.hpp"
 #include <IR/ir.hpp>
 #include <Parser/Parse.hpp>
 #include <catch2/catch.hpp>
 #include <filesystem>
 #include <fmt/format.h>
+#include <fstream>
 #include <string>
 #include <vector>
 

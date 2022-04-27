@@ -2,41 +2,92 @@
 #include "Objc/Proxy/type.hpp"
 #include "ObjcSwift/Helpers/getDocumentationParameter.hpp"
 #include "ObjcSwift/Helpers/string.hpp"
+#include "ObjcSwift/Helpers/wrapInFunction.hpp"
 #include <algorithm>
 #include <fmt/format.h>
 #include <string>
 
 namespace Objc::Proxy {
 
+namespace {
+
+std::string getCallArguments(
+    std::vector<Objc::Proxy::Function::Argument> const& arguments) {
+	// Get the typenames of the arguments
+	std::vector<std::string> names;
+	std::transform(arguments.begin(),
+	               arguments.end(),
+	               std::back_inserter(names),
+	               [&](auto const& argument) {
+		               return ObjcSwift::Helpers::wrapInFunction(
+		                   argument.m_name,
+		                   argument.m_type.m_conversions.m_toCpp);
+	               });
+	return fmt::format("{}", fmt::join(names, ", "));
+}
+
+std::string getDeclarationArguments(
+    std::vector<Objc::Proxy::Function::Argument> const& arguments) {
+	// (int)x y:(int)y z:(int)z
+	// Get the typenames of the arguments
+	// The first one doesn't start with a name
+	bool isFirst = true;
+	std::string out;
+	for (auto const& arg : arguments) {
+		if (!isFirst) {
+			out += arg.m_name + ':';
+		}
+		isFirst = false;
+		out += fmt::format("({type}){name} ",
+		                   fmt::arg("type", arg.m_type.m_name),
+		                   fmt::arg("name", arg.m_name));
+	}
+	if (!arguments.empty()) {
+		// Remove the last space
+		out.pop_back();
+	}
+	return out;
+}
+}    // namespace
+
 std::string Function::getFunctionDeclaration() const {
 	if (m_isClassFunction) {
 		// - (int)add:(int)x y:(int)y;
+		auto arguments = getDeclarationArguments(m_arguments);
 		return fmt::format(
 		    R"({static} ({returnType}){functionName}{arguments})",
 		    fmt::arg("static", m_isStatic ? "+" : "-"),
 		    fmt::arg("returnType", m_returnType.m_name),
 		    fmt::arg("functionName", m_name),
 		    fmt::arg("arguments",
-		             m_objCDeclArgs.empty() ? m_objCDeclArgs :
-                                              ':' + m_objCDeclArgs));
+		             arguments.empty() ? arguments : ':' + arguments));
 	}
 	return "// Objc function declaration for bare function not implemented";
 }
 
 std::string Function::getFunctionCall() const {
+	auto arguments = getCallArguments(m_arguments);
+	std::string functionCall = "";
 	if (m_isClassFunction) {
 		if (m_isStatic) {
-			return fmt::format(
+			functionCall = fmt::format(
 			    R"({fullyQualifiedClassName}::{name}({arguments}))",
 			    fmt::arg("fullyQualifiedClassName", m_fullyQualifiedClassName),
 			    fmt::arg("name", m_name),
-			    fmt::arg("arguments", m_cppCallArgs));
+			    fmt::arg("arguments", arguments));
+		} else {
+			functionCall = fmt::format("m_object->{name}({arguments})",
+			                           fmt::arg("name", m_name),
+			                           fmt::arg("arguments", arguments));
 		}
-		return fmt::format("m_object->{name}({arguments})",
-		                   fmt::arg("name", m_name),
-		                   fmt::arg("arguments", m_cppCallArgs));
 	}
-	return m_name + '(' + m_cppCallArgs + ')';
+	if (functionCall.empty()) {
+		functionCall = m_name + '(' + arguments + ')';
+	}
+	return m_returnType.m_name == "void" ?
+               functionCall :
+               ObjcSwift::Helpers::wrapInFunction(
+	               functionCall, m_returnType.m_conversions.m_toObjc);
 }
 
 std::string Function::getFunctionBody() const {
@@ -48,7 +99,7 @@ std::string Function::getFunctionBody() const {
   }}
   return self;)",
 			    fmt::arg("qualifiedClassName", m_fullyQualifiedClassName),
-			    fmt::arg("arguments", m_cppCallArgs),
+			    fmt::arg("arguments", getCallArguments(m_arguments)),
 			    fmt::arg("name", m_name));
 		}
 
@@ -115,12 +166,8 @@ void Function::setAsConstructor() {
 	m_isConstructor = true;
 }
 
-void Function::setCppCallArguments(std::string const& arguments) {
-	m_cppCallArgs = arguments;
-}
-
-void Function::setObjCDeclarationArguments(std::string const& arguments) {
-	m_objCDeclArgs = arguments;
+void Function::addArgument(Argument const& arg) {
+	m_arguments.push_back(arg);
 }
 
 }    // namespace Objc::Proxy

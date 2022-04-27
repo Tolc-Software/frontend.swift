@@ -1,4 +1,7 @@
 #include "Objc/Builders/typeBuilder.hpp"
+#include "Objc/Conversions/conversions.hpp"
+#include "Objc/Conversions/getConversionName.hpp"
+#include "Objc/cache.hpp"
 #include "Objc/getName.hpp"
 #include <IR/ir.hpp>
 #include <string>
@@ -36,20 +39,32 @@ std::string toObjcType(IR::BaseType type) {
 	}
 	return "";
 }
+
+std::string getNameFromFqName(std::string const& name) {
+	// MyStuff::Cool -> Cool
+	auto end = name.rfind(':');
+	if (end == std::string::npos) {
+		return name;
+	}
+	return name.substr(0, end);
+}
 }    // namespace
 
-Objc::Proxy::Type buildType(IR::Type const& type,
-                            std::string const& rootModuleName) {
+Objc::Proxy::Type buildType(IR::Type const& type, Objc::Cache const& cache) {
 	Objc::Proxy::Type t;
 	if (auto baseType = std::get_if<IR::Type::Value>(&type.m_type)) {
 		t.m_name = toObjcType(baseType->m_base);
-		t.m_toObjc = "";
-		t.m_toCpp = "";
+		// TODO: Strings need converting
+		t.m_conversions.m_toObjc = "";
+		t.m_conversions.m_toCpp = "";
 	} else if (auto enumType = std::get_if<IR::Type::EnumValue>(&type.m_type)) {
 		t.m_name =
-		    Objc::getEnumName(enumType->m_representation, rootModuleName);
-		t.m_toObjc = "";
-		t.m_toCpp = "";
+		    Objc::getEnumName(enumType->m_representation, cache.m_moduleName);
+		t.m_conversions = Objc::Conversions::getConversionEnumName(
+		    cache.m_moduleName,
+		    cache.m_extraFunctionsNamespace,
+		    enumType->m_representation,
+		    getNameFromFqName(enumType->m_representation));
 	}
 	return t;
 }

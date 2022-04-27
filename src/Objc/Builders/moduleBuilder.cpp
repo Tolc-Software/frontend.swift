@@ -39,19 +39,18 @@ std::string getVariableName(std::string qualifiedName,
 
 std::optional<Objc::Proxy::Module>
 buildModule(IR::Namespace const& ns,
-            std::string const& rootModuleName,
             Objc::Cache& cache) {
 	Objc::Proxy::Module builtModule(
-	    getVariableName(ns.m_representation, rootModuleName));
+	    getVariableName(ns.m_representation, cache.m_moduleName));
 
 	for (auto const& e : ns.m_enums) {
 		builtModule.addEnum(
-		    Objc::Builders::buildEnum(e, rootModuleName, cache));
+		    Objc::Builders::buildEnum(e, cache.m_moduleName, cache));
 	}
 
 	for (auto const& cls : ns.m_structs) {
 		if (auto maybeC =
-		        Objc::Builders::buildClass(cls, rootModuleName, cache)) {
+		        Objc::Builders::buildClass(cls, cache.m_moduleName, cache)) {
 			auto c = maybeC.value();
 			builtModule.addClass(c);
 		} else {
@@ -62,8 +61,7 @@ buildModule(IR::Namespace const& ns,
 	auto overloadedFunctions =
 	    ObjcSwift::getOverloadedFunctions(ns.m_functions);
 	for (auto const& function : ns.m_functions) {
-		if (auto maybeF = Objc::Builders::buildFunction(
-		        function, rootModuleName, cache)) {
+		if (auto maybeF = Objc::Builders::buildFunction(function, cache)) {
 			auto f = maybeF.value();
 			if (overloadedFunctions.find(function.m_representation) !=
 			    overloadedFunctions.end()) {
@@ -83,7 +81,7 @@ buildModule(IR::Namespace const& ns,
 	for (auto const& subNamespace : ns.m_namespaces) {
 		builtModule.addSubmodule(
 		    subNamespace.m_name,
-		    getVariableName(subNamespace.m_representation, rootModuleName),
+		    getVariableName(subNamespace.m_representation, cache.m_moduleName),
 		    subNamespace.m_documentation);
 	}
 

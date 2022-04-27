@@ -14,6 +14,9 @@ struct Cache {
 	// Will be placed in the root under the namespace m_extraFunctionsNamespace
 	std::vector<std::string> m_extraFunctions;
 
+	// The name of the users module we are converting
+	std::string m_moduleName;
+
 	struct Conversions {
 		// Names of conversion functions for types
 		// {C++ fully qualified name, Function name}

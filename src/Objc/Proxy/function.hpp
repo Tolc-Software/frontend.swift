@@ -32,17 +32,12 @@ public:
 
 	std::string getName() const;
 
-	/**
-	* The arguments to call this function from Objective-C++ to C++
-	* Can contan calls to conversion functions etc.
-	*/
-	void setCppCallArguments(std::string const& arguments);
+	struct Argument {
+		std::string m_name;
+		Objc::Proxy::Type m_type;
+	};
 
-	/**
-	* The arguments to declare this Objective-C function
-	* Should only contain valid Objective-C types
-	*/
-	void setObjCDeclarationArguments(std::string const& arguments);
+	void addArgument(Argument const& arg);
 
 private:
 	std::string getFunctionCall() const;
@@ -57,8 +52,7 @@ private:
 	Objc::Proxy::Type m_returnType;
 	// The full name of the class that contains this function
 	std::string m_fullyQualifiedClassName;
-	std::string m_cppCallArgs;
-	std::string m_objCDeclArgs;
+	std::vector<Argument> m_arguments;
 	bool m_isOverloaded;
 	bool m_isStatic;
 	bool m_isClassFunction;

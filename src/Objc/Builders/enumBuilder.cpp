@@ -2,7 +2,6 @@
 #include "Objc/Conversions/enum.hpp"
 #include "Objc/cache.hpp"
 #include "Objc/getName.hpp"
-#include <iostream>
 #include <string>
 
 namespace Objc::Builders {
@@ -20,7 +19,6 @@ Objc::Proxy::Enum buildEnum(IR::Enum const& e,
 		proxyEnum.addValue(enumName + value);
 	}
 
-	std::cout << "Adding a conversion" << '\n';
 	auto [toCpp, toObjc] = Objc::Conversions::getEnumConversions(e, proxyEnum);
 	cache.m_enumConversions.m_toCpp[e.m_representation] =
 	    cache.m_extraFunctionsNamespace + "::" + toCpp.first;

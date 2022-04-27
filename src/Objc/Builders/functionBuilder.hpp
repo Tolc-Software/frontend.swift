@@ -13,7 +13,6 @@ namespace Objc::Builders {
 */
 std::optional<Objc::Proxy::Function>
 buildFunction(IR::Function const& cppFunction,
-              std::string const& moduleName,
               Objc::Cache& cache,
               bool isConstructor = false);
 }    // namespace Objc::Builders

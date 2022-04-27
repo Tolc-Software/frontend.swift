@@ -1,5 +1,6 @@
 #include "Objc/Proxy/class.hpp"
 #include "ObjcSwift/Helpers/getDocumentationParameter.hpp"
+#include "ObjcSwift/Helpers/wrapInFunction.hpp"
 #include <fmt/format.h>
 #include <string>
 
@@ -119,39 +120,52 @@ std::string getPropertyOptions(Class::MemberVariable const& v) {
 std::string Class::joinMemberVariables(bool isSource) const {
 	std::string out;
 	if (isSource) {
-		for (auto const& m : m_memberVariables) {
-			auto stat = m.m_isStatic ? "+" : "-";
-			// How to access the variable
-			auto access =
-			    m.m_isStatic ? m_fullyQualifiedName + "::" : "m_object->";
+		for (auto const& variable : m_memberVariables) {
+			std::string staticAttribute = "-";
+			std::string callAccess = "m_object->";
+			if (variable.m_isStatic) {
+				staticAttribute = "+";
+				callAccess = m_fullyQualifiedName + "::";
+			}
+			// Maybe need a conversion to Objective-C type
+			auto call = ObjcSwift::Helpers::wrapInFunction(
+			    callAccess + variable.m_name,
+			    variable.m_type.m_conversions.m_toObjc);
 			out += fmt::format(R"(
-{static}({type}) {name} {{
-  return {access}{name};
+{staticAttribute}({type}) {name} {{
+  return {call};
 }}
 )",
-			                   fmt::arg("static", stat),
-			                   fmt::arg("type", m.m_type.m_name),
-			                   fmt::arg("name", m.m_name),
-			                   fmt::arg("access", access));
-			if (!m.m_isConst) {
+			                   fmt::arg("staticAttribute", staticAttribute),
+			                   fmt::arg("type", variable.m_type.m_name),
+			                   fmt::arg("name", variable.m_name),
+			                   fmt::arg("call", call));
+			if (!variable.m_isConst) {
 				// Not const -> Add a setter
-				out += fmt::format(R"(
-{static}(void) {name}:({type})new{name} {{
-  {access}{name} = new{name};
+				// Maybe need a conversion to C++ type
+				auto convertedVariable = ObjcSwift::Helpers::wrapInFunction(
+				    "new" + variable.m_name,
+				    variable.m_type.m_conversions.m_toCpp);
+				out += fmt::format(
+				    R"(
+{staticAttribute}(void) {name}:({type})new{name} {{
+  {callAccess}{name} = {convertedVariable};
 }}
 )",
-				                   fmt::arg("static", stat),
-				                   fmt::arg("name", m.m_name),
-				                   fmt::arg("type", m.m_type.m_name),
-				                   fmt::arg("access", access));
+				    fmt::arg("staticAttribute", staticAttribute),
+				    fmt::arg("name", variable.m_name),
+				    fmt::arg("type", variable.m_type.m_name),
+				    fmt::arg("callAccess", callAccess),
+				    fmt::arg("convertedVariable", convertedVariable));
 			}
 		}
 	} else {
-		for (auto const& m : m_memberVariables) {
-			out += fmt::format("\n@property {options} {type} {name};\n",
-			                   fmt::arg("options", getPropertyOptions(m)),
-			                   fmt::arg("name", m.m_name),
-			                   fmt::arg("type", m.m_type.m_name));
+		for (auto const& variable : m_memberVariables) {
+			out +=
+			    fmt::format("\n@property {options} {type} {name};\n",
+			                fmt::arg("options", getPropertyOptions(variable)),
+			                fmt::arg("name", variable.m_name),
+			                fmt::arg("type", variable.m_type.m_name));
 		}
 	}
 	return out;

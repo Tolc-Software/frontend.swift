@@ -22,15 +22,15 @@ std::optional<Objc::Proxy::ModuleFile>
 buildModuleFile(IR::Namespace const& rootNamespace,
                 std::string const& rootModuleName) {
 	Objc::Cache cache;
+	cache.m_moduleName = rootModuleName;
 	if (auto maybeRootModule =
-	        Objc::Builders::buildModule(rootNamespace, rootModuleName, cache)) {
+	        Objc::Builders::buildModule(rootNamespace, cache)) {
 		auto rootModule = maybeRootModule.value();
 		Objc::Proxy::ModuleFile moduleFile(rootModule, rootModuleName);
 
 		std::queue<ModulePair> namespaces;
 		for (auto const& subNamespace : rootNamespace.m_namespaces) {
-			if (auto m = Objc::Builders::buildModule(
-			        subNamespace, rootModuleName, cache)) {
+			if (auto m = Objc::Builders::buildModule(subNamespace, cache)) {
 				namespaces.push({subNamespace, m.value()});
 			} else {
 				return std::nullopt;
@@ -44,8 +44,7 @@ buildModuleFile(IR::Namespace const& rootNamespace,
 
 			// Go deeper into the nested namespaces
 			for (auto const& subNamespace : currentNamespace.m_namespaces) {
-				if (auto m = Objc::Builders::buildModule(
-				        subNamespace, rootModuleName, cache)) {
+				if (auto m = Objc::Builders::buildModule(subNamespace, cache)) {
 					namespaces.push({subNamespace, m.value()});
 				} else {
 					return std::nullopt;

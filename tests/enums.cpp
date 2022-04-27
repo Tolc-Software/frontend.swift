@@ -24,12 +24,12 @@ class EnumTest {
 public:
 	explicit EnumTest(Scoped _s) : s(_s) {};
 
+	Unscoped f(Unscoped u) {
+		return u;
+	}
+
 	Scoped s;
 };
-
-Unscoped f(Unscoped u) {
-	return u;
-}
 
 namespace NS {
 	// Documentation describing the enum
@@ -43,21 +43,18 @@ namespace NS {
 
 	auto objcTestCode = R"(
 // C++11 enums work
-mWithConstructor* ten = [[mWithConstructor alloc] init];
-assert([ten getV] == 10);
-scoped = m.Scoped.Snail
-enumTest = m.EnumTest(scoped)
-assert(enumTest.s == scoped)
+mEnumTest* enumTest = [[mEnumTest alloc] initWithScoped:mScopedSnail];
+mScoped snail = mScopedSnail;
+assert(enumTest.s == snail);
 
 // Aswell as legacy enums
-unscoped = m.Unscoped.Uboat
-u = m.f(unscoped)
-assert(u == unscoped)
+mUnscoped uboat = mUnscopedUboat;
+assert([enumTest f:uboat] == uboat)
 
 // Enums under namespaces are available
 // under the corresponding submodule
-deep = m.NS.Deep.Down
-assert(deep != m.NS.Deep.Double)
+/* deep = m.NS.Deep.Down */
+/* assert(deep != m.NS.Deep.Double) */
 
 // Documentation carries over from C++
 // self.assertIn("Documentation describing the enum", m.NS.Deep.__doc__)
