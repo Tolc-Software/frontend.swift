@@ -25,8 +25,8 @@ Note that any restriction this poses only applies to the public interface of you
 | Global static variable              | ???                            | ???                            |
 | Free function                       | ???                            | ???                            |
 | Overloaded function                 | ???                            | ???                            |
-| Enum                                | ???                            | ???                            |
-| Scoped enum                         | ???                            | ???                            |
+| Enum                                | NS\_ENUM                       | ???                            |
+| Scoped enum                         | NS\_ENUM                       | ???                            |
 | Templated class/function            | Not converted**                | Not converted**                |
 | Specialized class template          | ???                            | ???                            |
 | Specialized function template       | ???                            | ???                            |
@@ -79,11 +79,11 @@ Note that any restriction this poses only applies to the public interface of you
 | std::priority\_queue            | ???                                                               | ???                            |
 | std::queue                      | ???                                                               | ???                            |
 | std::set                        | ???                                                               | ???                            |
-| std::shared_ptr                 | ???                                                               | ???                            |
+| std::shared\_ptr                | ???                                                               | ???                            |
 | std::stack                      | ???                                                               | ???                            |
 | std::tuple                      | ???                                                               | ???                            |
-| std::unique_ptr                 | ???                                                               | ???                            |
-| std::shared_ptr                 | ???                                                               | ???                            |
+| std::unique\_ptr                | ???                                                               | ???                            |
+| std::shared\_ptr                | ???                                                               | ???                            |
 | std::unordered\_map             | ???                                                               | ???                            |
 | std::unordered\_multimap        | ???                                                               | ???                            |
 | std::unordered\_multiset        | ???                                                               | ???                            |
@@ -102,10 +102,10 @@ Note that any restriction this poses only applies to the public interface of you
 | double                     | double                   | Double                         |
 | float                      | float                    | Float                          |
 | int                        | int                      | Int32                          |
-| int8_t                     | ???                      | Int8                           |
-| int16_t                    | ???                      | Int16                          |
-| int32_t                    | ???                      | Int32                          |
-| int64_t                    | ???                      | Int64                          |
+| int8\_t                    | ???                      | Int8                           |
+| int16\_t                   | ???                      | Int16                          |
+| int32\_t                   | ???                      | Int32                          |
+| int64\_t                   | ???                      | Int64                          |
 | long double                | ???                      | Double                         |
 | long int                   | ???                      | Int64                          |
 | long long int              | ???                      | Int64                          |
@@ -113,10 +113,10 @@ Note that any restriction this poses only applies to the public interface of you
 | signed char                | ???                      | Character                      |
 | string                     | ???                      | String                         |
 | string\_view               | ???                      | String                         |
-| uint8_t                    | ???                      | UInt                           |
-| uint16_t                   | ???                      | UInt                           |
-| uint32_t                   | ???                      | UInt                           |
-| uint64_t                   | ???                      | UInt                           |
+| uint8\_t                   | ???                      | UInt                           |
+| uint16\_t                  | ???                      | UInt                           |
+| uint32\_t                  | ???                      | UInt                           |
+| uint64\_t                  | ???                      | UInt                           |
 | unsigned char              | ???                      | Character                      |
 | unsigned int               | ???                      | UInt                           |
 | unsigned long int          | ???                      | UInt                           |
