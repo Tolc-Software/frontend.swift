@@ -49,7 +49,7 @@ assert(enumTest.s == snail);
 
 // Aswell as legacy enums
 mUnscoped uboat = mUnscopedUboat;
-assert([enumTest f:uboat] == uboat)
+assert([enumTest f:uboat] == uboat);
 
 // Enums under namespaces are available
 // under the corresponding submodule

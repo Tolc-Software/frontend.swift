@@ -36,19 +36,6 @@ target_link_libraries(${target_name}_objc PRIVATE ${target_name})
 #       and use it as the standard
 set_property(TARGET ${target_name}_objc PROPERTY OBJCXX_STANDARD 17)
 
-# The ObjcSwift middle layer
-add_library(${target_name}_swift SHARED src/${target_name}_swift.swift)
-target_link_libraries(${target_name}_swift PRIVATE ${target_name}_objc)
-set_target_properties(${target_name}_swift PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES
-  ${CMAKE_CURRENT_BINARY_DIR}
-  )
-set_property(TARGET ${target_name}_swift
-  APPEND_STRING
-  PROPERTY
-  COMPILE_FLAGS
-  "-import-objc-header ${CMAKE_CURRENT_LIST_DIR}/src/${target_name}-Bridging-Header.h")
-
 include(CTest)
 
 # # The Objective-C exposed layer
@@ -58,11 +45,27 @@ target_link_libraries(objecty PRIVATE "-framework Foundation")
 add_test(NAME objecty
   COMMAND objecty)
 
-# The ObjcSwift exposed layer
-add_executable(swifty
-  tests/main.swift)
-target_link_libraries(swifty PRIVATE
-  ${target_name}_swift)
-add_test(NAME swifty
-  COMMAND swifty)
+# TODO: When Swift is stable, start testing that aswell
+set(use_swift OFF)
+if(use_swift)
+  # The ObjcSwift middle layer
+  add_library(${target_name}_swift SHARED src/${target_name}_swift.swift)
+  target_link_libraries(${target_name}_swift PRIVATE ${target_name}_objc)
+  set_target_properties(${target_name}_swift PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES
+    ${CMAKE_CURRENT_BINARY_DIR}
+    )
+  set_property(TARGET ${target_name}_swift
+    APPEND_STRING
+    PROPERTY
+    COMPILE_FLAGS
+    "-import-objc-header ${CMAKE_CURRENT_LIST_DIR}/src/${target_name}-Bridging-Header.h")
+  # The ObjcSwift exposed layer
+  add_executable(swifty
+    tests/main.swift)
+  target_link_libraries(swifty PRIVATE
+    ${target_name}_swift)
+  add_test(NAME swifty
+    COMMAND swifty)
+endif()
 
