@@ -3,6 +3,7 @@
 #include "Objc/Builders/functionBuilder.hpp"
 #include "Objc/Builders/typeBuilder.hpp"
 #include "Objc/Builders/typeToStringBuilder.hpp"
+#include "Objc/Proxy/attribute.hpp"
 #include "Objc/Proxy/function.hpp"
 #include "Objc/cache.hpp"
 #include "Objc/getName.hpp"
@@ -45,7 +46,7 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	                             cppClass.m_representation);
 
 	for (auto const& e : cppClass.m_public.m_enums) {
-		objcClass.addEnum(buildEnum(e, moduleName, cache));
+		objcClass.addEnum(buildEnum(e, cache));
 	}
 
 	objcClass.setDocumentation(cppClass.m_documentation);
@@ -110,7 +111,7 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	}
 
 	for (auto const& variable : cppClass.m_public.m_memberVariables) {
-		Objc::Proxy::Class::MemberVariable m;
+		Objc::Proxy::Attribute m;
 		m.m_name = variable.m_name;
 		m.m_documentation = variable.m_documentation;
 		m.m_type = Objc::Builders::buildType(variable.m_type, cache);

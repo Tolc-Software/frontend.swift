@@ -99,7 +99,7 @@ foreach(
   enums.cpp
   # filesystem_paths.cpp
   # functional.cpp
-  # functions.cpp
+  functions.cpp
   # globalVariables.cpp
   # inheritence.cpp
   # lists.cpp

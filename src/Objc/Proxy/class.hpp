@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Objc/Proxy/attribute.hpp"
 #include "Objc/Proxy/enum.hpp"
 #include "Objc/Proxy/function.hpp"
 #include "Objc/Proxy/type.hpp"
@@ -19,16 +20,7 @@ public:
 
 	void addConstructor(Function const& constructor);
 
-	struct MemberVariable {
-		// User defined name of the member variable
-		std::string m_name;
-		Objc::Proxy::Type m_type;
-		std::string m_documentation;
-		bool m_isConst;
-		bool m_isStatic;
-	};
-
-	void addMemberVariable(MemberVariable const& variable);
+	void addMemberVariable(Attribute const& variable);
 
 	std::string const& getName() const;
 
@@ -39,6 +31,9 @@ public:
 	// Will be managed by a std::shared_ptr on the python side
 	// instead of the default std::unique_ptr
 	void setAsManagedByShared();
+
+	// Meaning it has no underlying C++ class
+	void setAsPurelyStatic();
 
 	std::string getObjcSource() const;
 	std::string getObjcHeader() const;
@@ -54,9 +49,10 @@ private:
 	std::vector<std::string> m_inherited;
 	std::vector<Function> m_constructors;
 	std::vector<Function> m_functions;
-	std::vector<MemberVariable> m_memberVariables;
+	std::vector<Attribute> m_memberVariables;
 	std::vector<Enum> m_enums;
 
 	bool m_isManagedByShared;
+	bool m_isPurelyStatic;
 };
 }    // namespace Objc::Proxy

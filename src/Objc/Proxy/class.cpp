@@ -22,22 +22,29 @@ std::string joinFunctions(std::vector<Objc::Proxy::Function> const& functions,
 	return out;
 }
 
+std::string getUnderlyingObject(std::string const& fullyQualifiedName) {
+	return fmt::format(R"( {{
+  // The corresponding C++ object
+  std::unique_ptr<{fullyQualifiedName}> m_object;
+}})",
+	                   fmt::arg("fullyQualifiedName", fullyQualifiedName));
+}
+
 }    // namespace
 
 std::string Class::getObjcSource() const {
 	bool isSource = true;
 	std::string out = fmt::format(
 	    R"(
-@implementation {className} {{
-  // The corresponding C++ object
-  std::unique_ptr<{fullyQualifiedName}> m_object;
-}}
+@implementation {className}{underlyingObject}
 {constructors}
 {functions}
 {memberVariables}
 @end)",
 	    fmt::arg("className", m_name),
-	    fmt::arg("fullyQualifiedName", m_fullyQualifiedName),
+	    fmt::arg("underlyingObject",
+	             m_isPurelyStatic ? "" :
+                                    getUnderlyingObject(m_fullyQualifiedName)),
 	    fmt::arg("constructors", joinFunctions(m_constructors, isSource)),
 	    fmt::arg("functions", joinFunctions(m_functions, isSource)),
 	    fmt::arg("memberVariables", joinMemberVariables(isSource)));
@@ -64,8 +71,8 @@ std::string Class::getObjcHeader() const {
 
 Class::Class(std::string const& name, std::string const& fullyQualifiedName)
     : m_name(name), m_fullyQualifiedName(fullyQualifiedName), m_constructors(),
-      m_functions(), m_memberVariables(), m_enums(),
-      m_isManagedByShared(false) {}
+      m_functions(), m_memberVariables(), m_enums(), m_isManagedByShared(false),
+      m_isPurelyStatic(false) {}
 
 void Class::addEnum(Enum const& e) {
 	m_enums.push_back(e);
@@ -79,7 +86,7 @@ void Class::addConstructor(Function const& constructor) {
 	m_constructors.push_back(constructor);
 }
 
-void Class::addMemberVariable(MemberVariable const& variable) {
+void Class::addMemberVariable(Attribute const& variable) {
 	m_memberVariables.push_back(variable);
 }
 
@@ -101,7 +108,7 @@ void Class::setInherited(std::vector<std::string> const& inherited) {
 	}
 }
 
-std::string getPropertyOptions(Class::MemberVariable const& v) {
+std::string getPropertyOptions(Attribute const& v) {
 	std::vector<std::string> options;
 	if (v.m_isConst) {
 		options.push_back("readonly");
@@ -169,6 +176,10 @@ std::string Class::joinMemberVariables(bool isSource) const {
 		}
 	}
 	return out;
+}
+
+void Class::setAsPurelyStatic() {
+	m_isPurelyStatic = true;
 }
 
 }    // namespace Objc::Proxy

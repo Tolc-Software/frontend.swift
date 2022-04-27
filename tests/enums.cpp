@@ -7,7 +7,6 @@ TEST_CASE("Testing enums", "[enums]") {
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
-	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 enum Unscoped {

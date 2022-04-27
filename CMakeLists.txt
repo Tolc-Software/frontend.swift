@@ -74,7 +74,6 @@ add_library(
   src/Objc/getName.cpp
   src/Objc/Conversions/getConversionName.cpp
   src/Objc/Proxy/function.cpp
-  src/Objc/Proxy/attribute.cpp
   src/Objc/Proxy/class.cpp
   src/Objc/Proxy/enum.cpp
   src/Objc/Proxy/function.cpp

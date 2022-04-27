@@ -1,27 +1,19 @@
 #pragma once
 
+#include "Objc/Proxy/type.hpp"
 #include <string>
 #include <vector>
 
 namespace Objc::Proxy {
 /**
-* An attribute is a global value
-* NOTE: python throws away const so the value will always be mutable
+* An attribute is either a global value or a member variable
 */
-class Attribute {
-public:
-	Attribute(std::string const& name, std::string const& fullyQualifiedName);
-
-	/**
-	* Creates a string corresponding to the pybind11 conversion of this attribute.
-	* E.g.
-	*   attr("i") = &MyNamespace::i;
-	*/
-	std::string getObjc() const;
-
-private:
-	// The user defined name of the enum
+struct Attribute {
+	// User defined name of the member variable
 	std::string m_name;
-	std::string m_fullyQualifiedName;
+	Objc::Proxy::Type m_type;
+	std::string m_documentation;
+	bool m_isConst;
+	bool m_isStatic;
 };
 }    // namespace Objc::Proxy

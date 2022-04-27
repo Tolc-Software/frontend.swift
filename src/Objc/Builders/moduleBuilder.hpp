@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Objc/Builders/functionBuilder.hpp"
-#include "Objc/Proxy/module.hpp"
+#include "Objc/Proxy/class.hpp"
 #include "Objc/cache.hpp"
 #include <IR/ir.hpp>
 #include <optional>
@@ -14,7 +14,6 @@ namespace Objc::Builders {
 *       but adds the children of ns as submodules
 * Fails if any functions takes unique_ptr as an argument
 */
-std::optional<Objc::Proxy::Module>
-buildModule(IR::Namespace const& ns,
-            Objc::Cache& cache);
+std::optional<Objc::Proxy::Class> buildModule(IR::Namespace const& ns,
+                                              Objc::Cache& cache);
 }    // namespace Objc::Builders

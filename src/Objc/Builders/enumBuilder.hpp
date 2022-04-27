@@ -9,6 +9,5 @@ namespace Objc::Builders {
 /**
 * Transforms a IR::Enum to a Objc::Proxy::Enum
 */
-Objc::Proxy::Enum
-buildEnum(IR::Enum const& s, std::string const& moduleName, Objc::Cache& cache);
+Objc::Proxy::Enum buildEnum(IR::Enum const& s, Objc::Cache& cache);
 }    // namespace Objc::Builders

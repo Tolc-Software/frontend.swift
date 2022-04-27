@@ -23,18 +23,20 @@ Note that any restriction this poses only applies to the public interface of you
 | Private member variable             | Not converted                  | Not converted                  |
 | Global variable                     | ???                            | ???                            |
 | Global static variable              | ???                            | ???                            |
-| Free function                       | ???                            | ???                            |
+| Free function                       | Static class function***       | ???                            |
 | Overloaded function                 | ???                            | ???                            |
 | Enum                                | NS\_ENUM                       | ???                            |
 | Scoped enum                         | NS\_ENUM                       | ???                            |
 | Templated class/function            | Not converted**                | Not converted**                |
 | Specialized class template          | ???                            | ???                            |
 | Specialized function template       | ???                            | ???                            |
-| Documentation*****                  | ???                            | ???                            |
+| Documentation                       | ???                            | ???                            |
 
 \* Prefix on all classes and free functions in the namespace. The Swift class only has static functions (corresponding to free functions)
 
 \*\* No direct translation to Objective-C or Swift. Will not emit warning.
+
+\*\*\* Wrapped in a class with a name that starts with the module name
 
 | C++ operator      | Objective-C operator  | Swift operator                 |
 |:----------------- |:--------------------- |:------------------------------ |

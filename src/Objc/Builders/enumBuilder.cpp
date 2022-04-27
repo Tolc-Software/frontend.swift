@@ -7,9 +7,8 @@
 namespace Objc::Builders {
 
 Objc::Proxy::Enum buildEnum(IR::Enum const& e,
-                            std::string const& moduleName,
                             Objc::Cache& cache) {
-	auto enumName = Objc::getEnumName(e.m_representation, moduleName);
+	auto enumName = Objc::getEnumName(e.m_representation, cache.m_moduleName);
 	Objc::Proxy::Enum proxyEnum(enumName);
 
 	proxyEnum.setScoped(e.m_isScoped);

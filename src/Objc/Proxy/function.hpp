@@ -55,7 +55,6 @@ private:
 	std::vector<Argument> m_arguments;
 	bool m_isOverloaded;
 	bool m_isStatic;
-	bool m_isClassFunction;
 	bool m_isConstructor;
 };
 }    // namespace Objc::Proxy

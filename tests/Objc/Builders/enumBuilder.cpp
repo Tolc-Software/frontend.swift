@@ -22,7 +22,8 @@ TEST_CASE("Can build simple enums", "[enumBuilder]") {
 	e.m_isScoped = true;
 
 	Objc::Cache c;
-	auto proxyEnum = Objc::Builders::buildEnum(e, moduleName, c);
+	c.m_moduleName = moduleName;
+	auto proxyEnum = Objc::Builders::buildEnum(e, c);
 	auto pybind = proxyEnum.getObjcHeader();
 	CAPTURE(pybind);
 

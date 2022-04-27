@@ -8,9 +8,6 @@ namespace Objc::Proxy {
 
 std::string Module::getObjcSource() const {
 	std::string out;
-	for (auto const& e : m_enums) {
-		out += fmt::format("{}\n", e.getObjcSource());
-	}
 
 	for (auto const& cls : m_classes) {
 		out += fmt::format("{}\n", cls.getObjcSource());
@@ -21,10 +18,6 @@ std::string Module::getObjcSource() const {
 std::string Module::getObjcHeader() const {
 	std::string out;
 
-	for (auto const& e : m_enums) {
-		out += fmt::format("{}\n", e.getObjcHeader());
-	}
-
 	for (auto const& cls : m_classes) {
 		out += fmt::format("{}\n", cls.getObjcHeader());
 	}
@@ -32,7 +25,7 @@ std::string Module::getObjcHeader() const {
 }
 
 Module::Module(std::string const& variableName)
-    : m_variableName(variableName), m_submodules({}), m_functions(), m_enums(),
+    : m_variableName(variableName), m_submodules({}), m_functions(),
       m_attributes() {}
 
 void Module::addFunction(Function const& function) {
@@ -41,10 +34,6 @@ void Module::addFunction(Function const& function) {
 
 void Module::addClass(Class const& c) {
 	m_classes.push_back(c);
-}
-
-void Module::addEnum(Enum const& e) {
-	m_enums.push_back(e);
 }
 
 void Module::addAttribute(Attribute const& a) {

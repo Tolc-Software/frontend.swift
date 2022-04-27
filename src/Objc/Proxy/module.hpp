@@ -16,8 +16,6 @@ struct Module {
 
 	void addClass(Class const& c);
 
-	void addEnum(Enum const& e);
-
 	void addAttribute(Attribute const& a);
 
 	std::string const& getVariableName() const;
@@ -43,7 +41,6 @@ private:
 
 	std::vector<Function> m_functions;
 	std::vector<Class> m_classes;
-	std::vector<Enum> m_enums;
 	std::vector<Attribute> m_attributes;
 };
 }    // namespace Objc::Proxy
