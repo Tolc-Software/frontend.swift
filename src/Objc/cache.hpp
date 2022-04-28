@@ -19,13 +19,11 @@ struct Cache {
 
 	struct Conversions {
 		// Names of conversion functions for types
-		// {C++ fully qualified name, Function name}
-		std::map<std::string, std::string> m_toCpp;
-		// {Objective-C fully qualified name, Function name}
-		std::map<std::string, std::string> m_toObjc;
+		// Used to check if a function has been registered already
+		std::set<std::string> m_toCpp;
 	};
 
-	Conversions m_enumConversions;
+	Conversions m_baseConversions;
 };
 
 }    // namespace Objc

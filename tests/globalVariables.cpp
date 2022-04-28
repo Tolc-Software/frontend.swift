@@ -15,6 +15,7 @@ TEST_CASE("Global variables are converted",
 static int i = 0;
 namespace Nested {
 	int life = 42;
+	std::string s = "Hello World";
 }
 )";
 
@@ -26,6 +27,9 @@ assert(m.i == 5);
 
 // Nested with the same name
 assert(mNested.life == 42);
+
+// Strings also work
+assert([mNested.s isEqualToString:@"Hello World"]);
 )";
 
 	auto swiftTestCode = R"()";

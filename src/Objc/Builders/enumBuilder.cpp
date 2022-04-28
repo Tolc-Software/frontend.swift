@@ -18,14 +18,10 @@ Objc::Proxy::Enum buildEnum(IR::Enum const& e,
 		proxyEnum.addValue(enumName + value);
 	}
 
-	auto [toCpp, toObjc] = Objc::Conversions::getEnumConversions(e, proxyEnum);
-	cache.m_enumConversions.m_toCpp[e.m_representation] =
-	    cache.m_extraFunctionsNamespace + "::" + toCpp.first;
-	cache.m_extraFunctions.push_back(toCpp.second);
-
-	cache.m_enumConversions.m_toObjc[enumName] =
-	    cache.m_extraFunctionsNamespace + "::" + toObjc.first;
-	cache.m_extraFunctions.push_back(toObjc.second);
+	// Register conversion functions
+	auto conversion = Objc::Conversions::getEnumConversions(e, proxyEnum);
+	cache.m_extraFunctions.push_back(conversion.m_toCpp);
+	cache.m_extraFunctions.push_back(conversion.m_toObjc);
 
 	return proxyEnum;
 }

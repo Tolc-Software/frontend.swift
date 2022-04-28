@@ -1,4 +1,5 @@
 #include "Objc/Conversions/enum.hpp"
+#include "Objc/Conversions/conversion.hpp"
 #include "Objc/Proxy/enum.hpp"
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
@@ -29,50 +30,46 @@ std::string casesFromTo(std::string const& fromPrefix,
 }
 }    // namespace
 
-std::array<std::pair<std::string, std::string>, 2>
-getEnumConversions(IR::Enum const& cppEnum, Objc::Proxy::Enum const& objcEnum) {
+Conversion getEnumConversions(IR::Enum const& cppEnum,
+                              Objc::Proxy::Enum const& objcEnum) {
 	std::string toObjcName =
 	    fmt::format("convertEnum{}To{}", cppEnum.m_name, objcEnum.getName());
 	std::string toCppName =
 	    fmt::format("convertEnum{}To{}", objcEnum.getName(), cppEnum.m_name);
 
-	return {std::make_pair(
-	            toCppName,
-	            fmt::format(
-	                R"(
+	Conversion c;
+	c.m_toCpp = fmt::format(
+	    R"(
 {cppEnum} {toCppName}({objcEnum} e) {{
   switch (e) {{
 {cases}
   }}
 }})",
-	                fmt::arg("cppEnum", cppEnum.m_representation),
-	                fmt::arg("toCppName", toCppName),
-	                fmt::arg("objcEnum", objcEnum.getName()),
-	                fmt::arg("cases",
-	                         casesFromTo("",
-	                                     objcEnum.getValues(),
-	                                     cppEnum.m_isScoped ?
-                                             cppEnum.m_representation + "::" :
-                                             "",
-	                                     cppEnum.m_values)))),
-	        std::make_pair(
-	            toObjcName,
-	            fmt::format(
-	                R"(
+	    fmt::arg("cppEnum", cppEnum.m_representation),
+	    fmt::arg("toCppName", toCppName),
+	    fmt::arg("objcEnum", objcEnum.getName()),
+	    fmt::arg("cases",
+	             casesFromTo(
+	                 "",
+	                 objcEnum.getValues(),
+	                 cppEnum.m_isScoped ? cppEnum.m_representation + "::" : "",
+	                 cppEnum.m_values)));
+	c.m_toObjc = fmt::format(
+	    R"(
 {objcEnum} {toObjcName}({cppEnum} e) {{
   switch (e) {{
 {cases}
   }}
 }})",
-	                fmt::arg("objcEnum", objcEnum.getName()),
-	                fmt::arg("toObjcName", toObjcName),
-	                fmt::arg("cppEnum", cppEnum.m_representation),
-	                fmt::arg("cases",
-	                         casesFromTo(cppEnum.m_isScoped ?
-                                             cppEnum.m_representation + "::" :
-                                             "",
-	                                     cppEnum.m_values,
-	                                     "",
-	                                     objcEnum.getValues()))))};
+	    fmt::arg("objcEnum", objcEnum.getName()),
+	    fmt::arg("toObjcName", toObjcName),
+	    fmt::arg("cppEnum", cppEnum.m_representation),
+	    fmt::arg("cases",
+	             casesFromTo(
+	                 cppEnum.m_isScoped ? cppEnum.m_representation + "::" : "",
+	                 cppEnum.m_values,
+	                 "",
+	                 objcEnum.getValues())));
+	return c;
 }
 }    // namespace Objc::Conversions

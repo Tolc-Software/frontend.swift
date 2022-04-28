@@ -6,5 +6,5 @@
 #include <string>
 
 namespace Objc::Builders {
-Objc::Proxy::Type buildType(IR::Type const& type, Objc::Cache const& cache);
+Objc::Proxy::Type buildType(IR::Type const& type, Objc::Cache& cache);
 }

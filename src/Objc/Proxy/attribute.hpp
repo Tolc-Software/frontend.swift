@@ -15,5 +15,7 @@ struct Attribute {
 	std::string m_documentation;
 	bool m_isConst;
 	bool m_isStatic;
+	// Determines which memory property it should have
+	bool m_isObject;
 };
 }    // namespace Objc::Proxy

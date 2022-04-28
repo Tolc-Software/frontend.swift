@@ -110,6 +110,10 @@ void Class::setInherited(std::vector<std::string> const& inherited) {
 
 std::string getPropertyOptions(Attribute const& v) {
 	std::vector<std::string> options;
+	if (v.m_isObject) {
+		// Memory management
+		options.push_back("strong");
+	}
 	if (v.m_isConst) {
 		options.push_back("readonly");
 	} else {

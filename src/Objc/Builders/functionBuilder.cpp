@@ -4,11 +4,8 @@
 #include "Objc/cache.hpp"
 #include "Objc/getName.hpp"
 #include "ObjcSwift/Helpers/types.hpp"
-#include "Swift/types.hpp"
 #include <IR/ir.hpp>
 #include <optional>
-#include <spdlog/spdlog.h>
-#include <variant>
 
 namespace Objc::Builders {
 

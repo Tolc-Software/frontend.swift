@@ -10,5 +10,5 @@ namespace Objc::Builders {
 * Transforms a IR::Variable to a Objc::Proxy::Attribute
 */
 Objc::Proxy::Attribute buildAttribute(IR::Variable const& v,
-                                      Objc::Cache const& cache);
+                                      Objc::Cache& cache);
 }    // namespace Objc::Builders

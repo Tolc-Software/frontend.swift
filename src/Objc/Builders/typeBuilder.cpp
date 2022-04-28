@@ -1,5 +1,6 @@
 #include "Objc/Builders/typeBuilder.hpp"
-#include "Objc/Conversions/conversions.hpp"
+#include "Objc/Conversions/base.hpp"
+#include "Objc/Conversions/conversion.hpp"
 #include "Objc/Conversions/getConversionName.hpp"
 #include "Objc/cache.hpp"
 #include "Objc/getName.hpp"
@@ -19,7 +20,7 @@ std::string toObjcType(IR::BaseType type) {
 		case BaseType::Char: return "char";
 		case BaseType::Complex: return "complex";
 		case BaseType::Double: return "double";
-		case BaseType::FilesystemPath: return "filesystempath";
+		case BaseType::FilesystemPath: return "NSString*";
 		case BaseType::Float: return "float";
 		case BaseType::Int: return "int";
 		case BaseType::LongDouble: return "long double";
@@ -27,8 +28,8 @@ std::string toObjcType(IR::BaseType type) {
 		case BaseType::LongLongInt: return "long long int";
 		case BaseType::ShortInt: return "short int";
 		case BaseType::SignedChar: return "signed char";
-		case BaseType::String: return "*NSString";
-		case BaseType::StringView: return "*NSString";
+		case BaseType::String: return "NSString*";
+		case BaseType::StringView: return "NSString*";
 		case BaseType::UnsignedChar: return "unsigned char";
 		case BaseType::UnsignedInt: return "unsigned int";
 		case BaseType::UnsignedLongInt: return "unsigned long int";
@@ -40,6 +41,9 @@ std::string toObjcType(IR::BaseType type) {
 	return "";
 }
 
+// void addConversionIfNeeded(IR::BaseType base, Objc::Cache const& cache) {
+// }
+
 std::string getNameFromFqName(std::string const& name) {
 	// MyStuff::Cool -> Cool
 	auto end = name.rfind(':');
@@ -50,13 +54,12 @@ std::string getNameFromFqName(std::string const& name) {
 }
 }    // namespace
 
-Objc::Proxy::Type buildType(IR::Type const& type, Objc::Cache const& cache) {
+Objc::Proxy::Type buildType(IR::Type const& type, Objc::Cache& cache) {
 	Objc::Proxy::Type t;
 	if (auto baseType = std::get_if<IR::Type::Value>(&type.m_type)) {
 		t.m_name = toObjcType(baseType->m_base);
-		// TODO: Strings need converting
-		t.m_conversions.m_toObjc = "";
-		t.m_conversions.m_toCpp = "";
+		t.m_conversions =
+		    Objc::Conversions::getBaseTypeConversions(baseType->m_base, cache);
 	} else if (auto enumType = std::get_if<IR::Type::EnumValue>(&type.m_type)) {
 		t.m_name =
 		    Objc::getEnumName(enumType->m_representation, cache.m_moduleName);

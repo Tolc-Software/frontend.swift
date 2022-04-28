@@ -71,6 +71,7 @@ add_library(
   src/Swift/Builders/typeToStringBuilder.cpp
 
   src/Objc/Conversions/enum.cpp
+  src/Objc/Conversions/base.cpp
   src/Objc/getName.cpp
   src/Objc/Conversions/getConversionName.cpp
   src/Objc/Proxy/function.cpp
