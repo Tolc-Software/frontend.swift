@@ -40,7 +40,9 @@ void addObjcSwiftTestBodies(Stage::CMakeStage& stage,
 #include <{moduleName}_objc.h>
 
 int main() {{
+  @autoreleasepool {{
 {code}
+  }}
 }}
 )",
 	                          fmt::arg("moduleName", moduleName),

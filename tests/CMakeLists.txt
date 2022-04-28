@@ -100,7 +100,7 @@ foreach(
   # filesystem_paths.cpp
   # functional.cpp
   functions.cpp
-  # globalVariables.cpp
+  globalVariables.cpp
   # inheritence.cpp
   # lists.cpp
   # maps.cpp

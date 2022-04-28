@@ -21,8 +21,8 @@ Note that any restriction this poses only applies to the public interface of you
 | Public const member variable        | Readonly property              | Readonly property              |
 | Public non const member variable    | Readwrite property             | Readwrite property             |
 | Private member variable             | Not converted                  | Not converted                  |
-| Global variable                     | ???                            | ???                            |
-| Global static variable              | ???                            | ???                            |
+| Global variable                     | Static class property***       | ???                            |
+| Global static variable              | Static class property***       | ???                            |
 | Free function                       | Static class function***       | ???                            |
 | Overloaded function                 | ???                            | ???                            |
 | Enum                                | NS\_ENUM                       | ???                            |
