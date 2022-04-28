@@ -1,5 +1,6 @@
 #include "Objc/Conversions/enum.hpp"
 #include "Objc/Conversions/conversion.hpp"
+#include "Objc/Conversions/getConversionName.hpp"
 #include "Objc/Proxy/enum.hpp"
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>

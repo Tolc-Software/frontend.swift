@@ -11,11 +11,13 @@ TEST_CASE("Global variables are converted",
 
 	auto cppCode = R"(
 #include <string>
+#include <string_view>
 
 static int i = 0;
 namespace Nested {
 	int life = 42;
 	std::string s = "Hello World";
+	constexpr std::string_view constant = "A constant";
 }
 )";
 
@@ -30,6 +32,9 @@ assert(mNested.life == 42);
 
 // Strings also work
 assert([mNested.s isEqualToString:@"Hello World"]);
+
+// And string_view
+assert([mNested.constant isEqualToString:@"A constant"]);
 )";
 
 	auto swiftTestCode = R"()";

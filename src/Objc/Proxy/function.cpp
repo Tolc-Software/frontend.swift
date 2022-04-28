@@ -54,7 +54,7 @@ std::string Function::getFunctionDeclaration() const {
 	// - (int)add:(int)x y:(int)y;
 	auto arguments = getDeclarationArguments(m_arguments);
 	return fmt::format(
-	    R"({static} ({returnType}){functionName}{arguments})",
+	    R"({static}({returnType}) {functionName}{arguments})",
 	    fmt::arg("static", m_isStatic ? "+" : "-"),
 	    fmt::arg("returnType", m_returnType.m_name),
 	    fmt::arg("functionName", m_name),
@@ -95,7 +95,7 @@ std::string Function::getFunctionBody() const {
 
 	// Class function
 	return fmt::format(
-	    "    {maybeReturn}{functionCall};",
+	    "  {maybeReturn}{functionCall};",
 	    fmt::arg("maybeReturn", m_returnType.m_name == "void" ? "" : "return "),
 	    fmt::arg("functionCall", getFunctionCall()));
 }

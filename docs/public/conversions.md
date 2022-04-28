@@ -113,8 +113,8 @@ Note that any restriction this poses only applies to the public interface of you
 | long long int              | ???                      | Int64                          |
 | short int                  | ???                      | Int8                           |
 | signed char                | ???                      | Character                      |
-| string                     | ???                      | String                         |
-| string\_view               | ???                      | String                         |
+| string                     | NSString*                | String                         |
+| string\_view               | NSString*                | String                         |
 | uint8\_t                   | ???                      | UInt                           |
 | uint16\_t                  | ???                      | UInt                           |
 | uint32\_t                  | ???                      | UInt                           |
