@@ -7,12 +7,8 @@ namespace Objc::Proxy {
 
 ModuleFile::ModuleFile() : m_modules(), m_classes(), m_enums(), m_cache() {}
 
-std::filesystem::path ModuleFile::getFilepath() const {
-	return m_cache.m_moduleName + "_swift.cpp";
-}
-
 std::string ModuleFile::getObjcHeader() const {
-	std::string out = "#import <Foundation/Foundation.h>";
+	std::string out = "#pragma once\n#import <Foundation/Foundation.h>";
 
 	for (auto const& e : m_enums) {
 		out += fmt::format("{}\n", e.getObjcHeader());
@@ -29,16 +25,7 @@ std::string ModuleFile::getObjcHeader() const {
 	return out;
 }
 
-std::string joinExtraFunctionsSource(
-    std::vector<std::pair<std::string, std::string>> const& functions) {
-	std::string out;
-	for (auto const& [decl, body] : functions) {
-		out += fmt::format("{}{}", decl, body);
-	}
-	return out;
-}
-
-std::string createExtraFunctions(Objc::Cache const& cache) {
+std::string createExtraFunctionsSource(Objc::Cache const& cache) {
 	std::string out;
 	if (!cache.m_extraFunctions.empty()) {
 		out += fmt::format(R"(
@@ -47,21 +34,21 @@ namespace {} {{
 
 }})",
 		                   cache.m_extraFunctionsNamespace,
-		                   joinExtraFunctionsSource(cache.m_extraFunctions));
+		                   fmt::join(cache.m_extraFunctions, "\n"));
 	}
 	return out;
 }
 
 std::string ModuleFile::getObjcSource() const {
-	std::string out =
-	    fmt::format(R"(
-#include "{libraryName}_objc.h"
+	std::string out = fmt::format(
+	    R"(
+#import "{libraryName}_objc.h"
 #import <Foundation/Foundation.h>
 #include <memory>
+{conversions}
 )",
-	                fmt::arg("libraryName", m_cache.m_moduleName));
-
-	out += createExtraFunctions(m_cache);
+	    fmt::arg("conversions", createExtraFunctionsSource(m_cache)),
+	    fmt::arg("libraryName", m_cache.m_moduleName));
 
 	for (auto const& e : m_enums) {
 		out += fmt::format("{}\n", e.getObjcSource());

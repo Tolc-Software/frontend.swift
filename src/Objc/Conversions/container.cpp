@@ -17,36 +17,30 @@ Conversion convertVector(IR::Type const& type, Objc::Cache& cache) {
 	if (!cache.m_baseConversions.m_toCpp.contains(names.m_toCpp)) {
 		cache.m_baseConversions.m_toCpp.insert(names.m_toCpp);
 
-		cache.m_extraFunctions.push_back(
-		    {fmt::format(
-		         R"(
-{typeName} {toCppName}(NSArray* v))",
-
-		         fmt::arg("typeName", type.m_representation),
-		         fmt::arg("toCppName", names.m_toCpp)),
-		     fmt::format(
-		         R"( {{
+		cache.m_extraFunctions.push_back(fmt::format(
+		    R"(
+{typeName} {toCppName}(NSArray* v) {{
   {typeName} array
   return array;
 }})",
-		         fmt::arg("typeName", type.m_representation),
-		         fmt::arg("toCppName", names.m_toCpp))});
 
-		cache.m_extraFunctions.push_back(
-		    {fmt::format(
-		         R"(
-NSArray* {toObjcName}({typeName} v))",
-		         fmt::arg("typeName", type.m_representation),
-		         fmt::arg("toObjcName", names.m_toObjc)),
-		     fmt::format(
-		         R"({{
+		    fmt::arg("typeName", type.m_representation),
+		    fmt::arg("toCppName", names.m_toCpp),
+		    fmt::arg("typeName", type.m_representation),
+		    fmt::arg("toCppName", names.m_toCpp)));
+
+		cache.m_extraFunctions.push_back(fmt::format(
+		    R"(
+NSArray* {toObjcName}({typeName} v) {{
   NSArray* array = [NSArray arrayWithCapacity:v.size()];
   for (auto const& value : v) {{
     [array addObject: value];
   }}
   return array;
 }})",
-		         fmt::arg("typeName", type.m_representation))});
+		    fmt::arg("typeName", type.m_representation),
+		    fmt::arg("toObjcName", names.m_toObjc),
+		    fmt::arg("typeName", type.m_representation)));
 	}
 	return addNamespace(names, cache.m_extraFunctionsNamespace);
 }

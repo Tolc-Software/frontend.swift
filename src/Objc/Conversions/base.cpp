@@ -17,23 +17,19 @@ Conversion convertString(Objc::Cache& cache) {
 	if (!cache.m_baseConversions.m_toCpp.contains(names.m_toCpp)) {
 		cache.m_baseConversions.m_toCpp.insert(names.m_toCpp);
 
-		cache.m_extraFunctions.push_back(
-		    {fmt::format(
-		         R"(
-std::string {toCppName}(NSString* s))",
-
-		         fmt::arg("toCppName", names.m_toCpp)),
-		     R"( {
+		cache.m_extraFunctions.push_back(fmt::format(
+		    R"(
+std::string {toCppName}(NSString* s) {{
   return [s UTF8String];
-})"});
-		cache.m_extraFunctions.push_back(
-		    {fmt::format(
-		         R"(
-NSString* {toObjcName}(std::string const& s))",
-		         fmt::arg("toObjcName", names.m_toObjc)),
-		     R"( {
+}})",
+		    fmt::arg("toCppName", names.m_toCpp)));
+
+		cache.m_extraFunctions.push_back(fmt::format(
+		    R"(
+NSString* {toObjcName}(std::string const& s) {{
   return [[NSString alloc] initWithUTF8String:s.c_str()];
-})"});
+}})",
+		    fmt::arg("toObjcName", names.m_toObjc)));
 	}
 	return addNamespace(names, cache.m_extraFunctionsNamespace);
 }
@@ -44,23 +40,20 @@ Conversion convertStringView(Objc::Cache& cache) {
 	if (!cache.m_baseConversions.m_toCpp.contains(names.m_toCpp)) {
 		cache.m_baseConversions.m_toCpp.insert(names.m_toCpp);
 
-		cache.m_extraFunctions.push_back(
-		    {fmt::format(
-		         R"(
-std::string {toCppName}(NSString* s))",
-		         fmt::arg("toCppName", names.m_toCpp)),
-		     R"( {
+		cache.m_extraFunctions.push_back(fmt::format(
+		    R"(
+std::string {toCppName}(NSString* s) {{
   return [s UTF8String];
-})"});
-		cache.m_extraFunctions.push_back(
-		    {fmt::format(
-		         R"(
-NSString* {toObjcName}(std::string_view s))",
-		         fmt::arg("toObjcName", names.m_toObjc)),
-		     R"( {
+}})",
+		    fmt::arg("toCppName", names.m_toCpp)));
+
+		cache.m_extraFunctions.push_back(fmt::format(
+		    R"(
+NSString* {toObjcName}(std::string_view s) {{
   NSData *data = [NSData dataWithBytes:s.data() length:s.length()];
   return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-})"});
+}})",
+		    fmt::arg("toObjcName", names.m_toObjc)));
 	}
 	return addNamespace(names, cache.m_extraFunctionsNamespace);
 }
@@ -72,22 +65,19 @@ Conversion convertFileSystem(Objc::Cache& cache) {
 	if (!cache.m_baseConversions.m_toCpp.contains(names.m_toCpp)) {
 		cache.m_baseConversions.m_toCpp.insert(names.m_toCpp);
 
-		cache.m_extraFunctions.push_back(
-		    {fmt::format(
-		         R"(
-std::filesystem::path {toCppName}(NSString* s))",
-		         fmt::arg("toCppName", names.m_toCpp)),
-		     R"( {
+		cache.m_extraFunctions.push_back(fmt::format(
+		    R"(
+std::filesystem::path {toCppName}(NSString* s) {{
   return [s UTF8String];
-})"});
-		cache.m_extraFunctions.push_back(
-		    {fmt::format(
-		         R"(
-NSString* {toObjcName}(std::filesystem::path const& p))",
-		         fmt::arg("toObjcName", names.m_toObjc)),
-		     R"( {
+}})",
+		    fmt::arg("toCppName", names.m_toCpp)));
+
+		cache.m_extraFunctions.push_back(fmt::format(
+		    R"(
+NSString* {toObjcName}(std::filesystem::path const& p) {{
   return [[NSString alloc] initWithUTF8String:p.c_str()];
-})"});
+}})",
+		    fmt::arg("toObjcName", names.m_toObjc)));
 	}
 	return addNamespace(names, cache.m_extraFunctionsNamespace);
 }

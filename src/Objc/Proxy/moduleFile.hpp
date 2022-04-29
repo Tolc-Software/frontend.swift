@@ -14,8 +14,6 @@ class ModuleFile {
 public:
 	explicit ModuleFile();
 
-	std::filesystem::path getFilepath() const;
-
 	/**
 	* The code that uses the C++ input
 	*/

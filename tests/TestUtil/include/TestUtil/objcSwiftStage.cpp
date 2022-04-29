@@ -23,7 +23,8 @@ std::pair<IR::Namespace, Parser::MetaData>
 parseModuleFile(Stage::CMakeStage& stage,
                 std::string const& moduleName,
                 std::string const& content) {
-	auto testFile = stage.addSourceFile(moduleName + ".hpp", content);
+	auto testFile =
+	    stage.addSourceFile(moduleName + ".hpp", "#pragma once\n\n" + content);
 
 	auto parsed = Parser::parseFile(testFile, TestUtil::getParserConfig());
 	REQUIRE(parsed.has_value());
@@ -91,7 +92,7 @@ int ObjcSwiftStage::runObjcSwiftTest(std::string const& cppCode,
 			if (ext == ".mm") {
 				addModuleFile(file, content);
 			} else {
-				// Add an Ojective-C++/Swift/whatever file
+				// Add an Objective-C++/Swift/whatever file
 				// Assumes to be referred to in CMakeLists.txt properly
 				m_stage.addFile(std::filesystem::path("src") / file, content);
 			}
