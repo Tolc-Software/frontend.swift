@@ -1,5 +1,6 @@
 #include "Objc/Conversions/base.hpp"
 #include "Objc/Conversions/getConversionName.hpp"
+#include "Objc/Conversions/utility.hpp"
 #include "Objc/cache.hpp"
 #include <IR/ir.hpp>
 #include <array>
@@ -11,90 +12,84 @@ namespace Objc::Conversions {
 
 namespace {
 
-std::string removeNamespace(std::string_view ns, std::string const& f) {
-	// Removes
-	// ns::
-	return f.substr(ns.size() + 2, f.size());
-}
-
 Conversion convertString(Objc::Cache& cache) {
-	auto names = Objc::Conversions::getConversionBaseName(
-	    cache.m_extraFunctionsNamespace, IR::BaseType::String);
+	auto names = Objc::Conversions::getConversionBaseName(IR::BaseType::String);
 	if (!cache.m_baseConversions.m_toCpp.contains(names.m_toCpp)) {
 		cache.m_baseConversions.m_toCpp.insert(names.m_toCpp);
 
-		cache.m_extraFunctions.push_back(fmt::format(
-		    R"(
-std::string {toCppName}(NSString* s) {{
+		cache.m_extraFunctions.push_back(
+		    {fmt::format(
+		         R"(
+std::string {toCppName}(NSString* s))",
+
+		         fmt::arg("toCppName", names.m_toCpp)),
+		     R"( {
   return [s UTF8String];
-}})",
-		    fmt::arg("toCppName",
-		             removeNamespace(cache.m_extraFunctionsNamespace,
-		                             names.m_toCpp))));
-		cache.m_extraFunctions.push_back(fmt::format(
-		    R"(
-NSString* {toObjcName}(std::string const& s) {{
+})"});
+		cache.m_extraFunctions.push_back(
+		    {fmt::format(
+		         R"(
+NSString* {toObjcName}(std::string const& s))",
+		         fmt::arg("toObjcName", names.m_toObjc)),
+		     R"( {
   return [[NSString alloc] initWithUTF8String:s.c_str()];
-}})",
-		    fmt::arg("toObjcName",
-		             removeNamespace(cache.m_extraFunctionsNamespace,
-		                             names.m_toObjc))));
+})"});
 	}
-	return names;
+	return addNamespace(names, cache.m_extraFunctionsNamespace);
 }
 
 Conversion convertStringView(Objc::Cache& cache) {
-	auto names = Objc::Conversions::getConversionBaseName(
-	    cache.m_extraFunctionsNamespace, IR::BaseType::StringView);
+	auto names =
+	    Objc::Conversions::getConversionBaseName(IR::BaseType::StringView);
 	if (!cache.m_baseConversions.m_toCpp.contains(names.m_toCpp)) {
 		cache.m_baseConversions.m_toCpp.insert(names.m_toCpp);
 
-		cache.m_extraFunctions.push_back(fmt::format(
-		    R"(
-std::string {toCppName}(NSString* s) {{
+		cache.m_extraFunctions.push_back(
+		    {fmt::format(
+		         R"(
+std::string {toCppName}(NSString* s))",
+		         fmt::arg("toCppName", names.m_toCpp)),
+		     R"( {
   return [s UTF8String];
-}})",
-		    fmt::arg("toCppName",
-		             removeNamespace(cache.m_extraFunctionsNamespace,
-		                             names.m_toCpp))));
-		cache.m_extraFunctions.push_back(fmt::format(
-		    R"(
-NSString* {toObjcName}(std::string_view s) {{
+})"});
+		cache.m_extraFunctions.push_back(
+		    {fmt::format(
+		         R"(
+NSString* {toObjcName}(std::string_view s))",
+		         fmt::arg("toObjcName", names.m_toObjc)),
+		     R"( {
   NSData *data = [NSData dataWithBytes:s.data() length:s.length()];
   return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-}})",
-		    fmt::arg("toObjcName",
-		             removeNamespace(cache.m_extraFunctionsNamespace,
-		                             names.m_toObjc))));
+})"});
 	}
-	return names;
+	return addNamespace(names, cache.m_extraFunctionsNamespace);
 }
 
 Conversion convertFileSystem(Objc::Cache& cache) {
-	auto names = Objc::Conversions::getConversionBaseName(
-	    cache.m_extraFunctionsNamespace, IR::BaseType::FilesystemPath);
+	auto names =
+	    Objc::Conversions::getConversionBaseName(IR::BaseType::FilesystemPath);
 
 	if (!cache.m_baseConversions.m_toCpp.contains(names.m_toCpp)) {
 		cache.m_baseConversions.m_toCpp.insert(names.m_toCpp);
 
-		cache.m_extraFunctions.push_back(fmt::format(
-		    R"(
-std::filesystem::path {toCppName}(NSString* s) {{
+		cache.m_extraFunctions.push_back(
+		    {fmt::format(
+		         R"(
+std::filesystem::path {toCppName}(NSString* s))",
+		         fmt::arg("toCppName", names.m_toCpp)),
+		     R"( {
   return [s UTF8String];
-}})",
-		    fmt::arg("toCppName",
-		             removeNamespace(cache.m_extraFunctionsNamespace,
-		                             names.m_toCpp))));
-		cache.m_extraFunctions.push_back(fmt::format(
-		    R"(
-NSString* {toObjcName}(std::filesystem::path const& p) {{
+})"});
+		cache.m_extraFunctions.push_back(
+		    {fmt::format(
+		         R"(
+NSString* {toObjcName}(std::filesystem::path const& p))",
+		         fmt::arg("toObjcName", names.m_toObjc)),
+		     R"( {
   return [[NSString alloc] initWithUTF8String:p.c_str()];
-}})",
-		    fmt::arg("toObjcName",
-		             removeNamespace(cache.m_extraFunctionsNamespace,
-		                             names.m_toObjc))));
+})"});
 	}
-	return names;
+	return addNamespace(names, cache.m_extraFunctionsNamespace);
 }
 }    // namespace
 

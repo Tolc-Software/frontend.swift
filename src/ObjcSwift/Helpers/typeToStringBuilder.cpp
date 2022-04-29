@@ -4,7 +4,7 @@
 #include <string>
 #include <variant>
 
-namespace Objc::Builders {
+namespace ObjcSwift::Helpers {
 
 // Magic template stuff to make std::visit work nicely with std::variant
 // https://en.cppreference.com/w/cpp/utility/variant/visit
@@ -198,4 +198,4 @@ std::string buildTypeString(IR::Type const& t) {
 
 	return fmt::format("{}", typeString);
 }
-}    // namespace Objc::Builders
+}    // namespace ObjcSwift::Helpers

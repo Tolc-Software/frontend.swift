@@ -12,7 +12,8 @@ struct Cache {
 
 	// Functions that are needed globally from Objective-C
 	// Will be placed in the root under the namespace m_extraFunctionsNamespace
-	std::vector<std::string> m_extraFunctions;
+	// {declaration, body}
+	std::vector<std::pair<std::string, std::string>> m_extraFunctions;
 
 	// The name of the users module we are converting
 	std::string m_moduleName;

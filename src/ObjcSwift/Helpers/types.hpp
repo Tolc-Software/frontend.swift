@@ -35,7 +35,4 @@ bool isFunctionType(IR::Type const& type);
 *   myFunction<int> -> myFunction
 */
 std::string removeCppTemplate(std::string const& name);
-
-// String version of the container
-std::string toString(IR::ContainerType container);
 }    // namespace ObjcSwift::Helpers

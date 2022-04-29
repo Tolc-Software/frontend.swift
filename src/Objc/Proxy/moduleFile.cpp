@@ -29,6 +29,15 @@ std::string ModuleFile::getObjcHeader() const {
 	return out;
 }
 
+std::string joinExtraFunctionsSource(
+    std::vector<std::pair<std::string, std::string>> const& functions) {
+	std::string out;
+	for (auto const& [decl, body] : functions) {
+		out += fmt::format("{}{}", decl, body);
+	}
+	return out;
+}
+
 std::string createExtraFunctions(Objc::Cache const& cache) {
 	std::string out;
 	if (!cache.m_extraFunctions.empty()) {
@@ -38,7 +47,7 @@ namespace {} {{
 
 }})",
 		                   cache.m_extraFunctionsNamespace,
-		                   fmt::join(cache.m_extraFunctions, "\n"));
+		                   joinExtraFunctionsSource(cache.m_extraFunctions));
 	}
 	return out;
 }

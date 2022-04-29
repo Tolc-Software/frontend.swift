@@ -120,7 +120,7 @@ foreach(
   # userDefined.cpp
   # valarrays.cpp
   # variants.cpp
-  # vectors.cpp
+  vectors.cpp
   # virtualInheritence.cpp
 
   )

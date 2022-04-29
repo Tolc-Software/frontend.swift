@@ -1,5 +1,5 @@
 #include "Swift/getName.hpp"
-#include "Swift/Builders/typeToStringBuilder.hpp"
+#include "ObjcSwift/Helpers/typeToStringBuilder.hpp"
 #include "ObjcSwift/Helpers/types.hpp"
 #include <IR/ir.hpp>
 #include <numeric>
@@ -14,7 +14,8 @@ std::string getParameterString(std::vector<IR::Type> const& parameters) {
 	                       std::string() /* Start with empty string */,
 	                       [](std::string soFar, IR::Type const& current) {
 		                       return std::move(soFar) +
-		                              Swift::Builders::buildTypeString(current);
+		                              ObjcSwift::Helpers::buildTypeString(
+		                                  current);
 	                       });
 }
 

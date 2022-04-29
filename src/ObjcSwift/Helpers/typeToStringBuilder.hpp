@@ -2,7 +2,7 @@
 #include <IR/ir.hpp>
 #include <string>
 
-namespace Objc::Builders {
+namespace ObjcSwift::Helpers {
 
 /**
 * Transforms a IR::Type to a string version of the type
@@ -13,4 +13,4 @@ namespace Objc::Builders {
 *   std::map<UserDefined, int> -> MapUserDefinedInt
 */
 std::string buildTypeString(IR::Type const& t);
-}    // namespace Objc::Builders
+}    // namespace ObjcSwift::Helpers

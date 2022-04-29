@@ -7,46 +7,39 @@ TEST_CASE("Using std::vectors", "[vectors]") {
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
-#include <string>
 #include <vector>
 
-class WithMember {
-public:
-	explicit WithMember(std::vector<std::string> s) : m_s(s) {}
-
-	std::vector<std::string> getS() { return m_s; }
-
-private:
-	std::vector<std::string> m_s;
-};
-
-class WithFunction {
-public:
-	int sum(std::vector<int> v) {
-		int s = 0;
-		for (auto i : v) {
-			s += i;
-		}
-		return s;
-	}
-};
+std::vector<int> f() {
+	return {1, 2, 3};
+}
 
 )";
 
-	auto pythonTestCode = fmt::format(R"(
-# std::vector translates to a normal array in python
-my_array = ["hi", "ho"]
-with_member = {moduleName}.WithMember(my_array)
-self.assertEqual(with_member.getS(), my_array)
+	auto objcTestCode = R"(
+// Global functions gets added to
+// a purely static class with
+// the name of the library
+// assert([m meaningOfLife] == 42);
 
-with_function = {moduleName}.WithFunction()
-self.assertEqual(with_function.sum([1, 2, 3]), 6)
-)",
-	                                  fmt::arg("moduleName", moduleName));
+// Strings can be used
+// assert([[m sayHello:@"Tolc"] isEqualToString:@"Hello Tolc"]);
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+// Aswell as filesystem paths
+// assert([[m getPath] isEqualToString:@"/path/to/stuff.hpp"]);
+
+// Functions within namespaces
+// are available with the
+// namespaces names merged
+// assert([mInner pi] == 3.14);
+)";
+
+	auto swiftTestCode = R"()";
+
+	auto errorCode =
+	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::vector");

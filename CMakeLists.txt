@@ -52,6 +52,7 @@ add_library(
   src/ObjcSwift/Helpers/string.cpp
   src/ObjcSwift/Helpers/types.cpp
   src/ObjcSwift/getOverloadedFunctions.cpp
+  src/ObjcSwift/Helpers/typeToStringBuilder.cpp
 
   src/Swift/types.cpp
   src/Swift/getName.cpp
@@ -68,10 +69,11 @@ add_library(
   src/Swift/Builders/functionBuilder.cpp
   src/Swift/Builders/moduleBuilder.cpp
   src/Swift/Builders/moduleFileBuilder.cpp
-  src/Swift/Builders/typeToStringBuilder.cpp
 
+  src/Objc/Conversions/utility.cpp
   src/Objc/Conversions/enum.cpp
   src/Objc/Conversions/base.cpp
+  src/Objc/Conversions/container.cpp
   src/Objc/getName.cpp
   src/Objc/Conversions/getConversionName.cpp
   src/Objc/Proxy/function.cpp
@@ -87,7 +89,6 @@ add_library(
   src/Objc/Builders/moduleBuilder.cpp
   src/Objc/Builders/moduleFileBuilder.cpp
   src/Objc/Builders/typeBuilder.cpp
-  src/Objc/Builders/typeToStringBuilder.cpp
 
 )
 

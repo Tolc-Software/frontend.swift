@@ -1,6 +1,6 @@
 #include "Objc/getName.hpp"
-#include "Objc/Builders/typeToStringBuilder.hpp"
 #include "ObjcSwift/Helpers/split.hpp"
+#include "ObjcSwift/Helpers/typeToStringBuilder.hpp"
 #include "ObjcSwift/Helpers/types.hpp"
 #include <IR/ir.hpp>
 #include <fmt/format.h>
@@ -31,7 +31,8 @@ std::string getParameterString(std::vector<IR::Type> const& parameters) {
 	                       std::string() /* Start with empty string */,
 	                       [](std::string soFar, auto const& current) {
 		                       return std::move(soFar) +
-		                              Objc::Builders::buildTypeString(current);
+		                              ObjcSwift::Helpers::buildTypeString(
+		                                  current);
 	                       });
 }
 
@@ -43,7 +44,7 @@ std::string getParameterString(std::vector<IR::Argument> const& parameters) {
 	                       std::string() /* Start with empty string */,
 	                       [](std::string soFar, auto const& current) {
 		                       return std::move(soFar) +
-		                              Objc::Builders::buildTypeString(
+		                              ObjcSwift::Helpers::buildTypeString(
 		                                  current.m_type);
 	                       });
 }
@@ -73,5 +74,39 @@ std::string getFunctionName(IR::Function const& cppFunction,
 std::string getEnumName(std::string const& qualifiedEnumName,
                         std::string const& moduleName) {
 	return joinVariableName(qualifiedEnumName, moduleName);
+}
+
+std::string getContainerName(IR::ContainerType const& containerType) {
+	using IR::ContainerType;
+	switch (containerType) {
+		case ContainerType::Vector:
+		case ContainerType::Array:
+		case ContainerType::Deque:
+		case ContainerType::List: return "NSArray*";
+		case ContainerType::Map:
+		case ContainerType::MultiMap:
+		case ContainerType::MultiSet:
+		case ContainerType::Optional:
+		case ContainerType::Pair:
+		case ContainerType::PriorityQueue:
+		case ContainerType::Queue:
+		case ContainerType::Set:
+		case ContainerType::SharedPtr:
+		case ContainerType::Stack:
+		case ContainerType::Tuple:
+		case ContainerType::UniquePtr:
+		case ContainerType::UnorderedMap:
+		case ContainerType::UnorderedMultiMap:
+		case ContainerType::UnorderedMultiSet:
+		case ContainerType::UnorderedSet:
+		case ContainerType::Valarray:
+		case ContainerType::Variant:
+		case ContainerType::Allocator:
+		case ContainerType::EqualTo:
+		case ContainerType::ForwardList:
+		case ContainerType::Greater:
+		case ContainerType::Hash:
+		case ContainerType::Less: return "Unsupported container type";
+	}
 }
 }    // namespace Objc

@@ -1,5 +1,6 @@
 #include "Objc/Builders/typeBuilder.hpp"
 #include "Objc/Conversions/base.hpp"
+#include "Objc/Conversions/container.hpp"
 #include "Objc/Conversions/conversion.hpp"
 #include "Objc/Conversions/getConversionName.hpp"
 #include "Objc/cache.hpp"
@@ -41,17 +42,6 @@ std::string toObjcType(IR::BaseType type) {
 	return "";
 }
 
-// void addConversionIfNeeded(IR::BaseType base, Objc::Cache const& cache) {
-// }
-
-std::string getNameFromFqName(std::string const& name) {
-	// MyStuff::Cool -> Cool
-	auto end = name.rfind(':');
-	if (end == std::string::npos) {
-		return name;
-	}
-	return name.substr(0, end);
-}
 }    // namespace
 
 Objc::Proxy::Type buildType(IR::Type const& type, Objc::Cache& cache) {
@@ -65,9 +55,13 @@ Objc::Proxy::Type buildType(IR::Type const& type, Objc::Cache& cache) {
 		    Objc::getEnumName(enumType->m_representation, cache.m_moduleName);
 		t.m_conversions = Objc::Conversions::getConversionEnumName(
 		    cache.m_moduleName,
-		    cache.m_extraFunctionsNamespace,
 		    enumType->m_representation,
-		    getNameFromFqName(enumType->m_representation));
+		    cache.m_extraFunctionsNamespace);
+	} else if (auto container =
+	               std::get_if<IR::Type::Container>(&type.m_type)) {
+		t.m_name = Objc::getContainerName(container->m_container);
+		t.m_conversions =
+		    Objc::Conversions::getContainerTypeConversions(type, cache);
 	}
 	return t;
 }

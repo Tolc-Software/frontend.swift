@@ -19,9 +19,7 @@ Objc::Proxy::Enum buildEnum(IR::Enum const& e,
 	}
 
 	// Register conversion functions
-	auto conversion = Objc::Conversions::getEnumConversions(e, proxyEnum);
-	cache.m_extraFunctions.push_back(conversion.m_toCpp);
-	cache.m_extraFunctions.push_back(conversion.m_toObjc);
+	Objc::Conversions::setEnumConversions(e, proxyEnum, cache);
 
 	return proxyEnum;
 }

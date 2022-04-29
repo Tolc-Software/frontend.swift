@@ -9,18 +9,28 @@ namespace Objc::Conversions {
 /**
 * The function name to take this enum to the equivalent Objective-C type
 * and the other way around
+* Pass an empty conversionNamespace to have the function without the namespace
 */
 Objc::Conversions::Conversion
 getConversionEnumName(std::string const& moduleName,
-                      std::string const& conversionNamespace,
                       std::string const& fullyQualifiedEnumName,
-                      std::string const& enumName);
+                      std::string const& conversionNamespace = "");
 
 /**
 * The function name to take this base type to the equivalent Objective-C type
 * and the other way around
+* Pass an empty conversionNamespace to have the function without the namespace
 */
 Objc::Conversions::Conversion
-getConversionBaseName(std::string const& conversionNamespace,
-                      IR::BaseType baseType);
+getConversionBaseName(IR::BaseType baseType,
+                      std::string const& conversionNamespace = "");
+
+/**
+* The function name to take this container type to the equivalent Objective-C type
+* and the other way around
+* Pass an empty conversionNamespace to have the function without the namespace
+*/
+Objc::Conversions::Conversion
+getConversionContainerName(IR::Type containerType,
+                           std::string const& conversionNamespace = "");
 }
