@@ -1,4 +1,5 @@
 #include "ObjcSwift/Helpers/types.hpp"
+#include "ObjcSwift/Helpers/string.hpp"
 #include <IR/ir.hpp>
 #include <optional>
 #include <variant>
@@ -39,6 +40,20 @@ bool isFunctionType(IR::Type const& type) {
 std::string removeCppTemplate(std::string const& name) {
 	// MyClass<int> -> MyClass
 	return name.substr(0, name.find('<'));
+}
+
+std::string removeQualifiers(IR::Type const& type) {
+	auto noQuals = type.m_representation;
+	if (type.m_isConst) {
+		noQuals = removeSubString(noQuals, "const ");
+	}
+	if (type.m_isReference) {
+		noQuals = removeSubString(noQuals, "&", true);
+	}
+	for (int i = 0; i < type.m_numPointers; ++i) {
+		noQuals = removeSubString(noQuals, "*", true);
+	}
+	return noQuals;
 }
 
 }    // namespace ObjcSwift::Helpers

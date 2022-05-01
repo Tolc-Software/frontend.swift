@@ -35,4 +35,9 @@ bool isFunctionType(IR::Type const& type);
 *   myFunction<int> -> myFunction
 */
 std::string removeCppTemplate(std::string const& name);
+
+/**
+* Removes const, &, * from the representation of the type
+*/
+std::string removeQualifiers(IR::Type const& type);
 }    // namespace ObjcSwift::Helpers

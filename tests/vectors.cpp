@@ -12,28 +12,33 @@ TEST_CASE("Using std::vectors", "[vectors]") {
 	auto cppCode = R"(
 #include <vector>
 
-std::vector<int> f() {
-	return {1, 2, 3};
+std::vector<int> const f() {
+	return {0, 1, 2};
+}
+
+double sum(std::vector<double> const& numbers) {
+	double sum = 0;
+	for (double number : numbers) {
+		sum += number;
+	}
+	return sum;
 }
 
 )";
 
 	auto objcTestCode = R"(
-// Global functions gets added to
-// a purely static class with
-// the name of the library
-// assert([m meaningOfLife] == 42);
+// std::vector corresponds to NSArray
+NSArray* v = [m f];
+assert([v count] == 3);
 
-// Strings can be used
-// assert([[m sayHello:@"Tolc"] isEqualToString:@"Hello Tolc"]);
+// The vector contains {0, 1, 2}
+assert([[v objectAtIndex:0] intValue] == 0);
+assert([[v objectAtIndex:1] intValue] == 1);
+assert([[v objectAtIndex:2] intValue] == 2);
 
-// Aswell as filesystem paths
-// assert([[m getPath] isEqualToString:@"/path/to/stuff.hpp"]);
-
-// Functions within namespaces
-// are available with the
-// namespaces names merged
-// assert([mInner pi] == 3.14);
+// Sending NSArray into function works as well
+NSArray<NSNumber*>* toSum = @[@(1.1), @(2.2), @(3.3)];
+assert([m sum:toSum] == 6.6);
 )";
 
 	auto swiftTestCode = R"()";

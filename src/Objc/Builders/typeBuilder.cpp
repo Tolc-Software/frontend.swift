@@ -60,8 +60,8 @@ Objc::Proxy::Type buildType(IR::Type const& type, Objc::Cache& cache) {
 	} else if (auto container =
 	               std::get_if<IR::Type::Container>(&type.m_type)) {
 		t.m_name = Objc::getContainerName(container->m_container);
-		t.m_conversions =
-		    Objc::Conversions::getContainerTypeConversions(type, cache);
+		t.m_conversions = Objc::Conversions::getContainerTypeConversions(
+		    type, *container, cache);
 	}
 	return t;
 }

@@ -3,9 +3,15 @@
 #include <string_view>
 
 namespace ObjcSwift::Helpers {
-std::string removeSubString(std::string str, std::string_view substr) {
+std::string
+removeSubString(std::string str, std::string_view substr, bool reverse) {
 	// Search for the substring in string
-	size_t pos = str.find(substr);
+	size_t pos = std::string::npos;
+	if (reverse) {
+		pos = str.rfind(substr);
+	} else {
+		pos = str.find(substr);
+	}
 
 	if (pos != std::string::npos) {
 		// If found then erase it from string

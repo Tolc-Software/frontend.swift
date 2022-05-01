@@ -47,7 +47,11 @@ configure_file(
   ${CMAKE_CURRENT_LIST_DIR}/TestUtil/include/TestStage/paths.cpp @ONLY)
 
 # Everything put in TestUtil/include is available
-add_library(TestUtil TestUtil/include/TestUtil/objcSwiftStage.cpp TestUtil/include/TestStage/paths.cpp)
+add_library(TestUtil
+  TestUtil/include/TestUtil/objcSwiftStage.cpp
+  TestUtil/include/TestUtil/parse.cpp
+  TestUtil/include/TestStage/paths.cpp
+  )
 target_include_directories(TestUtil PUBLIC TestUtil/include)
 target_link_libraries(TestUtil PRIVATE Tolc::Parser Tolc::Frontend.swift Catch2::Catch2 Tolc::Stage)
 target_link_libraries(TestUtil PUBLIC IR::IR)
@@ -89,6 +93,7 @@ foreach(
   # ObjcSwift/Proxy/class.cpp
   # ObjcSwift/Proxy/enum.cpp
   # ObjcSwift/Proxy/function.cpp
+  ObjcSwift/Helpers/typeToStringBuilder.cpp
   # ObjcSwift/Proxy/module.cpp
   # ObjcSwift/Proxy/moduleFile.cpp
   # arrays.cpp

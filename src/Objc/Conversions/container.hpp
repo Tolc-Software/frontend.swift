@@ -7,5 +7,6 @@
 namespace Objc::Conversions {
 
 Conversion getContainerTypeConversions(IR::Type const& type,
+                                       IR::Type::Container const& container,
                                        Objc::Cache& cache);
 }    // namespace Objc::Conversions

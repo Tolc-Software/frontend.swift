@@ -31,6 +31,6 @@ getConversionBaseName(IR::BaseType baseType,
 * Pass an empty conversionNamespace to have the function without the namespace
 */
 Objc::Conversions::Conversion
-getConversionContainerName(IR::Type containerType,
+getConversionContainerName(IR::Type const& containerType,
                            std::string const& conversionNamespace = "");
 }

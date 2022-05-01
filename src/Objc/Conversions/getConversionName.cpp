@@ -3,6 +3,7 @@
 #include "Objc/getName.hpp"
 #include "ObjcSwift/Helpers/typeToStringBuilder.hpp"
 #include <fmt/format.h>
+#include <iostream>
 #include <string>
 #include <variant>
 
@@ -74,7 +75,7 @@ getConversionBaseName(IR::BaseType baseType,
 }
 
 Objc::Conversions::Conversion
-getConversionContainerName(IR::Type containerType,
+getConversionContainerName(IR::Type const& containerType,
                            std::string const& conversionNamespace) {
 	Conversion names;
 	auto typeName = ObjcSwift::Helpers::buildTypeString(containerType);
