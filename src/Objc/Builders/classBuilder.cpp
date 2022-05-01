@@ -116,7 +116,7 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 		m.m_documentation = variable.m_documentation;
 		m.m_type = Objc::Builders::buildType(variable.m_type, cache);
 		m.m_isConst = variable.m_type.m_isConst;
-		m.m_isStatic = variable.m_type.m_isStatic;
+		m.m_isStatic = variable.m_isStatic;
 
 		objcClass.addMemberVariable(m);
 	}

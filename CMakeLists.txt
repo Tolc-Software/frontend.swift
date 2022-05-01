@@ -37,7 +37,7 @@ include(FetchContent)
 FetchContent_Declare(
   IRSpecification
   GIT_REPOSITORY https://github.com/Tolc-Software/IntermediateRepresentation.git
-  GIT_TAG v0.15.0)
+  GIT_TAG v0.15.1)
 
 FetchContent_MakeAvailable(IRSpecification)
 

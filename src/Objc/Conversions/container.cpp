@@ -8,7 +8,6 @@
 #include <array>
 #include <cctype>
 #include <fmt/format.h>
-#include <iostream>
 #include <queue>
 #include <string>
 #include <vector>
@@ -127,10 +126,6 @@ Conversion getContainerTypeConversions(IR::Type const& type,
 	auto rootConversion = containerConversion(
 	    type, container, extraFunctions, typesToConvert, cache);
 
-	std::cout << type.m_representation << '\n';
-	std::cout << "Root conversions are:" << '\n';
-	std::cout << rootConversion.m_toCpp << '\n';
-	std::cout << rootConversion.m_toObjc << '\n';
 
 	while (!typesToConvert.empty()) {
 		auto* currentType = typesToConvert.front();

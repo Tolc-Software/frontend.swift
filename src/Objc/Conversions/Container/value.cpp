@@ -18,7 +18,7 @@ void convertNSNumber(IR::Type const& type,
 		cache.m_baseConversions.m_toCpp.insert(names.m_toCpp);
 		functions.push_back(fmt::format(
 		    R"(
-int {toCppName}(id value) {{
+{typeName} {toCppName}(id value) {{
   if (value && [value isKindOfClass:[NSNumber class]]) {{
     return [value {typeName}Value];
   }}
@@ -29,10 +29,11 @@ int {toCppName}(id value) {{
 
 		functions.push_back(fmt::format(
 		    R"(
-NSNumber* {toObjcName}(int value) {{
+NSNumber* {toObjcName}({typeName} value) {{
   return [NSNumber numberWith{upperCaseType}:value];
 }})",
 		    fmt::arg("toObjcName", names.m_toObjc),
+		    fmt::arg("typeName", typeName),
 		    fmt::arg("upperCaseType", numberWithName)));
 	}
 }

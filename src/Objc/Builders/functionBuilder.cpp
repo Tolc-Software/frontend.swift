@@ -5,7 +5,6 @@
 #include "Objc/getName.hpp"
 #include "ObjcSwift/Helpers/types.hpp"
 #include <IR/ir.hpp>
-#include <iostream>
 #include <optional>
 
 namespace Objc::Builders {
@@ -22,10 +21,6 @@ buildFunction(IR::Function const& cppFunction,
 		Objc::Proxy::Function::Argument arg;
 		arg.m_name = argument.m_name;
 		arg.m_type = Objc::Builders::buildType(argument.m_type, cache);
-		std::cout << arg.m_name << '\n';
-		std::cout << arg.m_type.m_name << '\n';
-		std::cout << arg.m_type.m_conversions.m_toCpp << '\n';
-		std::cout << arg.m_type.m_conversions.m_toObjc << '\n';
 		objcFunction.addArgument(arg);
 	}
 

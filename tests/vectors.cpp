@@ -10,10 +10,17 @@ TEST_CASE("Using std::vectors", "[vectors]") {
 	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
+#include <algorithm>
 #include <vector>
 
 std::vector<int> const f() {
 	return {0, 1, 2};
+}
+
+bool allOf(std::vector<bool> const& conditions) {
+	return std::all_of(
+	    conditions.begin(), conditions.end(),
+		  [](auto c) { return c; });
 }
 
 double sum(std::vector<double> const& numbers) {
@@ -37,6 +44,9 @@ assert([[v objectAtIndex:1] intValue] == 1);
 assert([[v objectAtIndex:2] intValue] == 2);
 
 // Sending NSArray into function works as well
+NSArray* conditions = @[@(YES), @(YES), @(NO)];
+assert([m allOf:conditions] == NO);
+
 NSArray<NSNumber*>* toSum = @[@(1.1), @(2.2), @(3.3)];
 assert([m sum:toSum] == 6.6);
 )";

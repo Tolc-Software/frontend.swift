@@ -1,7 +1,7 @@
 include_guard()
 
 include(${modules}/GetParser.cmake)
-get_parser(VERSION v0.5.4)
+get_parser(VERSION v0.5.5)
 
 # Set the include path for the system library in the variable
 # We are using the standard library shipped

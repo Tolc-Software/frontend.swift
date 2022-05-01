@@ -114,7 +114,7 @@ std::optional<Swift::Proxy::Class> buildClass(IR::Struct const& cppClass,
 		m.m_documentation = variable.m_documentation;
 		m.m_type = Swift::toSwiftType(variable.m_type);
 		m.m_isConst = variable.m_type.m_isConst;
-		m.m_isStatic = variable.m_type.m_isStatic;
+		m.m_isStatic = variable.m_isStatic;
 
 		swiftClass.addMemberVariable(m);
 	}
