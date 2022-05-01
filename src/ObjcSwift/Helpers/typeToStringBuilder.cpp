@@ -196,8 +196,6 @@ std::string buildTypeString(IR::Type const& t) {
 	    // , std::variant<Value, Container, EnumValue, UserDefined, Function, Integral> m_type;
 	    t.m_type);
 
-	fmt::print("{}\n", typeString);
-
 	return fmt::format("{}", typeString);
 }
 }    // namespace ObjcSwift::Helpers

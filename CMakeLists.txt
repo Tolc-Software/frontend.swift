@@ -70,6 +70,7 @@ add_library(
   src/Swift/Builders/moduleBuilder.cpp
   src/Swift/Builders/moduleFileBuilder.cpp
 
+  src/Objc/Conversions/Container/container.cpp
   src/Objc/Conversions/Container/value.cpp
   src/Objc/Conversions/utility.cpp
   src/Objc/Conversions/enum.cpp

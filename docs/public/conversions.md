@@ -66,10 +66,10 @@ Note that any restriction this poses only applies to the public interface of you
 
 | C++ Standard library class      | Objective-C translation                                           | Swift translation              |
 |:------------------------------- |:----------------------------------------------------------------- |:------------------------------ |
-| std::array                      | ???                                                               | ???                            |
+| std::array                      | NSArray                                                           | ???                            |
 | std::complex                    | ???                                                               | ???                            |
 | std::deque                      | ???                                                               | ???                            |
-| std::filesystem::path           | ???                                                               | ???                            |
+| std::filesystem::path           | NSString                                                          | ???                            |
 | std::forward\_list              | Not converted                                                     | Not converted                  |
 | std::function                   | ???                                                               | ???                            |
 | std::list                       | ???                                                               | ???                            |
@@ -87,12 +87,12 @@ Note that any restriction this poses only applies to the public interface of you
 | std::unique\_ptr                | ???                                                               | ???                            |
 | std::shared\_ptr                | ???                                                               | ???                            |
 | std::unordered\_map             | ???                                                               | ???                            |
-| std::unordered\_multimap        | ???                                                               | ???                            |
-| std::unordered\_multiset        | ???                                                               | ???                            |
+| std::unordered\_multimap        | Not converted                                                     | Not converted                  |
+| std::unordered\_multiset        | Not converted                                                     | Not converted                  |
 | std::unordered\_set             | ???                                                               | ???                            |
 | std::valarray                   | ???                                                               | ???                            |
 | std::variant                    | ???                                                               | ???                            |
-| std::vector                     | ???                                                               | ???                            |
+| std::vector                     | NSArray*                                                          | ???                            |
 
 
 | C++ builtin type           | Objective-C translation  | Swift translation              |
@@ -113,8 +113,8 @@ Note that any restriction this poses only applies to the public interface of you
 | long long int              | ???                      | Int64                          |
 | short int                  | ???                      | Int8                           |
 | signed char                | ???                      | Character                      |
-| string                     | NSString*                | String                         |
-| string\_view               | NSString*                | String                         |
+| string                     | NSString                 | String                         |
+| string\_view               | NSString                 | String                         |
 | uint8\_t                   | ???                      | UInt                           |
 | uint16\_t                  | ???                      | UInt                           |
 | uint32\_t                  | ???                      | UInt                           |

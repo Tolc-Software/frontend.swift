@@ -96,7 +96,7 @@ foreach(
   ObjcSwift/Helpers/typeToStringBuilder.cpp
   # ObjcSwift/Proxy/module.cpp
   # ObjcSwift/Proxy/moduleFile.cpp
-  # arrays.cpp
+  arrays.cpp
   classes.cpp
   # complex.cpp
   # deques.cpp
