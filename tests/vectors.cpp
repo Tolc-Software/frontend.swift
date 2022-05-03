@@ -12,22 +12,22 @@ TEST_CASE("Using std::vectors", "[vectors]") {
 #include <algorithm>
 #include <vector>
 
-std::vector<int> const f() {
-	return {0, 1, 2};
+std::vector<int> f() {
+  return {0, 1, 2};
 }
 
 bool allOf(std::vector<bool> const& conditions) {
-	return std::all_of(
-	    conditions.begin(), conditions.end(),
-		  [](auto c) { return c; });
+  return std::all_of(
+      conditions.begin(), conditions.end(),
+      [](auto c) { return c; });
 }
 
 double sum(std::vector<double> const& numbers) {
-	double sum = 0;
-	for (double number : numbers) {
-		sum += number;
-	}
-	return sum;
+  double sum = 0;
+  for (double number : numbers) {
+    sum += number;
+  }
+  return sum;
 }
 
 )";

@@ -7,7 +7,6 @@ TEST_CASE("Using std::unordered_maps", "[unordered_maps]") {
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
-	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 #include <string>
@@ -17,7 +16,6 @@ std::unordered_map<std::string, int>
 getUnordered() {
   return {{"Unordered", 1}};
 }
-
 )";
 
 	auto objcTestCode = R"(

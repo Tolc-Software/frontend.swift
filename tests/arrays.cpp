@@ -13,21 +13,21 @@ TEST_CASE("Using std::vectors", "[vectors]") {
 #include <array>
 
 std::array<int, 3> const f() {
-	return {0, 1, 2};
+  return {0, 1, 2};
 }
 
 bool allOf(std::array<bool, 3> const& conditions) {
-	return std::all_of(
-	    conditions.begin(), conditions.end(),
-		  [](auto c) { return c; });
+  return std::all_of(
+      conditions.begin(), conditions.end(),
+      [](auto c) { return c; });
 }
 
 double sum(std::array<double, 3> const& numbers) {
-	double sum = 0;
-	for (double number : numbers) {
-		sum += number;
-	}
-	return sum;
+  double sum = 0;
+  for (double number : numbers) {
+    sum += number;
+  }
+  return sum;
 }
 
 )";

@@ -80,7 +80,7 @@ Note that any restriction this poses only applies to the public interface of you
 | std::pair                       | ???                                                               | ???                            |
 | std::priority\_queue            | ???                                                               | ???                            |
 | std::queue                      | ???                                                               | ???                            |
-| std::set                        | ???                                                               | ???                            |
+| std::set                        | NSOrderedSet                                                      | ???                            |
 | std::shared\_ptr                | ???                                                               | ???                            |
 | std::stack                      | ???                                                               | ???                            |
 | std::tuple                      | ???                                                               | ???                            |
@@ -89,7 +89,7 @@ Note that any restriction this poses only applies to the public interface of you
 | std::unordered\_map             | NSDictionary                                                      | ???                            |
 | std::unordered\_multimap        | Not converted                                                     | Not converted                  |
 | std::unordered\_multiset        | Not converted                                                     | Not converted                  |
-| std::unordered\_set             | ???                                                               | ???                            |
+| std::unordered\_set             | NSSet                                                             | ???                            |
 | std::valarray                   | ???                                                               | ???                            |
 | std::variant                    | ???                                                               | ???                            |
 | std::vector                     | NSArray*                                                          | ???                            |

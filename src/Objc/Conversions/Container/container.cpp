@@ -136,6 +136,59 @@ NSDictionary* {toObjcName}({noQualifiers} const& m) {{
 }
 
 Objc::Conversions::Conversion
+convertSetType(IR::Type const& type,
+               std::vector<IR::Type> const& containedTypes,
+               std::vector<std::string>& functions,
+               Objc::Cache& cache,
+               bool isOrdered = true) {
+	auto names = Objc::Conversions::getConversionContainerName(type);
+	if (!cache.m_conversions.contains(names.m_toCpp)) {
+		cache.m_conversions.insert(names.m_toCpp);
+		auto noQualifiers = ObjcSwift::Helpers::removeQualifiers(type);
+		// map should have two contained value (plus allocators)
+		// TODO: Handle error
+		if (!containedTypes.empty()) {
+			auto valueConversion =
+			    Objc::Conversions::getConversionContainerName(
+			        containedTypes[0]);
+
+			functions.push_back(fmt::format(
+			    R"(
+{noQualifiers} {toCppName}(NS{ordered}Set* s) {{
+  {noQualifiers} cppSet;
+  for (id value in s) {{
+    cppSet.insert({valueConversion}(value));
+  }}
+  return cppSet;
+}})",
+			    fmt::arg("noQualifiers", noQualifiers),
+			    fmt::arg("toCppName", names.m_toCpp),
+			    fmt::arg("ordered", isOrdered ? "Ordered" : ""),
+			    fmt::arg("typeName", type.m_representation),
+			    fmt::arg("toCppName", names.m_toCpp),
+			    fmt::arg("valueConversion", valueConversion.m_toCpp)));
+
+			functions.push_back(fmt::format(
+			    R"(
+NS{ordered}Set* {toObjcName}({noQualifiers} const& s) {{
+  NSMutable{ordered}Set* objcSet = [NSMutable{ordered}Set {initOrdered}WithCapacity:s.size()];
+  for (auto const& value : s) {{
+    [objcSet addObject:{valueConversion}(value)];
+  }}
+  return objcSet;
+}})",
+			    fmt::arg("noQualifiers", noQualifiers),
+			    fmt::arg("toObjcName", names.m_toObjc),
+			    fmt::arg("ordered", isOrdered ? "Ordered" : ""),
+			    fmt::arg("initOrdered", isOrdered ? "orderedSet" : "set"),
+			    fmt::arg("typeName", type.m_representation),
+			    fmt::arg("valueConversion", valueConversion.m_toObjc)));
+		}
+	}
+	return addNamespace(names, cache.m_extraFunctionsNamespace);
+}
+
+Objc::Conversions::Conversion
 containerConversion(IR::Type const& type,
                     IR::Type::Container const& container,
                     std::vector<std::string>& functions,
@@ -180,6 +233,19 @@ containerConversion(IR::Type const& type,
 			                      cache);
 			break;
 		}
+		case ContainerType::UnorderedSet:
+		case ContainerType::Set: {
+			if (!container.m_containedTypes.empty()) {
+				// The first one is the Stuff, Other in map<Stuff, Other>
+				typesToConvert.push(&container.m_containedTypes[0]);
+			}    // TODO: Handle error
+			return convertSetType(type,
+			                      container.m_containedTypes,
+			                      functions,
+			                      cache,
+			                      container.m_container == ContainerType::Set);
+			break;
+		}
 		case ContainerType::Deque:
 		case ContainerType::List:
 		case ContainerType::MultiMap:
@@ -188,14 +254,12 @@ containerConversion(IR::Type const& type,
 		case ContainerType::Pair:
 		case ContainerType::PriorityQueue:
 		case ContainerType::Queue:
-		case ContainerType::Set:
 		case ContainerType::SharedPtr:
 		case ContainerType::Stack:
 		case ContainerType::Tuple:
 		case ContainerType::UniquePtr:
 		case ContainerType::UnorderedMultiMap:
 		case ContainerType::UnorderedMultiSet:
-		case ContainerType::UnorderedSet:
 		case ContainerType::Valarray:
 		case ContainerType::Variant:
 		case ContainerType::Allocator:

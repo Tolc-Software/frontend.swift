@@ -5,6 +5,7 @@
 #include <IR/ir.hpp>
 #include <fmt/format.h>
 #include <numeric>
+#include <spdlog/spdlog.h>
 #include <string>
 #include <vector>
 
@@ -83,6 +84,9 @@ std::string getContainerName(IR::ContainerType const& containerType) {
 		case ContainerType::Array: return "NSArray*";
 		case ContainerType::UnorderedMap:
 		case ContainerType::Map: return "NSDictionary*";
+		case ContainerType::Set: return "NSOrderedSet*";
+		case ContainerType::UnorderedSet: return "NSSet*";
+		case ContainerType::UnorderedMultiSet:
 		case ContainerType::Deque:
 		case ContainerType::List:
 		case ContainerType::MultiMap:
@@ -91,14 +95,11 @@ std::string getContainerName(IR::ContainerType const& containerType) {
 		case ContainerType::Pair:
 		case ContainerType::PriorityQueue:
 		case ContainerType::Queue:
-		case ContainerType::Set:
 		case ContainerType::SharedPtr:
 		case ContainerType::Stack:
 		case ContainerType::Tuple:
 		case ContainerType::UniquePtr:
 		case ContainerType::UnorderedMultiMap:
-		case ContainerType::UnorderedMultiSet:
-		case ContainerType::UnorderedSet:
 		case ContainerType::Valarray:
 		case ContainerType::Variant:
 		case ContainerType::Allocator:
@@ -106,7 +107,10 @@ std::string getContainerName(IR::ContainerType const& containerType) {
 		case ContainerType::ForwardList:
 		case ContainerType::Greater:
 		case ContainerType::Hash:
-		case ContainerType::Less: return "Unsupported container type";
+		case ContainerType::Less: {
+			spdlog::error("Unsupported containerType detected.");
+			return "Unsupported container type";
+		}
 	}
 }
 }    // namespace Objc

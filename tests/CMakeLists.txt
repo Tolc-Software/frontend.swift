@@ -116,12 +116,12 @@ foreach(
   # optionals.cpp
   # overloadedFunctions.cpp
   # pairs.cpp
-  # sets.cpp
+  sets.cpp
   # smartPointers.cpp
   # templates.cpp
   # tuples.cpp
   unordered_maps.cpp
-  # unordered_sets.cpp
+  unordered_sets.cpp
   # userDefined.cpp
   # valarrays.cpp
   # variants.cpp

@@ -18,36 +18,36 @@ TEST_CASE("Classes", "[classes]") {
 	auto cppCode = R"(
 class WithConstructor {
 public:
-	explicit WithConstructor() : m_v(10) {}
-	explicit WithConstructor(int v) : m_v(v) {}
+  explicit WithConstructor() : m_v(10) {}
+  explicit WithConstructor(int v) : m_v(v) {}
 
-	int getV() { return m_v; }
+  int getV() { return m_v; }
 private:
-	int m_v;
+  int m_v;
 };
 
 class WithFunction {
 public:
-	int add(int i, int j) {
-		return i + j;
-	}
+  int add(int i, int j) {
+    return i + j;
+  }
 };
 
 class WithStatic {
 public:
-	static double getPi() {
-		return 3.14;
-	}
+  static double getPi() {
+    return 3.14;
+  }
 
-	static int const answer = 42;
+  static int const answer = 42;
 };
 
 class WithMember {
 public:
-	explicit WithMember() : i(10), phi(1.618) {}
+  explicit WithMember() : i(10), phi(1.618) {}
 
-	int i;
-	double const phi;
+  int i;
+  double const phi;
 };
 )";
 
