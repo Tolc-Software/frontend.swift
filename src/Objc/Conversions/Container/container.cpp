@@ -167,8 +167,7 @@ containerConversion(IR::Type const& type,
 			                        cache);
 			break;
 		}
-		case ContainerType::Deque:
-		case ContainerType::List:
+		case ContainerType::UnorderedMap:
 		case ContainerType::Map: {
 			if (container.m_containedTypes.size() >= 2) {
 				// The first one is the Stuff, Other in map<Stuff, Other>
@@ -181,6 +180,8 @@ containerConversion(IR::Type const& type,
 			                      cache);
 			break;
 		}
+		case ContainerType::Deque:
+		case ContainerType::List:
 		case ContainerType::MultiMap:
 		case ContainerType::MultiSet:
 		case ContainerType::Optional:
@@ -192,7 +193,6 @@ containerConversion(IR::Type const& type,
 		case ContainerType::Stack:
 		case ContainerType::Tuple:
 		case ContainerType::UniquePtr:
-		case ContainerType::UnorderedMap:
 		case ContainerType::UnorderedMultiMap:
 		case ContainerType::UnorderedMultiSet:
 		case ContainerType::UnorderedSet:

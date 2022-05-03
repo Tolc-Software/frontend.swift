@@ -2,18 +2,11 @@
 #include "TestUtil/objcSwiftStage.hpp"
 #include <catch2/catch.hpp>
 #include <fmt/format.h>
-#include <map>
-#include <vector>
-
-std::map<std::string, std::vector<double>> getCities() {
-	return {{"Stockholm", {59.33, 18.06}}, {"San Francisco", {37.77, -122.43}}};
-}
 
 TEST_CASE("Using std::maps", "[maps]") {
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
-	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 #include <map>

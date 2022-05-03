@@ -86,7 +86,7 @@ Note that any restriction this poses only applies to the public interface of you
 | std::tuple                      | ???                                                               | ???                            |
 | std::unique\_ptr                | ???                                                               | ???                            |
 | std::shared\_ptr                | ???                                                               | ???                            |
-| std::unordered\_map             | ???                                                               | ???                            |
+| std::unordered\_map             | NSDictionary                                                      | ???                            |
 | std::unordered\_multimap        | Not converted                                                     | Not converted                  |
 | std::unordered\_multiset        | Not converted                                                     | Not converted                  |
 | std::unordered\_set             | ???                                                               | ???                            |

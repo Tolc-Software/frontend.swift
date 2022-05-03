@@ -120,7 +120,7 @@ foreach(
   # smartPointers.cpp
   # templates.cpp
   # tuples.cpp
-  # unordered_maps.cpp
+  unordered_maps.cpp
   # unordered_sets.cpp
   # userDefined.cpp
   # valarrays.cpp

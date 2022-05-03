@@ -81,6 +81,7 @@ std::string getContainerName(IR::ContainerType const& containerType) {
 	switch (containerType) {
 		case ContainerType::Vector:
 		case ContainerType::Array: return "NSArray*";
+		case ContainerType::UnorderedMap:
 		case ContainerType::Map: return "NSDictionary*";
 		case ContainerType::Deque:
 		case ContainerType::List:
@@ -95,7 +96,6 @@ std::string getContainerName(IR::ContainerType const& containerType) {
 		case ContainerType::Stack:
 		case ContainerType::Tuple:
 		case ContainerType::UniquePtr:
-		case ContainerType::UnorderedMap:
 		case ContainerType::UnorderedMultiMap:
 		case ContainerType::UnorderedMultiSet:
 		case ContainerType::UnorderedSet:
