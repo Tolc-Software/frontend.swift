@@ -108,7 +108,7 @@ foreach(
   globalVariables.cpp
   # inheritence.cpp
   # lists.cpp
-  # maps.cpp
+  maps.cpp
   # memberVariables.cpp
   # namespaceSameAsModule.cpp
   # namespaces.cpp

@@ -39,8 +39,8 @@ void setEnumConversions(IR::Enum const& cppEnum,
 	auto names = Objc::Conversions::getConversionEnumName(
 	    cache.m_moduleName, cppEnum.m_representation);
 
-	if (!cache.m_baseConversions.m_toCpp.contains(names.m_toCpp)) {
-		cache.m_baseConversions.m_toCpp.insert(names.m_toCpp);
+	if (!cache.m_conversions.contains(names.m_toCpp)) {
+		cache.m_conversions.insert(names.m_toCpp);
 
 		auto valuePrefix =
 		    cppEnum.m_isScoped ? cppEnum.m_representation + "::" : "";

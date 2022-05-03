@@ -2,65 +2,66 @@
 #include "TestUtil/objcSwiftStage.hpp"
 #include <catch2/catch.hpp>
 #include <fmt/format.h>
+#include <map>
+#include <vector>
+
+std::map<std::string, std::vector<double>> getCities() {
+	return {{"Stockholm", {59.33, 18.06}}, {"San Francisco", {37.77, -122.43}}};
+}
 
 TEST_CASE("Using std::maps", "[maps]") {
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 #include <map>
 #include <string>
+#include <vector>
 
-class MyClass {
-public:
-	explicit MyClass(std::map<std::string, int> s) : m_s(s) {}
+std::map<std::string, int> getThings() {
+  return {{"Greetings", 5}};
+}
 
-	std::map<std::string, int> getS() { return m_s; }
-
-	std::string getValue(std::map<int, std::string> const& m, int key) {
-		auto it = m.find(key);
-		if (it != m.end()) {
-			return it->second;
-		}
-		return "";
-	}
-
-private:
-	std::map<std::string, int> m_s;
-};
-
+std::map<std::string, std::vector<double>> getCities() {
+  return {
+  {"Stockholm",
+    {59.33, 18.06}},
+  {"San Francisco",
+    {37.77, -122.43}}
+  };
+}
 )";
 
-	auto pythonTestCode = fmt::format(R"(
-# std::map translates to a normal dictionary in python
-my_map = {{"hi": 4, "ho": 5}}
-c = {moduleName}.MyClass(my_map)
-self.assertEqual(c.getS(), my_map)
+	auto objcTestCode = R"(
+// std::map translates to a NSDictionary
+NSDictionary* dict = [m getThings];
+assert([dict count] == 1);
+NSNumber* n = [dict objectForKey:@"Greetings"];
+assert(n != nil);
+assert([n intValue] == 5);
 
-# The maps are typed on the C++ side
-for incopatible_map in [{{"key": "value"}}, {{5: 2}}]:
-    with self.assertRaises(TypeError) as error_context:
-        c = {moduleName}.MyClass(incopatible_map)
-        c.getValue(incopatible_map, 5)
+// Nested containers work as well
+NSDictionary* cities = [m getCities];
+assert([cities count] == 2);
+NSArray* stockholm = [cities objectForKey:@"Stockholm"];
+assert(stockholm != nil);
+assert([stockholm count] == 2);
+assert([[stockholm objectAtIndex:0] doubleValue] == 59.33);
+assert([[stockholm objectAtIndex:1] doubleValue] == 18.06);
 
-    self.assertEqual(len(error_context.exception.args), 1)
-    self.assertTrue(
-        "incompatible function arguments" in error_context.exception.args[0]
-        or "incompatible constructor arguments"
-        in error_context.exception.args[0],
-        "Error msg does not mention incompatible arguments: \n\t"
-        + str(error_context.exception.args[0]),
-    )
-    self.assertTrue(
-        str(incopatible_map) in error_context.exception.args[0],
-        "Error msg does not mention the given arguments: \n\t"
-        + str(error_context.exception.args[0]),
-    )
-)",
-	                                  fmt::arg("moduleName", moduleName));
+NSArray* sanFrancisco = [cities objectForKey:@"San Francisco"];
+assert(sanFrancisco != nil);
+assert([sanFrancisco count] == 2);
+assert([[sanFrancisco objectAtIndex:0] doubleValue] == 37.77);
+assert([[sanFrancisco objectAtIndex:1] doubleValue] == -122.43);
+)";
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+	auto swiftTestCode = R"()";
+
+	auto errorCode =
+	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::map");

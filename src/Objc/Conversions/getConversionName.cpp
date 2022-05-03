@@ -32,19 +32,21 @@ getConversionBaseName(IR::BaseType baseType,
 	switch (baseType) {
 		case BaseType::FilesystemPath: {
 			names.m_toCpp =
-			    fmt::format("{}convertNSStringToFilesystemPath", ns);
+			    fmt::format("{}convertBaseNSStringToFilesystemPath", ns);
 			names.m_toObjc =
-			    fmt::format("{}convertFilesystemPathToNSString", ns);
+			    fmt::format("{}convertBaseFilesystemPathToNSString", ns);
 			return names;
 		}
 		case BaseType::String: {
-			names.m_toCpp = fmt::format("{}convertNSStringToString", ns);
-			names.m_toObjc = fmt::format("{}convertStringToNSString", ns);
+			names.m_toCpp = fmt::format("{}convertBaseNSStringToString", ns);
+			names.m_toObjc = fmt::format("{}convertBaseStringToNSString", ns);
 			return names;
 		}
 		case BaseType::StringView: {
-			names.m_toCpp = fmt::format("{}convertNSStringToStringView", ns);
-			names.m_toObjc = fmt::format("{}convertStringToNSStringView", ns);
+			names.m_toCpp =
+			    fmt::format("{}convertBaseNSStringToStringView", ns);
+			names.m_toObjc =
+			    fmt::format("{}convertBaseStringToNSStringView", ns);
 			return names;
 		}
 

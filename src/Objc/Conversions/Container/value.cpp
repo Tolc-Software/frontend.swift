@@ -1,4 +1,5 @@
 #include "Objc/Conversions/Container/value.hpp"
+#include "Objc/Conversions/base.hpp"
 #include "Objc/Conversions/getConversionName.hpp"
 #include "Objc/cache.hpp"
 #include <IR/ir.hpp>
@@ -14,8 +15,8 @@ void convertNSNumber(IR::Type const& type,
                      std::vector<std::string>& functions,
                      Objc::Cache& cache) {
 	auto names = Objc::Conversions::getConversionContainerName(type);
-	if (!cache.m_baseConversions.m_toCpp.contains(names.m_toCpp)) {
-		cache.m_baseConversions.m_toCpp.insert(names.m_toCpp);
+	if (!cache.m_conversions.contains(names.m_toCpp)) {
+		cache.m_conversions.insert(names.m_toCpp);
 		functions.push_back(fmt::format(
 		    R"(
 {typeName} {toCppName}(id value) {{
@@ -35,6 +36,36 @@ NSNumber* {toObjcName}({typeName} value) {{
 		    fmt::arg("toObjcName", names.m_toObjc),
 		    fmt::arg("typeName", typeName),
 		    fmt::arg("upperCaseType", numberWithName)));
+	}
+}
+
+void convertNSString(IR::Type const& type,
+                     std::string const& typeName,
+                     std::string const& getCString,
+                     std::vector<std::string>& functions,
+                     Objc::Cache& cache,
+                     bool passByValue = false) {
+	auto names = Objc::Conversions::getConversionContainerName(type);
+	if (!cache.m_conversions.contains(names.m_toCpp)) {
+		cache.m_conversions.insert(names.m_toCpp);
+
+		functions.push_back(fmt::format(
+		    R"(
+{typeName} {toCppName}(NSString* s) {{
+  return [s UTF8String];
+}})",
+		    fmt::arg("typeName", typeName),
+		    fmt::arg("toCppName", names.m_toCpp)));
+
+		functions.push_back(fmt::format(
+		    R"(
+NSString* {toObjcName}({typeName}{passByValue} s) {{
+  return [[NSString alloc] initWithUTF8String:{getCString}];
+}})",
+		    fmt::arg("typeName", typeName),
+		    fmt::arg("passByValue", passByValue ? "" : " const&"),
+		    fmt::arg("getCString", getCString),
+		    fmt::arg("toObjcName", names.m_toObjc)));
 	}
 }
 
@@ -70,6 +101,11 @@ void valueConversion(IR::Type const& type,
 			break;
 		}
 		case BaseType::FilesystemPath: {
+			convertNSString(type,
+			                "std::filesystem::path",
+			                "s.string().c_str()",
+			                functions,
+			                cache);
 			break;
 		}
 		case BaseType::Float: {
@@ -96,9 +132,16 @@ void valueConversion(IR::Type const& type,
 			break;
 		}
 		case BaseType::String: {
+			convertNSString(type, "std::string", "s.c_str()", functions, cache);
 			break;
 		}
 		case BaseType::StringView: {
+			convertNSString(type,
+			                "std::string_view",
+			                "std::string(s).c_str()",
+			                functions,
+			                cache,
+			                true);
 			break;
 		}
 		case BaseType::UnsignedChar: {

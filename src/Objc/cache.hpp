@@ -17,13 +17,8 @@ struct Cache {
 	// The name of the users module we are converting
 	std::string m_moduleName;
 
-	struct Conversions {
-		// Names of conversion functions for types
-		// Used to check if a function has been registered already
-		std::set<std::string> m_toCpp;
-	};
-
-	Conversions m_baseConversions;
+	// Registered conversion names
+	std::set<std::string> m_conversions;
 };
 
 }    // namespace Objc

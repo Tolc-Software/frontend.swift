@@ -14,8 +14,8 @@ namespace {
 
 Conversion convertString(Objc::Cache& cache) {
 	auto names = Objc::Conversions::getConversionBaseName(IR::BaseType::String);
-	if (!cache.m_baseConversions.m_toCpp.contains(names.m_toCpp)) {
-		cache.m_baseConversions.m_toCpp.insert(names.m_toCpp);
+	if (!cache.m_conversions.contains(names.m_toCpp)) {
+		cache.m_conversions.insert(names.m_toCpp);
 
 		cache.m_extraFunctions.push_back(fmt::format(
 		    R"(
@@ -37,8 +37,8 @@ NSString* {toObjcName}(std::string const& s) {{
 Conversion convertStringView(Objc::Cache& cache) {
 	auto names =
 	    Objc::Conversions::getConversionBaseName(IR::BaseType::StringView);
-	if (!cache.m_baseConversions.m_toCpp.contains(names.m_toCpp)) {
-		cache.m_baseConversions.m_toCpp.insert(names.m_toCpp);
+	if (!cache.m_conversions.contains(names.m_toCpp)) {
+		cache.m_conversions.insert(names.m_toCpp);
 
 		cache.m_extraFunctions.push_back(fmt::format(
 		    R"(
@@ -62,8 +62,8 @@ Conversion convertFileSystem(Objc::Cache& cache) {
 	auto names =
 	    Objc::Conversions::getConversionBaseName(IR::BaseType::FilesystemPath);
 
-	if (!cache.m_baseConversions.m_toCpp.contains(names.m_toCpp)) {
-		cache.m_baseConversions.m_toCpp.insert(names.m_toCpp);
+	if (!cache.m_conversions.contains(names.m_toCpp)) {
+		cache.m_conversions.insert(names.m_toCpp);
 
 		cache.m_extraFunctions.push_back(fmt::format(
 		    R"(

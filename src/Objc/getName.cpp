@@ -80,10 +80,10 @@ std::string getContainerName(IR::ContainerType const& containerType) {
 	using IR::ContainerType;
 	switch (containerType) {
 		case ContainerType::Vector:
-		case ContainerType::Array:
+		case ContainerType::Array: return "NSArray*";
+		case ContainerType::Map: return "NSDictionary*";
 		case ContainerType::Deque:
-		case ContainerType::List: return "NSArray*";
-		case ContainerType::Map:
+		case ContainerType::List:
 		case ContainerType::MultiMap:
 		case ContainerType::MultiSet:
 		case ContainerType::Optional:

@@ -73,7 +73,7 @@ Note that any restriction this poses only applies to the public interface of you
 | std::forward\_list              | Not converted                                                     | Not converted                  |
 | std::function                   | ???                                                               | ???                            |
 | std::list                       | ???                                                               | ???                            |
-| std::map                        | ???                                                               | ???                            |
+| std::map                        | NSDictionary                                                      | ???                            |
 | std::multimap                   | ???                                                               | ???                            |
 | std::multiset                   | ???                                                               | ???                            |
 | std::optional                   | ???                                                               | ???                            |
