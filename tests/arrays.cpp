@@ -48,6 +48,21 @@ assert([m allOf:conditions] == NO);
 
 NSArray<NSNumber*>* toSum = @[@(1.1), @(2.2), @(3.3)];
 assert([m sum:toSum] == 6.6);
+
+// Error handling
+@try {
+  // Array with the wrong size
+  NSArray<NSNumber*>* toSum = @[@(1.1), @(2.2)];
+  // Expected size == 3
+  [m sum:toSum];
+  // Should throw exception before
+  assert(NO);
+} @catch(NSException* error) {
+  assert([[error name] isEqualToString:@"TypeException"]);
+  NSString* reason =
+    @"The size of the array does not match the expected fixed size. Expected: 3, Got: 2.";
+  assert([[error reason] isEqualToString:reason]);
+}
 )";
 
 	auto swiftTestCode = R"()";

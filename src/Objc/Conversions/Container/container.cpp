@@ -1,9 +1,8 @@
 #include "Objc/Conversions/Container/container.hpp"
+#include "Objc/Conversions/Container/helpers.hpp"
 #include "Objc/Conversions/conversion.hpp"
 #include "Objc/Conversions/getConversionName.hpp"
-#include "Objc/Conversions/utility.hpp"
 #include "Objc/cache.hpp"
-#include "ObjcSwift/Helpers/types.hpp"
 #include <IR/ir.hpp>
 #include <fmt/format.h>
 #include <functional>
@@ -12,56 +11,6 @@
 #include <vector>
 
 namespace Objc::Conversions::Container {
-
-// Info needed for creating a set of conversion functions
-// and registering it
-struct ContainerData {
-	explicit ContainerData(IR::Type const& _type,
-	                       IR::ContainerType _containerType,
-	                       std::vector<IR::Type> const& _containedTypes,
-	                       std::vector<std::string>& _functions,
-	                       Objc::Conversions::Conversion const& _names,
-	                       std::string _noQualifiers)
-	    : type(_type), containerType(_containerType),
-	      containedTypes(_containedTypes), functions(_functions), names(_names),
-	      noQualifiers(_noQualifiers) {}
-
-	// The type to convert
-	IR::Type const& type;
-	IR::ContainerType containerType;
-	std::vector<IR::Type> const& containedTypes;
-	// Conversion functions to be registered
-	std::vector<std::string>& functions;
-	// Names of top level conversion functions
-	Objc::Conversions::Conversion const& names;
-	// The C++ type with no qualifiers
-	std::string noQualifiers;
-};
-
-// Function called to create and register conversions
-Objc::Conversions::Conversion
-convertContainerWrapper(IR::Type const& type,
-                        IR::ContainerType containerType,
-                        std::vector<IR::Type> const& containedTypes,
-                        std::vector<std::string>& functions,
-                        Objc::Cache& cache,
-                        std::function<void(ContainerData)> convertContainer) {
-	auto names = Objc::Conversions::getConversionContainerName(type);
-	if (!cache.m_conversions.contains(names.m_toCpp)) {
-		cache.m_conversions.insert(names.m_toCpp);
-		// TODO: Handle error
-		if (!containedTypes.empty()) {
-			ContainerData d(type,
-			                containerType,
-			                containedTypes,
-			                functions,
-			                names,
-			                ObjcSwift::Helpers::removeQualifiers(type));
-			convertContainer(d);
-		}
-	}
-	return addNamespace(names, cache.m_extraFunctionsNamespace);
-}
 
 std::string addArrayValue(IR::ContainerType arrayType,
                           std::string const& conversionFunction) {
@@ -88,6 +37,7 @@ void convertArrayType(ContainerData data) {
 	data.functions.push_back(fmt::format(
 	    R"(
 {noQualifiers} {toCppName}(NSArray* v) {{
+{errorCheck}
   {noQualifiers} cppArray;
   for (size_t i = 0; i < [v count]; i++) {{
     {addArrayValue}
@@ -96,6 +46,7 @@ void convertArrayType(ContainerData data) {
 }})",
 	    fmt::arg("noQualifiers", data.noQualifiers),
 	    fmt::arg("toCppName", data.names.m_toCpp),
+	    fmt::arg("errorCheck", getErrorCheck(data)),
 	    fmt::arg("typeName", data.type.m_representation),
 	    fmt::arg("toCppName", data.names.m_toCpp),
 	    fmt::arg(
@@ -199,7 +150,6 @@ NS{ordered}Set* {toObjcName}({noQualifiers} const& s) {{
 
 void convertPairType(ContainerData data) {
 	// Pair should have two contained value (plus allocators)
-	// TODO: Handle error
 	if (data.containedTypes.size() >= 2) {
 		auto firstConversion = Objc::Conversions::getConversionContainerName(
 		    data.containedTypes[0]);
@@ -209,21 +159,15 @@ void convertPairType(ContainerData data) {
 		data.functions.push_back(fmt::format(
 		    R"(
 {noQualifiers} {toCppName}(NSArray* p) {{
+{errorCheck}
   {noQualifiers} cppPair;
-  if ([p count] != 2) {{
-    NSException *e = [NSException
-      exceptionWithName:@"TypeException"
-      reason:[NSString
-        stringWithFormat:@"The array passed does not match the number of types in a pair. Expected: 2, Got: %lu", [p count]]
-      userInfo:nil];
-    @throw e;
-  }}
   cppPair.first = {firstConversion}([p objectAtIndex:0]);
   cppPair.second = {secondConversion}([p objectAtIndex:1]);
   return cppPair;
 }})",
 		    fmt::arg("noQualifiers", data.noQualifiers),
 		    fmt::arg("toCppName", data.names.m_toCpp),
+		    fmt::arg("errorCheck", getErrorCheck(data)),
 		    fmt::arg("typeName", data.type.m_representation),
 		    fmt::arg("toCppName", data.names.m_toCpp),
 		    fmt::arg("firstConversion", firstConversion.m_toCpp),
