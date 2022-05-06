@@ -11,38 +11,64 @@ TEST_CASE("Using std::pairs", "[pairs]") {
 	auto cppCode = R"(
 #include <string>
 
-class MyClass {
+class Greeter {
 public:
-	explicit MyClass(std::pair<std::string, int> s) : m_s(s) {}
+  explicit Greeter(std::pair<std::string, int> greetings)
+    : m_greetings(greetings) {}
 
-	std::pair<std::string, int> getS() { return m_s; }
+  std::pair<std::string, int> getGreetings() {
+    return m_greetings;
+  }
+
+  std::string joinGreetings() {
+    std::string joined;
+    for (int i = 0; i < m_greetings.second; ++i) {
+      joined += m_greetings.first;
+    }
+    return joined;
+  }
 
 private:
-	std::pair<std::string, int> m_s;
+  std::pair<std::string, int> m_greetings;
 };
-
-class WithFunction {
-public:
-	int sum(std::pair<int, int> v) {
-		return v.first + v.second;
-	}
-};
-
 )";
 
-	auto pythonTestCode = fmt::format(R"(
-# Converts to a tuple, but is convertible from array aswell
-my_array = ["hi", 4]
-for t in [my_array, tuple(my_array)]:
-    with_member = {moduleName}.MyClass(t)
-    self.assertEqual(with_member.getS(), tuple(t))
+	auto objcTestCode = R"(
+// std::pair corresponds to a NSArray
+// with two values
+NSArray* greetings = [NSArray
+  arrayWithObjects:@"Hey ", @(3), nil];
+assert([greetings count] == 2);
 
-with_function = {moduleName}.WithFunction()
-self.assertEqual(with_function.sum((1, 2)), 3)
-)",
-	                                  fmt::arg("moduleName", moduleName));
+// Sending a pair to a function
+mGreeter* g = [[mGreeter alloc]
+  initWithPairStringInt:greetings];
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+// Joining the greetings 3 times
+NSString* joined = [g joinGreetings];
+assert([joined isEqualToString:@"Hey Hey Hey "]);
+
+// Error handling
+@try {
+  // Sending an array with size != 2
+  NSArray* tooManyArgs =
+    [greetings arrayByAddingObject:@"Oh no"];
+  mGreeter* boom = [[mGreeter alloc]
+    initWithPairStringInt:tooManyArgs];
+  // Should throw exception before
+  assert(NO);
+} @catch(NSException* error) {
+  assert([[error name] isEqualToString:@"TypeException"]);
+  NSString* reason =
+    @"The array passed does not match the number of types in a pair. Expected: 2, Got: 3";
+  assert([[error reason] isEqualToString:reason]);
+}
+)";
+
+	auto swiftTestCode = R"()";
+
+	auto errorCode =
+	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::pair");

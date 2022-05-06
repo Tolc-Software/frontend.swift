@@ -197,6 +197,54 @@ NS{ordered}Set* {toObjcName}({noQualifiers} const& s) {{
 	    fmt::arg("valueConversion", valueConversion.m_toObjc)));
 }
 
+void convertPairType(ContainerData data) {
+	// Pair should have two contained value (plus allocators)
+	// TODO: Handle error
+	if (data.containedTypes.size() >= 2) {
+		auto firstConversion = Objc::Conversions::getConversionContainerName(
+		    data.containedTypes[0]);
+		auto secondConversion = Objc::Conversions::getConversionContainerName(
+		    data.containedTypes[1]);
+
+		data.functions.push_back(fmt::format(
+		    R"(
+{noQualifiers} {toCppName}(NSArray* p) {{
+  {noQualifiers} cppPair;
+  if ([p count] != 2) {{
+    NSException *e = [NSException
+      exceptionWithName:@"TypeException"
+      reason:[NSString
+        stringWithFormat:@"The array passed does not match the number of types in a pair. Expected: 2, Got: %lu", [p count]]
+      userInfo:nil];
+    @throw e;
+  }}
+  cppPair.first = {firstConversion}([p objectAtIndex:0]);
+  cppPair.second = {secondConversion}([p objectAtIndex:1]);
+  return cppPair;
+}})",
+		    fmt::arg("noQualifiers", data.noQualifiers),
+		    fmt::arg("toCppName", data.names.m_toCpp),
+		    fmt::arg("typeName", data.type.m_representation),
+		    fmt::arg("toCppName", data.names.m_toCpp),
+		    fmt::arg("firstConversion", firstConversion.m_toCpp),
+		    fmt::arg("secondConversion", secondConversion.m_toCpp)));
+
+		data.functions.push_back(fmt::format(
+		    R"(
+NSArray* {toObjcName}({noQualifiers} const& p) {{
+  NSMutableArray* objcPair = [NSMutableArray arrayWithCapacity:2];
+  [objcPair addObject: {firstConversion}(p.first)];
+  [objcPair addObject: {secondConversion}(p.second)];
+  return objcPair;
+}})",
+		    fmt::arg("noQualifiers", data.noQualifiers),
+		    fmt::arg("toObjcName", data.names.m_toObjc),
+		    fmt::arg("typeName", data.type.m_representation),
+		    fmt::arg("firstConversion", firstConversion.m_toObjc),
+		    fmt::arg("secondConversion", secondConversion.m_toObjc)));
+	}
+}
+
 Objc::Conversions::Conversion
 containerConversion(IR::Type const& type,
                     IR::Type::Container const& container,
@@ -247,12 +295,24 @@ containerConversion(IR::Type const& type,
 			    [isOrdered = container.m_container == ContainerType::Set](
 			        ContainerData data) { convertSetType(data, isOrdered); });
 		}
+		case ContainerType::Pair: {
+			if (container.m_containedTypes.size() >= 2) {
+				// The first one is the Stuff, Other in pair<Stuff, Other>
+				typesToConvert.push(&container.m_containedTypes[0]);
+				typesToConvert.push(&container.m_containedTypes[1]);
+			}    // TODO: Handle error
+			return convertContainerWrapper(type,
+			                               container.m_container,
+			                               container.m_containedTypes,
+			                               functions,
+			                               cache,
+			                               convertPairType);
+		}
 		case ContainerType::Deque:
 		case ContainerType::List:
 		case ContainerType::MultiMap:
 		case ContainerType::MultiSet:
 		case ContainerType::Optional:
-		case ContainerType::Pair:
 		case ContainerType::PriorityQueue:
 		case ContainerType::Queue:
 		case ContainerType::SharedPtr:

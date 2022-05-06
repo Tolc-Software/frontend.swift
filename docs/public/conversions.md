@@ -77,7 +77,7 @@ Note that any restriction this poses only applies to the public interface of you
 | std::multimap                   | ???                                                               | ???                            |
 | std::multiset                   | ???                                                               | ???                            |
 | std::optional                   | ???                                                               | ???                            |
-| std::pair                       | ???                                                               | ???                            |
+| std::pair                       | NSArray                                                           | ???                            |
 | std::priority\_queue            | ???                                                               | ???                            |
 | std::queue                      | ???                                                               | ???                            |
 | std::set                        | NSOrderedSet                                                      | ???                            |

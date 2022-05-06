@@ -81,6 +81,7 @@ std::string getContainerName(IR::ContainerType const& containerType) {
 	using IR::ContainerType;
 	switch (containerType) {
 		case ContainerType::Vector:
+		case ContainerType::Pair:
 		case ContainerType::Array: return "NSArray*";
 		case ContainerType::UnorderedMap:
 		case ContainerType::Map: return "NSDictionary*";
@@ -92,7 +93,6 @@ std::string getContainerName(IR::ContainerType const& containerType) {
 		case ContainerType::MultiMap:
 		case ContainerType::MultiSet:
 		case ContainerType::Optional:
-		case ContainerType::Pair:
 		case ContainerType::PriorityQueue:
 		case ContainerType::Queue:
 		case ContainerType::SharedPtr:
