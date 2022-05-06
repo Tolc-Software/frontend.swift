@@ -60,7 +60,7 @@ assert([joined isEqualToString:@"Hey Hey Hey "]);
 } @catch(NSException* error) {
   assert([[error name] isEqualToString:@"TypeException"]);
   NSString* reason =
-    @"The size of the array does not match the expected fixed size. Expected: 3, Got: 2.";
+    @"The array passed does not match the number of types in a pair. Expected: 2, Got: 3.";
   assert([[error reason] isEqualToString:reason]);
 }
 )";

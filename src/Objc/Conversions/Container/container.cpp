@@ -190,6 +190,59 @@ NSArray* {toObjcName}({noQualifiers} const& p) {{
 }
 
 Objc::Conversions::Conversion
+getTupleElementConversions(std::vector<IR::Type> const& containedTypes) {
+	Objc::Conversions::Conversion elementConversion;
+	for (size_t i = 0; i < containedTypes.size(); ++i) {
+		auto currentConversion =
+		    Objc::Conversions::getConversionContainerName(containedTypes[i]);
+
+		elementConversion.m_toObjc += fmt::format(
+		    "  [objcTuple addObject: {toObjc}(std::get<{i}>(t))];\n",
+		    fmt::arg("toObjc", currentConversion.m_toObjc),
+		    fmt::arg("i", i));
+		elementConversion.m_toCpp += fmt::format(
+		    "  std::get<{i}>(cppTuple) = {toCpp}([t objectAtIndex:{i}]);\n",
+		    fmt::arg("toCpp", currentConversion.m_toCpp),
+		    fmt::arg("i", i));
+	}
+	return elementConversion;
+}
+
+void convertTupleType(ContainerData data) {
+	// Pair should have two contained value (plus allocators)
+	if (data.containedTypes.size() >= 2) {
+		auto elementConversions =
+		    getTupleElementConversions(data.containedTypes);
+
+		data.functions.push_back(fmt::format(
+		    R"(
+{noQualifiers} {toCppName}(NSArray* t) {{
+{errorCheck}
+  {noQualifiers} cppTuple;
+{elementConversions}
+  return cppTuple;
+}})",
+		    fmt::arg("noQualifiers", data.noQualifiers),
+		    fmt::arg("toCppName", data.names.m_toCpp),
+		    fmt::arg("errorCheck", getErrorCheck(data)),
+		    fmt::arg("elementConversions", elementConversions.m_toCpp)));
+
+		data.functions.push_back(fmt::format(
+		    R"(
+NSArray* {toObjcName}({noQualifiers} const& t) {{
+  NSMutableArray* objcTuple = [NSMutableArray arrayWithCapacity:{tupleSize}];
+{elementConversions}
+  return objcTuple;
+}})",
+		    fmt::arg("noQualifiers", data.noQualifiers),
+		    fmt::arg("tupleSize", data.containedTypes.size()),
+		    fmt::arg("toObjcName", data.names.m_toObjc),
+		    fmt::arg("typeName", data.type.m_representation),
+		    fmt::arg("elementConversions", elementConversions.m_toObjc)));
+	}
+}
+
+Objc::Conversions::Conversion
 containerConversion(IR::Type const& type,
                     IR::Type::Container const& container,
                     std::vector<std::string>& functions,
@@ -252,6 +305,17 @@ containerConversion(IR::Type const& type,
 			                               cache,
 			                               convertPairType);
 		}
+		case ContainerType::Tuple: {
+			for (auto const& containedType : container.m_containedTypes) {
+				typesToConvert.push(&containedType);
+			}
+			return convertContainerWrapper(type,
+			                               container.m_container,
+			                               container.m_containedTypes,
+			                               functions,
+			                               cache,
+			                               convertTupleType);
+		}
 		case ContainerType::Deque:
 		case ContainerType::List:
 		case ContainerType::MultiMap:
@@ -261,7 +325,6 @@ containerConversion(IR::Type const& type,
 		case ContainerType::Queue:
 		case ContainerType::SharedPtr:
 		case ContainerType::Stack:
-		case ContainerType::Tuple:
 		case ContainerType::UniquePtr:
 		case ContainerType::UnorderedMultiMap:
 		case ContainerType::UnorderedMultiSet:

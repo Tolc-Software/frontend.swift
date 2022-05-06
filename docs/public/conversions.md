@@ -83,7 +83,7 @@ Note that any restriction this poses only applies to the public interface of you
 | std::set                        | NSOrderedSet                                                      | ???                            |
 | std::shared\_ptr                | ???                                                               | ???                            |
 | std::stack                      | ???                                                               | ???                            |
-| std::tuple                      | ???                                                               | ???                            |
+| std::tuple                      | NSArray                                                           | ???                            |
 | std::unique\_ptr                | ???                                                               | ???                            |
 | std::shared\_ptr                | ???                                                               | ???                            |
 | std::unordered\_map             | NSDictionary                                                      | ???                            |

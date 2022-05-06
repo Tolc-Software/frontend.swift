@@ -53,13 +53,13 @@ std::string throwNSException(std::string const& condition,
                              std::string const& name,
                              std::string const& formatReason) {
 	return fmt::format(R"(
-	  if ({condition}) {{
-	    @throw [NSException
-	      exceptionWithName:@"{name}"
-	      reason:[NSString
-	        stringWithFormat:{formatReason}]
-	      userInfo:nil];
-	  }})",
+  if ({condition}) {{
+    @throw [NSException
+      exceptionWithName:@"{name}"
+      reason:[NSString
+        stringWithFormat:{formatReason}]
+      userInfo:nil];
+  }})",
 	                   fmt::arg("condition", condition),
 	                   fmt::arg("name", name),
 	                   fmt::arg("formatReason", formatReason));
