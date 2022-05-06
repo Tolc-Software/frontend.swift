@@ -6,11 +6,62 @@
 #include "ObjcSwift/Helpers/types.hpp"
 #include <IR/ir.hpp>
 #include <fmt/format.h>
+#include <functional>
 #include <queue>
 #include <string>
 #include <vector>
 
 namespace Objc::Conversions::Container {
+
+// Info needed for creating a set of conversion functions
+// and registering it
+struct ContainerData {
+	explicit ContainerData(IR::Type const& _type,
+	                       IR::ContainerType _containerType,
+	                       std::vector<IR::Type> const& _containedTypes,
+	                       std::vector<std::string>& _functions,
+	                       Objc::Conversions::Conversion const& _names,
+	                       std::string _noQualifiers)
+	    : type(_type), containerType(_containerType),
+	      containedTypes(_containedTypes), functions(_functions), names(_names),
+	      noQualifiers(_noQualifiers) {}
+
+	// The type to convert
+	IR::Type const& type;
+	IR::ContainerType containerType;
+	std::vector<IR::Type> const& containedTypes;
+	// Conversion functions to be registered
+	std::vector<std::string>& functions;
+	// Names of top level conversion functions
+	Objc::Conversions::Conversion const& names;
+	// The C++ type with no qualifiers
+	std::string noQualifiers;
+};
+
+// Function called to create and register conversions
+Objc::Conversions::Conversion
+convertContainerWrapper(IR::Type const& type,
+                        IR::ContainerType containerType,
+                        std::vector<IR::Type> const& containedTypes,
+                        std::vector<std::string>& functions,
+                        Objc::Cache& cache,
+                        std::function<void(ContainerData)> convertContainer) {
+	auto names = Objc::Conversions::getConversionContainerName(type);
+	if (!cache.m_conversions.contains(names.m_toCpp)) {
+		cache.m_conversions.insert(names.m_toCpp);
+		// TODO: Handle error
+		if (!containedTypes.empty()) {
+			ContainerData d(type,
+			                containerType,
+			                containedTypes,
+			                functions,
+			                names,
+			                ObjcSwift::Helpers::removeQualifiers(type));
+			convertContainer(d);
+		}
+	}
+	return addNamespace(names, cache.m_extraFunctionsNamespace);
+}
 
 std::string addArrayValue(IR::ContainerType arrayType,
                           std::string const& conversionFunction) {
@@ -21,7 +72,7 @@ std::string addArrayValue(IR::ContainerType arrayType,
 			                   conversionFunction);
 		}
 		case ContainerType::Array: {
-			return fmt::format("objcArray[i] = {}([v objectAtIndex:i]);",
+			return fmt::format("cppArray[i] = {}([v objectAtIndex:i]);",
 			                   conversionFunction);
 		}
 		default: break;
@@ -29,25 +80,13 @@ std::string addArrayValue(IR::ContainerType arrayType,
 	return "";
 }
 
-Objc::Conversions::Conversion
-convertArrayType(IR::Type const& type,
-                 IR::ContainerType containerType,
-                 std::vector<IR::Type> const& containedTypes,
-                 std::vector<std::string>& functions,
-                 Objc::Cache& cache) {
-	auto names = Objc::Conversions::getConversionContainerName(type);
-	if (!cache.m_conversions.contains(names.m_toCpp)) {
-		cache.m_conversions.insert(names.m_toCpp);
-		auto noQualifiers = ObjcSwift::Helpers::removeQualifiers(type);
-		// Vector should have one contained value (plus allocators)
-		// TODO: Handle error
-		if (!containedTypes.empty()) {
-			auto containedConversions =
-			    Objc::Conversions::getConversionContainerName(
-			        containedTypes.front());
+void convertArrayType(ContainerData data) {
+	// Vector should have one contained value (plus allocators)
+	auto containedConversions = Objc::Conversions::getConversionContainerName(
+	    data.containedTypes.front());
 
-			functions.push_back(fmt::format(
-			    R"(
+	data.functions.push_back(fmt::format(
+	    R"(
 {noQualifiers} {toCppName}(NSArray* v) {{
   {noQualifiers} cppArray;
   for (size_t i = 0; i < [v count]; i++) {{
@@ -55,16 +94,16 @@ convertArrayType(IR::Type const& type,
   }}
   return cppArray;
 }})",
-			    fmt::arg("noQualifiers", noQualifiers),
-			    fmt::arg("toCppName", names.m_toCpp),
-			    fmt::arg("typeName", type.m_representation),
-			    fmt::arg("toCppName", names.m_toCpp),
-			    fmt::arg("addArrayValue",
-			             addArrayValue(containerType,
-			                           containedConversions.m_toCpp))));
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("toCppName", data.names.m_toCpp),
+	    fmt::arg("typeName", data.type.m_representation),
+	    fmt::arg("toCppName", data.names.m_toCpp),
+	    fmt::arg(
+	        "addArrayValue",
+	        addArrayValue(data.containerType, containedConversions.m_toCpp))));
 
-			functions.push_back(fmt::format(
-			    R"(
+	data.functions.push_back(fmt::format(
+	    R"(
 NSArray* {toObjcName}({noQualifiers} const& v) {{
   NSMutableArray* objcArray = [NSMutableArray arrayWithCapacity:v.size()];
   for (size_t i = 0; i < v.size(); i++) {{
@@ -72,35 +111,23 @@ NSArray* {toObjcName}({noQualifiers} const& v) {{
   }}
   return objcArray;
 }})",
-			    fmt::arg("noQualifiers", noQualifiers),
-			    fmt::arg("toObjcName", names.m_toObjc),
-			    fmt::arg("typeName", type.m_representation),
-			    fmt::arg("convertToObjc", containedConversions.m_toObjc)));
-		}
-	}
-	return addNamespace(names, cache.m_extraFunctionsNamespace);
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("toObjcName", data.names.m_toObjc),
+	    fmt::arg("typeName", data.type.m_representation),
+	    fmt::arg("convertToObjc", containedConversions.m_toObjc)));
 }
 
-Objc::Conversions::Conversion
-convertMapType(IR::Type const& type,
-               std::vector<IR::Type> const& containedTypes,
-               std::vector<std::string>& functions,
-               Objc::Cache& cache) {
-	auto names = Objc::Conversions::getConversionContainerName(type);
-	if (!cache.m_conversions.contains(names.m_toCpp)) {
-		cache.m_conversions.insert(names.m_toCpp);
-		auto noQualifiers = ObjcSwift::Helpers::removeQualifiers(type);
-		// map should have two contained value (plus allocators)
-		// TODO: Handle error
-		if (containedTypes.size() >= 2) {
-			auto keyConversion = Objc::Conversions::getConversionContainerName(
-			    containedTypes[0]);
-			auto valueConversion =
-			    Objc::Conversions::getConversionContainerName(
-			        containedTypes[1]);
+void convertMapType(ContainerData data) {
+	// map should have two contained value (plus allocators)
+	// TODO: Handle error
+	if (data.containedTypes.size() >= 2) {
+		auto keyConversion = Objc::Conversions::getConversionContainerName(
+		    data.containedTypes[0]);
+		auto valueConversion = Objc::Conversions::getConversionContainerName(
+		    data.containedTypes[1]);
 
-			functions.push_back(fmt::format(
-			    R"(
+		data.functions.push_back(fmt::format(
+		    R"(
 {noQualifiers} {toCppName}(NSDictionary* m) {{
   {noQualifiers} cppMap;
   for (id key in m) {{
@@ -109,15 +136,15 @@ convertMapType(IR::Type const& type,
   }}
   return cppMap;
 }})",
-			    fmt::arg("noQualifiers", noQualifiers),
-			    fmt::arg("toCppName", names.m_toCpp),
-			    fmt::arg("typeName", type.m_representation),
-			    fmt::arg("toCppName", names.m_toCpp),
-			    fmt::arg("keyConversion", keyConversion.m_toCpp),
-			    fmt::arg("valueConversion", valueConversion.m_toCpp)));
+		    fmt::arg("noQualifiers", data.noQualifiers),
+		    fmt::arg("toCppName", data.names.m_toCpp),
+		    fmt::arg("typeName", data.type.m_representation),
+		    fmt::arg("toCppName", data.names.m_toCpp),
+		    fmt::arg("keyConversion", keyConversion.m_toCpp),
+		    fmt::arg("valueConversion", valueConversion.m_toCpp)));
 
-			functions.push_back(fmt::format(
-			    R"(
+		data.functions.push_back(fmt::format(
+		    R"(
 NSDictionary* {toObjcName}({noQualifiers} const& m) {{
   NSMutableDictionary* objcMap = [NSMutableDictionary dictionaryWithCapacity:m.size()];
   for (auto const& keyValue : m) {{
@@ -125,35 +152,20 @@ NSDictionary* {toObjcName}({noQualifiers} const& m) {{
   }}
   return objcMap;
 }})",
-			    fmt::arg("noQualifiers", noQualifiers),
-			    fmt::arg("toObjcName", names.m_toObjc),
-			    fmt::arg("typeName", type.m_representation),
-			    fmt::arg("keyConversion", keyConversion.m_toObjc),
-			    fmt::arg("valueConversion", valueConversion.m_toObjc)));
-		}
+		    fmt::arg("noQualifiers", data.noQualifiers),
+		    fmt::arg("toObjcName", data.names.m_toObjc),
+		    fmt::arg("typeName", data.type.m_representation),
+		    fmt::arg("keyConversion", keyConversion.m_toObjc),
+		    fmt::arg("valueConversion", valueConversion.m_toObjc)));
 	}
-	return addNamespace(names, cache.m_extraFunctionsNamespace);
 }
 
-Objc::Conversions::Conversion
-convertSetType(IR::Type const& type,
-               std::vector<IR::Type> const& containedTypes,
-               std::vector<std::string>& functions,
-               Objc::Cache& cache,
-               bool isOrdered = true) {
-	auto names = Objc::Conversions::getConversionContainerName(type);
-	if (!cache.m_conversions.contains(names.m_toCpp)) {
-		cache.m_conversions.insert(names.m_toCpp);
-		auto noQualifiers = ObjcSwift::Helpers::removeQualifiers(type);
-		// map should have two contained value (plus allocators)
-		// TODO: Handle error
-		if (!containedTypes.empty()) {
-			auto valueConversion =
-			    Objc::Conversions::getConversionContainerName(
-			        containedTypes[0]);
+void convertSetType(ContainerData data, bool isOrdered) {
+	auto valueConversion =
+	    Objc::Conversions::getConversionContainerName(data.containedTypes[0]);
 
-			functions.push_back(fmt::format(
-			    R"(
+	data.functions.push_back(fmt::format(
+	    R"(
 {noQualifiers} {toCppName}(NS{ordered}Set* s) {{
   {noQualifiers} cppSet;
   for (id value in s) {{
@@ -161,15 +173,15 @@ convertSetType(IR::Type const& type,
   }}
   return cppSet;
 }})",
-			    fmt::arg("noQualifiers", noQualifiers),
-			    fmt::arg("toCppName", names.m_toCpp),
-			    fmt::arg("ordered", isOrdered ? "Ordered" : ""),
-			    fmt::arg("typeName", type.m_representation),
-			    fmt::arg("toCppName", names.m_toCpp),
-			    fmt::arg("valueConversion", valueConversion.m_toCpp)));
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("toCppName", data.names.m_toCpp),
+	    fmt::arg("ordered", isOrdered ? "Ordered" : ""),
+	    fmt::arg("typeName", data.type.m_representation),
+	    fmt::arg("toCppName", data.names.m_toCpp),
+	    fmt::arg("valueConversion", valueConversion.m_toCpp)));
 
-			functions.push_back(fmt::format(
-			    R"(
+	data.functions.push_back(fmt::format(
+	    R"(
 NS{ordered}Set* {toObjcName}({noQualifiers} const& s) {{
   NSMutable{ordered}Set* objcSet = [NSMutable{ordered}Set {initOrdered}WithCapacity:s.size()];
   for (auto const& value : s) {{
@@ -177,15 +189,12 @@ NS{ordered}Set* {toObjcName}({noQualifiers} const& s) {{
   }}
   return objcSet;
 }})",
-			    fmt::arg("noQualifiers", noQualifiers),
-			    fmt::arg("toObjcName", names.m_toObjc),
-			    fmt::arg("ordered", isOrdered ? "Ordered" : ""),
-			    fmt::arg("initOrdered", isOrdered ? "orderedSet" : "set"),
-			    fmt::arg("typeName", type.m_representation),
-			    fmt::arg("valueConversion", valueConversion.m_toObjc)));
-		}
-	}
-	return addNamespace(names, cache.m_extraFunctionsNamespace);
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("toObjcName", data.names.m_toObjc),
+	    fmt::arg("ordered", isOrdered ? "Ordered" : ""),
+	    fmt::arg("initOrdered", isOrdered ? "orderedSet" : "set"),
+	    fmt::arg("typeName", data.type.m_representation),
+	    fmt::arg("valueConversion", valueConversion.m_toObjc)));
 }
 
 Objc::Conversions::Conversion
@@ -196,29 +205,18 @@ containerConversion(IR::Type const& type,
                     Objc::Cache& cache) {
 	using IR::ContainerType;
 	switch (container.m_container) {
+		case ContainerType::Array:
 		case ContainerType::Vector: {
 			if (!container.m_containedTypes.empty()) {
 				// The first one is the Stuff in vector<Stuff>
 				typesToConvert.push(&container.m_containedTypes.front());
 			}    // TODO: Handle error
-			return convertArrayType(type,
-			                        container.m_container,
-			                        container.m_containedTypes,
-			                        functions,
-			                        cache);
-			break;
-		}
-		case ContainerType::Array: {
-			if (!container.m_containedTypes.empty()) {
-				// The first one is the Stuff in array<Stuff>
-				typesToConvert.push(&container.m_containedTypes.front());
-			}    // TODO: Handle error
-			return convertArrayType(type,
-			                        container.m_container,
-			                        container.m_containedTypes,
-			                        functions,
-			                        cache);
-			break;
+			return convertContainerWrapper(type,
+			                               container.m_container,
+			                               container.m_containedTypes,
+			                               functions,
+			                               cache,
+			                               convertArrayType);
 		}
 		case ContainerType::UnorderedMap:
 		case ContainerType::Map: {
@@ -227,11 +225,12 @@ containerConversion(IR::Type const& type,
 				typesToConvert.push(&container.m_containedTypes[0]);
 				typesToConvert.push(&container.m_containedTypes[1]);
 			}    // TODO: Handle error
-			return convertMapType(type,
-			                      container.m_containedTypes,
-			                      functions,
-			                      cache);
-			break;
+			return convertContainerWrapper(type,
+			                               container.m_container,
+			                               container.m_containedTypes,
+			                               functions,
+			                               cache,
+			                               convertMapType);
 		}
 		case ContainerType::UnorderedSet:
 		case ContainerType::Set: {
@@ -239,12 +238,14 @@ containerConversion(IR::Type const& type,
 				// The first one is the Stuff, Other in map<Stuff, Other>
 				typesToConvert.push(&container.m_containedTypes[0]);
 			}    // TODO: Handle error
-			return convertSetType(type,
-			                      container.m_containedTypes,
-			                      functions,
-			                      cache,
-			                      container.m_container == ContainerType::Set);
-			break;
+			return convertContainerWrapper(
+			    type,
+			    container.m_container,
+			    container.m_containedTypes,
+			    functions,
+			    cache,
+			    [isOrdered = container.m_container == ContainerType::Set](
+			        ContainerData data) { convertSetType(data, isOrdered); });
 		}
 		case ContainerType::Deque:
 		case ContainerType::List:
