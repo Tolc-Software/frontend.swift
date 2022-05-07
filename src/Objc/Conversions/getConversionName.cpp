@@ -1,5 +1,6 @@
 #include "Objc/Conversions/getConversionName.hpp"
 #include "Objc/Conversions/conversion.hpp"
+#include "Objc/Conversions/utility.hpp"
 #include "Objc/getName.hpp"
 #include "ObjcSwift/Helpers/typeToStringBuilder.hpp"
 #include <fmt/format.h>
@@ -9,16 +10,15 @@
 namespace Objc::Conversions {
 
 Objc::Conversions::Conversion
-getConversionEnumName(std::string const& moduleName,
-                      std::string const& fullyQualifiedEnumName,
-                      std::string const& conversionNamespace) {
+getEnumConversionNames(std::string const& moduleName,
+                       std::string const& fullyQualifiedEnumName,
+                       std::string const& conversionNamespace) {
 	Conversion names;
 	auto objcEnum = Objc::getEnumName(fullyQualifiedEnumName, moduleName);
-	auto ns = conversionNamespace.empty() ? "" : conversionNamespace + "::";
-	names.m_toCpp = fmt::format("{}convertEnum{}ToCpp", ns, objcEnum);
-	names.m_toObjc = fmt::format("{}convertEnum{}ToObjc", ns, objcEnum);
+	names.m_toCpp = fmt::format("convertEnum{}ToCpp", objcEnum);
+	names.m_toObjc = fmt::format("convertEnum{}ToObjc", objcEnum);
 
-	return names;
+	return addNamespace(names, conversionNamespace);
 }
 
 Objc::Conversions::Conversion
@@ -27,27 +27,25 @@ getConversionBaseName(IR::BaseType baseType,
 	Conversion names;
 	names.m_toCpp = "";
 	names.m_toObjc = "";
-	auto ns = conversionNamespace.empty() ? "" : conversionNamespace + "::";
 	using IR::BaseType;
 	switch (baseType) {
 		case BaseType::FilesystemPath: {
-			names.m_toCpp =
-			    fmt::format("{}convertBaseNSStringToFilesystemPath", ns);
-			names.m_toObjc =
-			    fmt::format("{}convertBaseFilesystemPathToNSString", ns);
-			return names;
+			names.m_toCpp = "convertBaseFilesystemPathToCpp";
+			names.m_toObjc = "convertBaseFilesystemPathToObjc";
+			addNamespace(names, conversionNamespace);
+			break;
 		}
 		case BaseType::String: {
-			names.m_toCpp = fmt::format("{}convertBaseNSStringToString", ns);
-			names.m_toObjc = fmt::format("{}convertBaseStringToNSString", ns);
-			return names;
+			names.m_toCpp = "convertBaseStringToCpp";
+			names.m_toObjc = "convertBaseStringToObjc";
+			addNamespace(names, conversionNamespace);
+			break;
 		}
 		case BaseType::StringView: {
-			names.m_toCpp =
-			    fmt::format("{}convertBaseNSStringToStringView", ns);
-			names.m_toObjc =
-			    fmt::format("{}convertBaseStringToNSStringView", ns);
-			return names;
+			names.m_toCpp = "convertBaseStringViewToCpp";
+			names.m_toObjc = "convertBaseStringViewToObjc";
+			addNamespace(names, conversionNamespace);
+			break;
 		}
 
 		case BaseType::Bool:
@@ -80,10 +78,9 @@ getConversionContainerName(IR::Type const& containerType,
                            std::string const& conversionNamespace) {
 	Conversion names;
 	auto typeName = ObjcSwift::Helpers::buildTypeString(containerType);
-	auto ns = conversionNamespace.empty() ? "" : conversionNamespace + "::";
-	names.m_toCpp = fmt::format("{}convertContainer{}ToCpp", ns, typeName);
-	names.m_toObjc = fmt::format("{}convertContainer{}ToObjc", ns, typeName);
+	names.m_toCpp = fmt::format("convertContainer{}ToCpp", typeName);
+	names.m_toObjc = fmt::format("convertContainer{}ToObjc", typeName);
 
-	return names;
+	return addNamespace(names, conversionNamespace);
 }
 }    // namespace Objc::Conversions

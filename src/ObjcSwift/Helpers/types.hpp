@@ -31,10 +31,10 @@ bool isFunctionType(IR::Type const& type);
 /**
 * Return substring without the template parameters
 * Ex:
-*   MyClass<int> -> MyClass
-*   myFunction<int> -> myFunction
+*   MyClass<int> -> {MyClass, <int>}
+*   myFunction<int> -> {myFunction, <int>}
 */
-std::string removeCppTemplate(std::string const& name);
+std::pair<std::string, std::string> removeCppTemplate(std::string name);
 
 /**
 * Removes const, &, * from the representation of the type

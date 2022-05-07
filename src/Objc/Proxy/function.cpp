@@ -66,14 +66,17 @@ std::string Function::getFunctionCall() const {
 	std::string functionCall = "";
 	if (m_isStatic) {
 		functionCall =
-		    fmt::format(R"({fullyQualifiedName}({arguments}))",
+		    fmt::format(R"({dereferenced}{fullyQualifiedName}({arguments}))",
+		                fmt::arg("dereferenced", m_returnType.m_dereference),
 		                fmt::arg("fullyQualifiedName", m_fullyQualifiedName),
 		                fmt::arg("name", m_name),
 		                fmt::arg("arguments", arguments));
 	} else {
-		functionCall = fmt::format("m_object->{name}({arguments})",
-		                           fmt::arg("name", m_name),
-		                           fmt::arg("arguments", arguments));
+		functionCall =
+		    fmt::format("{dereferenced}m_object->{name}({arguments})",
+		                fmt::arg("dereferenced", m_returnType.m_dereference),
+		                fmt::arg("name", m_name),
+		                fmt::arg("arguments", arguments));
 	}
 	return m_returnType.m_name == "void" ?
                functionCall :

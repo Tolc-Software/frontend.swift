@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Objc/Conversions/conversion.hpp"
 #include "Objc/Proxy/attribute.hpp"
 #include "Objc/Proxy/enum.hpp"
 #include "Objc/Proxy/function.hpp"
@@ -35,16 +36,20 @@ public:
 	// Meaning it has no underlying C++ class
 	void setAsPurelyStatic();
 
+	void setConversionNames(Objc::Conversions::Conversion const& c);
+
 	std::string getObjcSource() const;
 	std::string getObjcHeader() const;
 
 private:
 	std::string joinMemberVariables(bool isSource) const;
+	std::string getConversions() const;
 
 	// User defined name of the class
 	std::string m_name;
 	std::string m_fullyQualifiedName;
 	std::string m_documentation;
+	Objc::Conversions::Conversion m_conversions;
 
 	std::vector<std::string> m_inherited;
 	std::vector<Function> m_constructors;

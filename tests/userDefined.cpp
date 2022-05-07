@@ -36,17 +36,21 @@ private:
 };
 )";
 
-	auto pythonTestCode = fmt::format(R"(
-phrase = "Hello from py"
-myClass = {moduleName}.buildMyClass(phrase);
+	auto objcTestCode = R"(
+NSString* phrase = @"Hello from Objective-C";
+mMyClass* myClass = [m buildMyClass:phrase];
+assert([[myClass getS] isEqualToString:phrase]);
 
-self.assertEqual(myClass.getS(), phrase)
+// Passing Objective-C classes to C++ classes
+mOwner* owner = [[mOwner alloc] initWithMyClass:myClass];
+assert([[[owner getMyClass] getS] isEqualToString:phrase]);
+)";
 
-owner = {moduleName}.Owner(myClass)
-self.assertEqual(owner.getMyClass().getS(), phrase)
-)",
-	                                  fmt::arg("moduleName", moduleName));
+	auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+	auto errorCode =
+	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
+
+	stage.exportAsExample("Passing classes between languages");
 }

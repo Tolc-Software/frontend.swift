@@ -23,14 +23,14 @@ std::string getParameterString(std::vector<IR::Type> const& parameters) {
 
 std::string getClassName(std::string const& cppClassName,
                          std::vector<IR::Type> const& cppTemplateArgs) {
-	return ObjcSwift::Helpers::removeCppTemplate(cppClassName) +
+	return ObjcSwift::Helpers::removeCppTemplate(cppClassName).first +
 	       getParameterString(cppTemplateArgs);
 }
 
 std::string getFunctionName(IR::Function const& cppFunction,
                             bool isConstructor) {
 	if (!isConstructor) {
-		return ObjcSwift::Helpers::removeCppTemplate(cppFunction.m_name);
+		return ObjcSwift::Helpers::removeCppTemplate(cppFunction.m_name).first;
 	} else {
 		return "init";
 	}

@@ -1,4 +1,5 @@
 #include "Objc/Proxy/class.hpp"
+#include "Objc/Conversions/conversion.hpp"
 #include "ObjcSwift/Helpers/getDocumentationParameter.hpp"
 #include "ObjcSwift/Helpers/wrapInFunction.hpp"
 #include <fmt/format.h>
@@ -23,10 +24,21 @@ std::string joinFunctions(std::vector<Objc::Proxy::Function> const& functions,
 }
 
 std::string getUnderlyingObject(std::string const& fullyQualifiedName) {
+	// NOTE: The object is actually only public for the implementation file
+	//       Used for copy constructors
 	return fmt::format(R"( {{
   // The corresponding C++ object
-  std::unique_ptr<{fullyQualifiedName}> m_object;
-}})",
+  @public std::unique_ptr<{fullyQualifiedName}> m_object;
+}}
+
+// Copy constructor
+-(instancetype) _initWithCppObject:({fullyQualifiedName} const&)cppClass {{
+  if (self = [super init]) {{
+    m_object = std::unique_ptr<{fullyQualifiedName}>(new {fullyQualifiedName}(cppClass));
+  }}
+  return self;
+}}
+)",
 	                   fmt::arg("fullyQualifiedName", fullyQualifiedName));
 }
 
@@ -40,14 +52,16 @@ std::string Class::getObjcSource() const {
 {constructors}
 {functions}
 {memberVariables}
-@end)",
+@end
+{conversions})",
 	    fmt::arg("className", m_name),
 	    fmt::arg("underlyingObject",
 	             m_isPurelyStatic ? "" :
                                     getUnderlyingObject(m_fullyQualifiedName)),
 	    fmt::arg("constructors", joinFunctions(m_constructors, isSource)),
 	    fmt::arg("functions", joinFunctions(m_functions, isSource)),
-	    fmt::arg("memberVariables", joinMemberVariables(isSource)));
+	    fmt::arg("memberVariables", joinMemberVariables(isSource)),
+	    fmt::arg("conversions", getConversions()));
 
 	return out;
 }
@@ -182,8 +196,35 @@ std::string Class::joinMemberVariables(bool isSource) const {
 	return out;
 }
 
+std::string Class::getConversions() const {
+	// No need for conversions for an object that cannot be instantiated
+	return m_isPurelyStatic ?
+               "" :
+               fmt::format(R"(
+namespace {ns} {{
+
+{objcName}* {toObjcName}({cppName} const& cppClass) {{
+  return [[{objcName} alloc] _initWithCppObject:cppClass];
+}}
+
+{cppName}& {toCppName}({objcName}* objcClass) {{
+  return *objcClass->m_object.get();
+}}
+
+}})",
+	                       fmt::arg("ns", "Tolc_"),
+	                       fmt::arg("objcName", m_name),
+	                       fmt::arg("toObjcName", m_conversions.m_toObjc),
+	                       fmt::arg("toCppName", m_conversions.m_toCpp),
+	                       fmt::arg("cppName", m_fullyQualifiedName));
+}
+
 void Class::setAsPurelyStatic() {
 	m_isPurelyStatic = true;
+}
+
+void Class::setConversionNames(Objc::Conversions::Conversion const& c) {
+	m_conversions = c;
 }
 
 }    // namespace Objc::Proxy

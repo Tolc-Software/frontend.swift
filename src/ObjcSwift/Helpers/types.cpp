@@ -37,9 +37,16 @@ bool isFunctionType(IR::Type const& type) {
 	return std::holds_alternative<IR::Type::Function>(type.m_type);
 }
 
-std::string removeCppTemplate(std::string const& name) {
-	// MyClass<int> -> MyClass
-	return name.substr(0, name.find('<'));
+std::pair<std::string, std::string> removeCppTemplate(std::string name) {
+	// MyClass<int> -> {MyClass, <int>}
+	auto templateStart = name.find('<');
+	if (templateStart == std::string::npos) {
+		// No template
+		return {name, ""};
+	}
+	auto withoutTemplate = name.substr(0, templateStart);
+	name.erase(0, templateStart);
+	return {withoutTemplate, name};
 }
 
 std::string removeQualifiers(IR::Type const& type) {

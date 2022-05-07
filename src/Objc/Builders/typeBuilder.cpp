@@ -3,6 +3,7 @@
 #include "Objc/Conversions/container.hpp"
 #include "Objc/Conversions/conversion.hpp"
 #include "Objc/Conversions/getConversionName.hpp"
+#include "Objc/Conversions/userDefined.hpp"
 #include "Objc/cache.hpp"
 #include "Objc/getName.hpp"
 #include <IR/ir.hpp>
@@ -21,6 +22,8 @@ std::string toObjcType(IR::BaseType type) {
 		case BaseType::Char: return "char";
 		case BaseType::Complex: return "complex";
 		case BaseType::Double: return "double";
+		case BaseType::String:
+		case BaseType::StringView:
 		case BaseType::FilesystemPath: return "NSString*";
 		case BaseType::Float: return "float";
 		case BaseType::Int: return "int";
@@ -29,8 +32,6 @@ std::string toObjcType(IR::BaseType type) {
 		case BaseType::LongLongInt: return "long long int";
 		case BaseType::ShortInt: return "short int";
 		case BaseType::SignedChar: return "signed char";
-		case BaseType::String: return "NSString*";
-		case BaseType::StringView: return "NSString*";
 		case BaseType::UnsignedChar: return "unsigned char";
 		case BaseType::UnsignedInt: return "unsigned int";
 		case BaseType::UnsignedLongInt: return "unsigned long int";
@@ -53,7 +54,7 @@ Objc::Proxy::Type buildType(IR::Type const& type, Objc::Cache& cache) {
 	} else if (auto enumType = std::get_if<IR::Type::EnumValue>(&type.m_type)) {
 		t.m_name =
 		    Objc::getEnumName(enumType->m_representation, cache.m_moduleName);
-		t.m_conversions = Objc::Conversions::getConversionEnumName(
+		t.m_conversions = Objc::Conversions::getEnumConversionNames(
 		    cache.m_moduleName,
 		    enumType->m_representation,
 		    cache.m_extraFunctionsNamespace);
@@ -62,6 +63,17 @@ Objc::Proxy::Type buildType(IR::Type const& type, Objc::Cache& cache) {
 		t.m_name = Objc::getContainerName(container->m_container);
 		t.m_conversions = Objc::Conversions::getContainerTypeConversions(
 		    type, *container, cache);
+	} else if (auto userDefined =
+	               std::get_if<IR::Type::UserDefined>(&type.m_type)) {
+		t.m_name = Objc::getClassName(userDefined->m_representation,
+		                              cache.m_moduleName) +
+		           '*';
+		t.m_conversions = Objc::Conversions::getUserDefinedConversionNames(
+		    userDefined->m_representation, cache.m_extraFunctionsNamespace);
+	}
+	t.m_dereference = "";
+	for (int i = 0; i < type.m_numPointers; ++i) {
+		t.m_dereference.push_back('*');
 	}
 	return t;
 }

@@ -2,6 +2,7 @@
 #include "Objc/Builders/enumBuilder.hpp"
 #include "Objc/Builders/functionBuilder.hpp"
 #include "Objc/Builders/typeBuilder.hpp"
+#include "Objc/Conversions/userDefined.hpp"
 #include "Objc/Proxy/attribute.hpp"
 #include "Objc/Proxy/function.hpp"
 #include "Objc/cache.hpp"
@@ -52,6 +53,10 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	objcClass.setDocumentation(cppClass.m_documentation);
 
 	objcClass.setInherited(cppClass.m_public.m_inherited);
+
+	objcClass.setConversionNames(
+	    Objc::Conversions::getUserDefinedConversionNames(
+	        cppClass.m_representation, ""));
 
 	// Ignore private functions
 	auto overloadedFunctions =

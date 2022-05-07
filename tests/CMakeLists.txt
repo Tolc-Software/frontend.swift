@@ -122,7 +122,7 @@ foreach(
   tuples.cpp
   unordered_maps.cpp
   unordered_sets.cpp
-  # userDefined.cpp
+  userDefined.cpp
   # valarrays.cpp
   # variants.cpp
   vectors.cpp

@@ -57,16 +57,25 @@ std::string getConstructorExtraName(IR::Function const& f) {
 	return "With" + getParameterString(f.m_arguments);
 }
 
+std::string getClassName(std::string const& cppClassFqName,
+                         std::string const& moduleName) {
+	// TODO: Handle templateArgs
+	auto [fqName, _templateArgs] =
+	    ObjcSwift::Helpers::removeCppTemplate(cppClassFqName);
+	return moduleName + fqName;
+}
+
 std::string getClassName(IR::Struct const& cppClass,
                          std::string const& moduleName) {
-	return moduleName + ObjcSwift::Helpers::removeCppTemplate(cppClass.m_name) +
+	return moduleName +
+	       ObjcSwift::Helpers::removeCppTemplate(cppClass.m_name).first +
 	       getParameterString(cppClass.m_templateArguments);
 }
 
 std::string getFunctionName(IR::Function const& cppFunction,
                             bool isConstructor) {
 	if (!isConstructor) {
-		return ObjcSwift::Helpers::removeCppTemplate(cppFunction.m_name);
+		return ObjcSwift::Helpers::removeCppTemplate(cppFunction.m_name).first;
 	} else {
 		return "init" + getConstructorExtraName(cppFunction);
 	}

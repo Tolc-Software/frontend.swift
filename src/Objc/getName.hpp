@@ -5,6 +5,9 @@
 #include <vector>
 
 namespace Objc {
+std::string getClassName(std::string const& cppClassFqName,
+                         std::string const& moduleName);
+
 std::string getClassName(IR::Struct const& cppClass,
                          std::string const& moduleName);
 

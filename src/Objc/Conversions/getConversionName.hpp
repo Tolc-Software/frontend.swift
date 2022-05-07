@@ -12,9 +12,9 @@ namespace Objc::Conversions {
 * Pass an empty conversionNamespace to have the function without the namespace
 */
 Objc::Conversions::Conversion
-getConversionEnumName(std::string const& moduleName,
-                      std::string const& fullyQualifiedEnumName,
-                      std::string const& conversionNamespace = "");
+getEnumConversionNames(std::string const& moduleName,
+                       std::string const& fullyQualifiedEnumName,
+                       std::string const& conversionNamespace = "");
 
 /**
 * The function name to take this base type to the equivalent Objective-C type

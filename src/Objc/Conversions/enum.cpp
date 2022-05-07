@@ -36,7 +36,7 @@ std::string casesFromTo(std::string const& fromPrefix,
 void setEnumConversions(IR::Enum const& cppEnum,
                         Objc::Proxy::Enum const& objcEnum,
                         Objc::Cache& cache) {
-	auto names = Objc::Conversions::getConversionEnumName(
+	auto names = Objc::Conversions::getEnumConversionNames(
 	    cache.m_moduleName, cppEnum.m_representation);
 
 	if (!cache.m_conversions.contains(names.m_toCpp)) {
