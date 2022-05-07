@@ -28,7 +28,7 @@ Objc::Proxy::Attribute buildAttribute(IR::Variable const& v,
 	attr.m_name = v.m_name;
 	attr.m_documentation = v.m_documentation;
 	attr.m_isConst = v.m_type.m_isConst;
-	attr.m_isStatic = true;
+	attr.m_isStatic = v.m_isStatic;
 	attr.m_type = Objc::Builders::buildType(v.m_type, cache);
 	attr.m_isObject = isObject(v.m_type);
 

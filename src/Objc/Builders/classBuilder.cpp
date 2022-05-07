@@ -1,4 +1,5 @@
 #include "Objc/Builders/classBuilder.hpp"
+#include "Objc/Builders/attributeBuilder.hpp"
 #include "Objc/Builders/enumBuilder.hpp"
 #include "Objc/Builders/functionBuilder.hpp"
 #include "Objc/Builders/typeBuilder.hpp"
@@ -116,14 +117,8 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	}
 
 	for (auto const& variable : cppClass.m_public.m_memberVariables) {
-		Objc::Proxy::Attribute m;
-		m.m_name = variable.m_name;
-		m.m_documentation = variable.m_documentation;
-		m.m_type = Objc::Builders::buildType(variable.m_type, cache);
-		m.m_isConst = variable.m_type.m_isConst;
-		m.m_isStatic = variable.m_isStatic;
-
-		objcClass.addMemberVariable(m);
+		objcClass.addMemberVariable(
+		    Objc::Builders::buildAttribute(variable, cache));
 	}
 
 	// Add default constructor

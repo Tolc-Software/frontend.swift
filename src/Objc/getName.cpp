@@ -68,7 +68,8 @@ std::string getClassName(std::string const& cppClassFqName,
 std::string getClassName(IR::Struct const& cppClass,
                          std::string const& moduleName) {
 	return moduleName +
-	       ObjcSwift::Helpers::removeCppTemplate(cppClass.m_name).first +
+	       ObjcSwift::Helpers::removeCppTemplate(cppClass.m_representation)
+	           .first +
 	       getParameterString(cppClass.m_templateArguments);
 }
 

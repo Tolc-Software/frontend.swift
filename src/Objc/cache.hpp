@@ -19,6 +19,9 @@ struct Cache {
 
 	// Registered conversion names
 	std::set<std::string> m_conversions;
+
+	// {Fully qualified name to C++ class, Corresponding Objective-C class}
+	std::map<std::string, std::string> m_classes;
 };
 
 }    // namespace Objc
