@@ -67,10 +67,17 @@ std::string getClassName(std::string const& cppClassFqName,
 
 std::string getClassName(IR::Struct const& cppClass,
                          std::string const& moduleName) {
-	return moduleName +
-	       ObjcSwift::Helpers::removeCppTemplate(cppClass.m_representation)
-	           .first +
-	       getParameterString(cppClass.m_templateArguments);
+	auto withoutTemplate =
+	    ObjcSwift::Helpers::removeCppTemplate(cppClass.m_representation).first;
+
+	return fmt::format(
+	    "{moduleName}{className}{templateArgs}",
+	    fmt::arg("moduleName", moduleName),
+	    fmt::arg(
+	        "className",
+	        fmt::join(ObjcSwift::Helpers::split(withoutTemplate, "::"), "")),
+	    fmt::arg("templateArgs",
+	             getParameterString(cppClass.m_templateArguments)));
 }
 
 std::string getFunctionName(IR::Function const& cppFunction,

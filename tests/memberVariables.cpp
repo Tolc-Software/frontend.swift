@@ -38,48 +38,26 @@ namespace MyLib {
 		double d = 4.3;
 	};
 }
-
 )";
 
-	auto pythonTestCode = fmt::format(R"(
-# Mutable member variables can be changed
-simpleMember = {moduleName}.SimpleMember()
-self.assertEqual(simpleMember.myString, "Hello")
-simpleMember.myString = "Changed now!"
-self.assertEqual(simpleMember.myString, "Changed now!")
+	auto objcTestCode = R"(
+// Mutable member variables can be changed
+mSimpleMember* simpleMember = [[mSimpleMember alloc] init];
+assert([simpleMember.myString isEqualToString:@"Hello"]);
+simpleMember.myString = @"Changed now!";
+assert([simpleMember.myString isEqualToString:@"Changed now!"]);
 
-constMember = {moduleName}.ConstMember()
-self.assertEqual(constMember.i, 42)
+mConstMember* constMember = [[mConstMember alloc] init];
+assert(constMember.i == 42);
 
-# Const member variables cannot be changed
-with self.assertRaises(AttributeError) as error_context:
-    constMember.i = 0
+mMyLibNested* nested = [[mMyLibNested alloc] init];
+assert(nested.d == 4.3);
+)";
 
-self.assertEqual(len(error_context.exception.args), 1)
-self.assertEqual(
-    "can't set attribute",
-    error_context.exception.args[0],
-    "Prohibiting changing const variables does not work!",
-)
+	auto swiftTestCode = R"()";
 
-# Private member variables are not available
-with self.assertRaises(AttributeError) as error_context:
-    privateMember = {moduleName}.PrivateMember("Hello")
-    print(privateMember.myString)
-
-self.assertEqual(len(error_context.exception.args), 1)
-self.assertEqual(
-    "'{moduleName}.PrivateMember' object has no attribute 'myString'",
-    error_context.exception.args[0],
-    "Prohibiting changing const variables does not work!",
-)
-
-nested = {moduleName}.MyLib.Nested()
-self.assertEqual(nested.d, 4.3)
-)",
-	                                  fmt::arg("moduleName", moduleName));
-
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+	auto errorCode =
+	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Member Variables");

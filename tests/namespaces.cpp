@@ -37,22 +37,21 @@ int complexFunction() {
 
 )";
 
-	auto pythonTestCode = fmt::format(R"(
-# Namespaces corresponds to submodules
-result = {moduleName}.MyLib.complexFunction()
-self.assertEqual(result, 5)
+	auto objcTestCode = R"(
+// Namespaces corresponds to classes
+// with {library name} + join(namespaces)
+// where functions are static class functions
+assert([mMyLib complexFunction] == 5);
 
-# Documentation carries over for namespaces
-self.assertIn("MyLib contains a bunch of MyLib functions", \
-  {moduleName}.MyLib.__doc__)
+// You can nest namespaces arbitrarily deep
+NSString* lifeProTips = [mMyLibWeAreGoingPrettyDeep meaningOfLife];
+assert([lifeProTips isEqualToString:@"42"]);
+)";
 
-# You can nest namespaces arbitrarily deep
-lifeProTips = {moduleName}.MyLib.We.Are.Going.Pretty.Deep.meaningOfLife()
-self.assertEqual(lifeProTips, "42")
-)",
-	                                  fmt::arg("moduleName", moduleName));
+	auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+	auto errorCode =
+	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Namespaces");

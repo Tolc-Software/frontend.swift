@@ -109,9 +109,8 @@ foreach(
   # inheritence.cpp
   # lists.cpp
   maps.cpp
-  # memberVariables.cpp
-  # namespaceSameAsModule.cpp
-  # namespaces.cpp
+  memberVariables.cpp
+  namespaces.cpp
   # operators.cpp
   # optionals.cpp
   # overloadedFunctions.cpp

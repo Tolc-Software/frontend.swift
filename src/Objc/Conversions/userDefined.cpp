@@ -17,6 +17,7 @@ std::string getValidFunctionName(std::string_view name) {
 			case '<':
 			case '>':
 			case ' ':
+			case ':':
 			case ',': out.push_back('_'); break;
 			default: out.push_back(name[i]);
 		}
