@@ -102,7 +102,7 @@ foreach(
   # deques.cpp
   # documentationStyles.cpp
   enums.cpp
-  # filesystem_paths.cpp
+  filesystem_paths.cpp
   # functional.cpp
   functions.cpp
   globalVariables.cpp
