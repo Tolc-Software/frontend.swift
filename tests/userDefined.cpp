@@ -7,7 +7,6 @@ TEST_CASE("User defined classes", "[userDefined]") {
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
-	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 #include <string>
@@ -36,12 +35,12 @@ private:
 	MyClass m_myClass;
 };
 
-struct Point {
+struct Point2d {
 	int x;
 	int y;
 };
 
-Point getMiddle(std::pair<Point, Point> p) {
+Point2d getMiddle(std::pair<Point2d, Point2d> p) {
 	return {(p.first.x + p.second.x) / 2, (p.first.y + p.second.y) / 2};
 }
 )";
@@ -56,13 +55,17 @@ mOwner* owner = [[mOwner alloc] initWithMyClass:myClass];
 assert([[[owner getMyClass] getS] isEqualToString:phrase]);
 
 // Container of user defined classes
-mPoint* a = [[mPoint alloc] init];
+mPoint2d* a = [[mPoint2d alloc] init];
 a.x = 1;
 a.y = 0;
-mPoint* b = [[mPoint alloc] init];
-b.x = 2;
+mPoint2d* b = [[mPoint2d alloc] init];
+b.x = 3;
 b.y = 0;
-// NSArray* points
+
+NSArray* points = [NSArray arrayWithObjects:a, b, nil];
+mPoint2d* middle = [m getMiddle:points];
+assert(middle.x == 2);
+assert(middle.y == 0);
 )";
 
 	auto swiftTestCode = R"()";

@@ -8,7 +8,10 @@
 namespace Objc::Proxy {
 class Function {
 public:
-	Function(std::string const& name, std::string const& fullyQualifiedName);
+	Function(std::string const& name,
+	         std::string const& fullyQualifiedName,
+	         std::string const& objcClass,
+	         std::string const& cppClass);
 
 	std::string getObjcSource() const;
 	std::string getObjcHeader() const;
@@ -24,8 +27,6 @@ public:
 
 	void setAsStatic();
 
-	void setAsClassFunction(std::string const& fullyQualifiedClassName);
-
 	void setAsConstructor();
 
 	void setReturnType(Objc::Proxy::Type const& type);
@@ -38,6 +39,7 @@ public:
 	};
 
 	void addArgument(Argument const& arg);
+	void setAsStandalone();
 
 private:
 	std::string getFunctionCall() const;
@@ -47,14 +49,17 @@ private:
 	// User defined name of the function
 	std::string m_name;
 	std::string m_fullyQualifiedName;
+	// Containing class
+	std::string m_objcClass;
+	std::string m_cppClass;
 	std::string m_documentation;
 	// Defaults to void
 	Objc::Proxy::Type m_returnType;
-	// The full name of the class that contains this function
-	std::string m_fullyQualifiedClassName;
 	std::vector<Argument> m_arguments;
 	bool m_isOverloaded;
 	bool m_isStatic;
 	bool m_isConstructor;
+	// If it needs wrappers or not
+	bool m_isStandalone;
 };
 }    // namespace Objc::Proxy

@@ -14,21 +14,20 @@
 #include "ObjcSwift/Helpers/types.hpp"
 #include "ObjcSwift/getOverloadedFunctions.hpp"
 #include <IR/ir.hpp>
+#include <fmt/format.h>
 #include <numeric>
 #include <optional>
 #include <set>
 #include <string>
+#include <string_view>
 
 namespace Objc::Builders {
 
 namespace {
 
-void buildMemberFunction(std::string const& fullyQualifiedClassName,
-                         Objc::Proxy::Function& objcFunction,
+void buildMemberFunction(Objc::Proxy::Function& objcFunction,
                          IR::Function const& cppFunction,
                          std::set<std::string> const& overloadedFunctions) {
-	objcFunction.setAsClassFunction(fullyQualifiedClassName);
-
 	if (cppFunction.m_isStatic) {
 		objcFunction.setAsStatic();
 	}
@@ -39,13 +38,45 @@ void buildMemberFunction(std::string const& fullyQualifiedClassName,
 	}
 }
 
+std::string declareClassCategory(std::string_view objcName,
+                                 std::string_view cppName) {
+	return fmt::format(R"(
+@interface {objcName}(e_{objcName}_private)
+-(instancetype) Tolc_initWithCppObject:({cppName} const&)cppClass;
+-({cppName}&) Tolc_getCppObject;
+@end
+)",
+	                   fmt::arg("objcName", objcName),
+	                   fmt::arg("cppName", cppName));
+}
+
+std::string getConversions(std::string_view objcName,
+                           std::string_view cppName) {
+	// No need for conversions for an object that cannot be instantiated
+	auto conversions =
+	    Objc::Conversions::getUserDefinedConversionNames(cppName, "");
+	return fmt::format(R"(
+{objcName}* {toObjcName}({cppName} const& cppClass) {{
+  return [[{objcName} alloc] Tolc_initWithCppObject:cppClass];
+}}
+
+{cppName}& {toCppName}({objcName}* objcClass) {{
+  return [objcClass Tolc_getCppObject];
+}}
+)",
+	                   fmt::arg("objcName", objcName),
+	                   fmt::arg("toObjcName", conversions.m_toObjc),
+	                   fmt::arg("toCppName", conversions.m_toCpp),
+	                   fmt::arg("cppName", cppName));
+}
+
 }    // namespace
 
 std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
-                                             std::string const& moduleName,
                                              Objc::Cache& cache) {
-	Objc::Proxy::Class objcClass(Objc::getClassName(cppClass, moduleName),
-	                             cppClass.m_representation);
+	Objc::Proxy::Class objcClass(
+	    Objc::getClassName(cppClass, cache.m_moduleName),
+	    cppClass.m_representation);
 
 	for (auto const& e : cppClass.m_public.m_enums) {
 		objcClass.addEnum(buildEnum(e, cache));
@@ -55,21 +86,23 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 
 	objcClass.setInherited(cppClass.m_public.m_inherited);
 
-	objcClass.setConversionNames(
-	    Objc::Conversions::getUserDefinedConversionNames(
-	        cppClass.m_representation, ""));
+	cache.m_extraClassCategories.push_back(
+	    declareClassCategory(objcClass.getName(), cppClass.m_representation));
+
+	cache.m_extraClassConversions.push_back(
+	    getConversions(objcClass.getName(), cppClass.m_representation));
 
 	// Ignore private functions
 	auto overloadedFunctions =
 	    ObjcSwift::getOverloadedFunctions(cppClass.m_public.m_functions);
 	for (auto const& function : cppClass.m_public.m_functions) {
-		if (auto maybeobjcFunction = buildFunction(function, cache)) {
-			auto& objcFunction = maybeobjcFunction.value();
+		if (auto maybeObjcFunction = buildFunction(objcClass.getName(),
+		                                           cppClass.m_representation,
+		                                           function,
+		                                           cache)) {
+			auto& objcFunction = maybeObjcFunction.value();
 
-			buildMemberFunction(cppClass.m_representation,
-			                    objcFunction,
-			                    function,
-			                    overloadedFunctions);
+			buildMemberFunction(objcFunction, function, overloadedFunctions);
 
 			objcClass.addFunction(objcFunction);
 		} else {
@@ -80,14 +113,15 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	auto overloadedOperators =
 	    ObjcSwift::getOverloadedFunctions(cppClass.m_public.m_operators);
 	for (auto const& [op, function] : cppClass.m_public.m_operators) {
-		if (auto maybeobjcFunction = buildFunction(function, cache)) {
+		if (auto maybeObjcFunction = buildFunction(objcClass.getName(),
+		                                           cppClass.m_representation,
+		                                           function,
+		                                           cache)) {
 			if (auto maybeName = ObjcSwift::Helpers::getOperatorName(op)) {
-				auto& objcFunction = maybeobjcFunction.value();
+				auto& objcFunction = maybeObjcFunction.value();
 
-				buildMemberFunction(cppClass.m_representation,
-				                    objcFunction,
-				                    function,
-				                    overloadedOperators);
+				buildMemberFunction(
+				    objcFunction, function, overloadedOperators);
 
 				objcClass.addFunction(objcFunction);
 			}
@@ -97,8 +131,12 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	}
 
 	for (auto const& constructor : cppClass.m_public.m_constructors) {
-		if (auto maybeobjcFunction = buildFunction(constructor, cache, true)) {
-			auto& objcFunction = maybeobjcFunction.value();
+		if (auto maybeObjcFunction = buildFunction(objcClass.getName(),
+		                                           cppClass.m_representation,
+		                                           constructor,
+		                                           cache,
+		                                           true)) {
+			auto& objcFunction = maybeObjcFunction.value();
 
 			if (constructor.m_isStatic) {
 				objcFunction.setAsStatic();
@@ -108,8 +146,6 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 				objcFunction.setAsOverloaded();
 			}
 
-			objcFunction.setAsClassFunction(cppClass.m_representation);
-
 			objcFunction.setAsConstructor();
 
 			objcClass.addConstructor(objcFunction);
@@ -117,14 +153,16 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	}
 
 	for (auto const& variable : cppClass.m_public.m_memberVariables) {
-		objcClass.addMemberVariable(
-		    Objc::Builders::buildAttribute(variable, cache));
+		objcClass.addMemberVariable(Objc::Builders::buildAttribute(
+		    objcClass.getName(), cppClass.m_representation, variable, cache));
 	}
 
 	// Add default constructor
 	if (cppClass.m_hasImplicitDefaultConstructor) {
-		auto constructor = Objc::Proxy::Function("init", objcClass.getName());
-		constructor.setAsClassFunction(cppClass.m_representation);
+		auto constructor = Objc::Proxy::Function("init",
+		                                         objcClass.getName(),
+		                                         objcClass.getName(),
+		                                         cppClass.m_representation);
 		Objc::Proxy::Type returnType;
 		returnType.m_name = "instancetype";
 		returnType.m_conversions.m_toObjc = "";

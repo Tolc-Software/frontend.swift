@@ -19,9 +19,10 @@ namespace Objc::Builders {
 namespace {
 std::string getModuleName(std::string const& moduleName,
                           std::string const& fullyQualifiedName) {
-	std::string name = moduleName + fullyQualifiedName;
 	return fmt::format("{}",
-	                   fmt::join(ObjcSwift::Helpers::split(name, "::"), ""));
+	                   fmt::join(ObjcSwift::Helpers::split(
+	                                 moduleName + fullyQualifiedName, "::"),
+	                             ""));
 }
 }    // namespace
 
@@ -31,29 +32,6 @@ std::optional<Objc::Proxy::Class> buildModule(IR::Namespace const& ns,
 	    getModuleName(cache.m_moduleName, ns.m_representation),
 	    ns.m_representation);
 	objcModule.setAsPurelyStatic();
-
-	auto overloadedFunctions =
-	    ObjcSwift::getOverloadedFunctions(ns.m_functions);
-	for (auto const& function : ns.m_functions) {
-		if (auto maybeF = Objc::Builders::buildFunction(function, cache)) {
-			auto f = maybeF.value();
-			if (overloadedFunctions.find(function.m_representation) !=
-			    overloadedFunctions.end()) {
-				f.setAsOverloaded();
-			}
-			// Global functions act as static functions
-			f.setAsStatic();
-			f.setAsClassFunction(ns.m_representation);
-			objcModule.addFunction(f);
-		} else {
-			return std::nullopt;
-		}
-	}
-
-	for (auto const& variable : ns.m_variables) {
-		auto v = Objc::Builders::buildAttribute(variable, cache);
-		objcModule.addMemberVariable(v);
-	}
 
 	return objcModule;
 }

@@ -1,4 +1,8 @@
 #include "Objc/Proxy/moduleFile.hpp"
+#include "Objc/Proxy/attribute.hpp"
+#include "Objc/Proxy/class.hpp"
+#include "Objc/Proxy/enum.hpp"
+#include "Objc/Proxy/function.hpp"
 #include "Objc/cache.hpp"
 #include <fmt/format.h>
 #include <string>
@@ -14,12 +18,20 @@ std::string ModuleFile::getObjcHeader() const {
 		out += fmt::format("{}\n", e.getObjcHeader());
 	}
 
+	for (auto const& m : m_modules) {
+		out += m.getObjcHeader();
+	}
+
 	for (auto const& cls : m_classes) {
 		out += fmt::format("{}\n", cls.getObjcHeader());
 	}
 
-	for (auto const& m : m_modules) {
-		out += m.getObjcHeader();
+	for (auto const& f : m_functions) {
+		out += f.getObjcHeader();
+	}
+
+	for (auto const& a : m_attributes) {
+		out += a.getObjcHeader();
 	}
 
 	return out;
@@ -31,9 +43,11 @@ std::string createExtraFunctionsSource(Objc::Cache const& cache) {
 		out += fmt::format(R"(
 namespace {} {{
 {}
+{}
 
 }})",
 		                   cache.m_extraFunctionsNamespace,
+		                   fmt::join(cache.m_extraClassConversions, "\n"),
 		                   fmt::join(cache.m_extraFunctions, "\n"));
 	}
 	return out;
@@ -45,21 +59,32 @@ std::string ModuleFile::getObjcSource() const {
 #import "{libraryName}_objc.h"
 #import <Foundation/Foundation.h>
 #include <memory>
+{classDeclarations}
 {conversions}
 )",
+	    fmt::arg("classDeclarations",
+	             fmt::join(m_cache.m_extraClassCategories, "\n")),
 	    fmt::arg("conversions", createExtraFunctionsSource(m_cache)),
 	    fmt::arg("libraryName", m_cache.m_moduleName));
 
 	for (auto const& e : m_enums) {
-		out += fmt::format("{}\n", e.getObjcSource());
-	}
-
-	for (auto const& cls : m_classes) {
-		out += fmt::format("{}\n", cls.getObjcSource());
+		out += e.getObjcSource();
 	}
 
 	for (auto const& m : m_modules) {
 		out += m.getObjcSource();
+	}
+
+	for (auto const& cls : m_classes) {
+		out += cls.getObjcSource();
+	}
+
+	for (auto const& f : m_functions) {
+		out += f.getObjcSource();
+	}
+
+	for (auto const& a : m_attributes) {
+		out += a.getObjcSource();
 	}
 
 	return out;
@@ -96,6 +121,14 @@ void ModuleFile::addClass(Objc::Proxy::Class const& c) {
 
 void ModuleFile::addModule(Objc::Proxy::Class const& m) {
 	m_modules.push_back(m);
+}
+
+void ModuleFile::addFunction(Objc::Proxy::Function const& f) {
+	m_functions.push_back(f);
+}
+
+void ModuleFile::addAttribute(Objc::Proxy::Attribute const& v) {
+	m_attributes.push_back(v);
 }
 
 }    // namespace Objc::Proxy

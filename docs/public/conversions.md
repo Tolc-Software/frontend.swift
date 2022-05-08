@@ -64,6 +64,7 @@ Note that any restriction this poses only applies to the public interface of you
 | operator++        | Not converted         | Not converted                  |
 | operator--        | Not converted         | Not converted                  |
 
+
 | C++ Standard library class      | Objective-C translation                                           | Swift translation              |
 |:------------------------------- |:----------------------------------------------------------------- |:------------------------------ |
 | std::array                      | NSArray                                                           | ???                            |

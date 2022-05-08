@@ -22,15 +22,27 @@ bool isObject(IR::Type const& type) {
 	       std::holds_alternative<Type::Function>(type.m_type);
 }
 
-Objc::Proxy::Attribute buildAttribute(IR::Variable const& v,
+Objc::Proxy::Attribute buildAttribute(std::string const& objcClass,
+                                      std::string const& cppClass,
+                                      IR::Variable const& v,
                                       Objc::Cache& cache) {
-	Objc::Proxy::Attribute attr;
-	attr.m_name = v.m_name;
-	attr.m_documentation = v.m_documentation;
-	attr.m_isConst = v.m_type.m_isConst;
-	attr.m_isStatic = v.m_isStatic;
-	attr.m_type = Objc::Builders::buildType(v.m_type, cache);
-	attr.m_isObject = isObject(v.m_type);
+	Objc::Proxy::Attribute attr(cppClass, objcClass, v.m_name);
+
+	attr.setDocumentation(v.m_documentation);
+
+	if (v.m_type.m_isConst) {
+		attr.setAsConst();
+	}
+
+	if (v.m_isStatic) {
+		attr.setAsStatic();
+	}
+
+	attr.setType(Objc::Builders::buildType(v.m_type, cache));
+
+	if (isObject(v.m_type)) {
+		attr.setAsObject();
+	}
 
 	return attr;
 }

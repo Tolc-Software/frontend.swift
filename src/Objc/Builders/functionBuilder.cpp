@@ -10,12 +10,16 @@
 namespace Objc::Builders {
 
 std::optional<Objc::Proxy::Function>
-buildFunction(IR::Function const& cppFunction,
+buildFunction(std::string const& objcClass,
+              std::string const& cppClass,
+              IR::Function const& cppFunction,
               Objc::Cache& cache,
               bool isConstructor) {
 	Objc::Proxy::Function objcFunction(
 	    Objc::getFunctionName(cppFunction, isConstructor),
-	    cppFunction.m_representation);
+	    cppFunction.m_representation,
+	    objcClass,
+	    cppClass);
 
 	for (auto const& argument : cppFunction.m_arguments) {
 		Objc::Proxy::Function::Argument arg;

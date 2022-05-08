@@ -1,5 +1,6 @@
 #include "Objc/Proxy/function.hpp"
 #include "Objc/Proxy/type.hpp"
+#include "Objc/utility.hpp"
 #include "ObjcSwift/Helpers/getDocumentationParameter.hpp"
 #include "ObjcSwift/Helpers/string.hpp"
 #include "ObjcSwift/Helpers/wrapInFunction.hpp"
@@ -88,10 +89,10 @@ std::string Function::getFunctionBody() const {
 	if (m_isConstructor) {
 		return fmt::format(
 		    R"(  if (self = [super init]) {{
-    m_object = std::unique_ptr<{qualifiedClassName}>(new {qualifiedClassName}({arguments}));
+    m_object = std::unique_ptr<{cppClass}>(new {cppClass}({arguments}));
   }}
   return self;)",
-		    fmt::arg("qualifiedClassName", m_fullyQualifiedClassName),
+		    fmt::arg("cppClass", m_cppClass),
 		    fmt::arg("arguments", getCallArguments(m_arguments)),
 		    fmt::arg("name", m_name));
 	}
@@ -104,26 +105,42 @@ std::string Function::getFunctionBody() const {
 }
 
 std::string Function::getObjcSource() const {
-	return fmt::format(
+	auto definition = fmt::format(
 	    R"(
 {declaration} {{
 {body}
 }}
 )",
+	    fmt::arg("objcClass", m_objcClass),
+	    fmt::arg("category", Objc::getCategoryName('f', m_objcClass, m_name)),
 	    fmt::arg("declaration", getFunctionDeclaration()),
 	    fmt::arg("body", getFunctionBody()));
+	return m_isStandalone ? Objc::wrapInImplementation(
+	                            m_objcClass,
+	                            Objc::getCategoryName('f', m_objcClass, m_name),
+	                            definition) :
+                            definition;
 }
 
 std::string Function::getObjcHeader() const {
 	// E.g.
 	// - (int)add:(int)x y:(int)y;
-	return '\n' + getFunctionDeclaration() + ";\n";
+	auto declaration = getFunctionDeclaration() + ';';
+	return m_isStandalone ? Objc::wrapInInterface(
+	                            m_objcClass,
+	                            Objc::getCategoryName('f', m_objcClass, m_name),
+	                            declaration) :
+                            declaration;
 }
 
 Function::Function(std::string const& name,
-                   std::string const& fullyQualifiedName)
-    : m_name(name), m_fullyQualifiedName(fullyQualifiedName), m_returnType(),
-      m_isOverloaded(false), m_isStatic(false), m_isConstructor(false) {}
+                   std::string const& fullyQualifiedName,
+                   std::string const& objcClass,
+                   std::string const& cppClass)
+    : m_name(name), m_fullyQualifiedName(fullyQualifiedName),
+      m_objcClass(objcClass), m_cppClass(cppClass), m_returnType(),
+      m_isOverloaded(false), m_isStatic(false), m_isConstructor(false),
+      m_isStandalone(false) {}
 
 void Function::setReturnType(Objc::Proxy::Type const& type) {
 	m_returnType = type;
@@ -145,16 +162,16 @@ std::string Function::getName() const {
 	return m_name;
 }
 
-void Function::setAsClassFunction(std::string const& fullyQualifiedClassName) {
-	m_fullyQualifiedClassName = fullyQualifiedClassName;
-}
-
 void Function::setAsConstructor() {
 	m_isConstructor = true;
 }
 
 void Function::addArgument(Argument const& arg) {
 	m_arguments.push_back(arg);
+}
+
+void Function::setAsStandalone() {
+	m_isStandalone = true;
 }
 
 }    // namespace Objc::Proxy

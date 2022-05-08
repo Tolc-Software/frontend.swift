@@ -1,5 +1,6 @@
 #include "Objc/Conversions/getConversionName.hpp"
 #include "Objc/Conversions/conversion.hpp"
+#include "Objc/Conversions/userDefined.hpp"
 #include "Objc/Conversions/utility.hpp"
 #include "Objc/getName.hpp"
 #include "ObjcSwift/Helpers/typeToStringBuilder.hpp"
@@ -74,12 +75,20 @@ getConversionBaseName(IR::BaseType baseType,
 }
 
 Objc::Conversions::Conversion
-getConversionContainerName(IR::Type const& containerType,
+getConversionContainerName(IR::Type const& type,
                            std::string const& conversionNamespace) {
 	Conversion names;
-	auto typeName = ObjcSwift::Helpers::buildTypeString(containerType);
-	names.m_toCpp = fmt::format("convertContainer{}ToCpp", typeName);
-	names.m_toObjc = fmt::format("convertContainer{}ToObjc", typeName);
+
+	if (auto userDefined = std::get_if<IR::Type::UserDefined>(&type.m_type)) {
+		// Use the standard conversions for user defined types
+		names = Objc::Conversions::getUserDefinedConversionNames(
+		    userDefined->m_representation, "");
+	} else {
+		// Otherwise we build it ourself
+		auto typeName = ObjcSwift::Helpers::buildTypeString(type);
+		names.m_toCpp = fmt::format("convertContainer{}ToCpp", typeName);
+		names.m_toObjc = fmt::format("convertContainer{}ToObjc", typeName);
+	}
 
 	return addNamespace(names, conversionNamespace);
 }

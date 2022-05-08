@@ -70,6 +70,7 @@ add_library(
   src/Swift/getName.cpp
   src/Swift/types.cpp
 
+  src/Objc/utility.cpp
   src/Objc/Builders/attributeBuilder.cpp
   src/Objc/Builders/classBuilder.cpp
   src/Objc/Builders/enumBuilder.cpp
@@ -86,11 +87,11 @@ add_library(
   src/Objc/Conversions/getConversionName.cpp
   src/Objc/Conversions/userDefined.cpp
   src/Objc/Conversions/utility.cpp
+  src/Objc/Proxy/attribute.cpp
   src/Objc/Proxy/class.cpp
   src/Objc/Proxy/enum.cpp
   src/Objc/Proxy/function.cpp
   src/Objc/Proxy/function.cpp
-  src/Objc/Proxy/module.cpp
   src/Objc/Proxy/moduleFile.cpp
   src/Objc/getName.cpp
 

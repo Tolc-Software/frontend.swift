@@ -84,7 +84,7 @@ foreach(
 
   # ObjcSwift/Builders/attributeBuilder.cpp
   # ObjcSwift/Builders/classBuilder.cpp
-  Objc/Builders/enumBuilder.cpp
+  # Objc/Builders/enumBuilder.cpp
   # ObjcSwift/Builders/functionBuilder.cpp
   # ObjcSwift/Builders/moduleFileBuilder.cpp
   # ObjcSwift/Builders/typeToStringBuilder.cpp

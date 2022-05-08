@@ -1,5 +1,4 @@
 #include "Objc/Proxy/class.hpp"
-#include "Objc/Conversions/conversion.hpp"
 #include "ObjcSwift/Helpers/getDocumentationParameter.hpp"
 #include "ObjcSwift/Helpers/wrapInFunction.hpp"
 #include <fmt/format.h>
@@ -32,11 +31,15 @@ std::string getUnderlyingObject(std::string const& fullyQualifiedName) {
 }}
 
 // Copy constructor
--(instancetype) _initWithCppObject:({fullyQualifiedName} const&)cppClass {{
+-(instancetype) Tolc_initWithCppObject:({fullyQualifiedName} const&)cppClass {{
   if (self = [super init]) {{
     m_object = std::unique_ptr<{fullyQualifiedName}>(new {fullyQualifiedName}(cppClass));
   }}
   return self;
+}}
+
+-({fullyQualifiedName}&) Tolc_getCppObject {{
+  return *m_object.get();
 }}
 )",
 	                   fmt::arg("fullyQualifiedName", fullyQualifiedName));
@@ -52,16 +55,14 @@ std::string Class::getObjcSource() const {
 {constructors}
 {functions}
 {memberVariables}
-@end
-{conversions})",
+@end)",
 	    fmt::arg("className", m_name),
 	    fmt::arg("underlyingObject",
 	             m_isPurelyStatic ? "" :
                                     getUnderlyingObject(m_fullyQualifiedName)),
 	    fmt::arg("constructors", joinFunctions(m_constructors, isSource)),
 	    fmt::arg("functions", joinFunctions(m_functions, isSource)),
-	    fmt::arg("memberVariables", joinMemberVariables(isSource)),
-	    fmt::arg("conversions", getConversions()));
+	    fmt::arg("memberVariables", joinMemberVariables(isSource)));
 
 	return out;
 }
@@ -122,109 +123,22 @@ void Class::setInherited(std::vector<std::string> const& inherited) {
 	}
 }
 
-std::string getPropertyOptions(Attribute const& v) {
-	std::vector<std::string> options;
-	if (v.m_isObject) {
-		// Memory management
-		options.push_back("strong");
-	}
-	if (v.m_isConst) {
-		options.push_back("readonly");
-	} else {
-		// Add a setter
-		options.push_back(fmt::format("setter={}:", v.m_name));
-	}
-
-	if (v.m_isStatic) {
-		options.push_back("class");
-	}
-
-	return fmt::format("({})", fmt::join(options, ", "));
-}
-
 std::string Class::joinMemberVariables(bool isSource) const {
 	std::string out;
 	if (isSource) {
 		for (auto const& variable : m_memberVariables) {
-			std::string staticAttribute = "-";
-			std::string callAccess = "m_object->";
-			if (variable.m_isStatic) {
-				staticAttribute = "+";
-				callAccess = m_fullyQualifiedName + "::";
-			}
-			// Maybe need a conversion to Objective-C type
-			auto call = ObjcSwift::Helpers::wrapInFunction(
-			    callAccess + variable.m_name,
-			    variable.m_type.m_conversions.m_toObjc);
-			out += fmt::format(R"(
-{staticAttribute}({type}) {name} {{
-  return {call};
-}}
-)",
-			                   fmt::arg("staticAttribute", staticAttribute),
-			                   fmt::arg("type", variable.m_type.m_name),
-			                   fmt::arg("name", variable.m_name),
-			                   fmt::arg("call", call));
-			if (!variable.m_isConst) {
-				// Not const -> Add a setter
-				// Maybe need a conversion to C++ type
-				auto convertedVariable = ObjcSwift::Helpers::wrapInFunction(
-				    "new" + variable.m_name,
-				    variable.m_type.m_conversions.m_toCpp);
-				out += fmt::format(
-				    R"(
-{staticAttribute}(void) {name}:({type})new{name} {{
-  {callAccess}{name} = {convertedVariable};
-}}
-)",
-				    fmt::arg("staticAttribute", staticAttribute),
-				    fmt::arg("name", variable.m_name),
-				    fmt::arg("type", variable.m_type.m_name),
-				    fmt::arg("callAccess", callAccess),
-				    fmt::arg("convertedVariable", convertedVariable));
-			}
+			out += variable.getObjcSource();
 		}
 	} else {
 		for (auto const& variable : m_memberVariables) {
-			out +=
-			    fmt::format("\n@property {options} {type} {name};\n",
-			                fmt::arg("options", getPropertyOptions(variable)),
-			                fmt::arg("name", variable.m_name),
-			                fmt::arg("type", variable.m_type.m_name));
+			out += variable.getObjcHeader();
 		}
 	}
 	return out;
 }
 
-std::string Class::getConversions() const {
-	// No need for conversions for an object that cannot be instantiated
-	return m_isPurelyStatic ?
-               "" :
-               fmt::format(R"(
-namespace {ns} {{
-
-{objcName}* {toObjcName}({cppName} const& cppClass) {{
-  return [[{objcName} alloc] _initWithCppObject:cppClass];
-}}
-
-{cppName}& {toCppName}({objcName}* objcClass) {{
-  return *objcClass->m_object.get();
-}}
-
-}})",
-	                       fmt::arg("ns", "Tolc_"),
-	                       fmt::arg("objcName", m_name),
-	                       fmt::arg("toObjcName", m_conversions.m_toObjc),
-	                       fmt::arg("toCppName", m_conversions.m_toCpp),
-	                       fmt::arg("cppName", m_fullyQualifiedName));
-}
-
 void Class::setAsPurelyStatic() {
 	m_isPurelyStatic = true;
-}
-
-void Class::setConversionNames(Objc::Conversions::Conversion const& c) {
-	m_conversions = c;
 }
 
 }    // namespace Objc::Proxy

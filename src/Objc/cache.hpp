@@ -14,14 +14,18 @@ struct Cache {
 	// Will be placed in the root under the namespace m_extraFunctionsNamespace
 	std::vector<std::string> m_extraFunctions;
 
+	// Declarations that will be used by conversion functions
+	// for user declared types
+	std::vector<std::string> m_extraClassCategories;
+
+	// Conversion functions for user defined types
+	std::vector<std::string> m_extraClassConversions;
+
 	// The name of the users module we are converting
 	std::string m_moduleName;
 
 	// Registered conversion names
 	std::set<std::string> m_conversions;
-
-	// {Fully qualified name to C++ class, Corresponding Objective-C class}
-	std::map<std::string, std::string> m_classes;
 };
 
 }    // namespace Objc

@@ -4,19 +4,21 @@
 #include "Objc/cache.hpp"
 #include <IR/ir.hpp>
 #include <fmt/format.h>
+#include <string>
+#include <string_view>
 
 namespace Objc::Conversions {
 
 namespace {
-std::string getValidFunctionName(std::string const& name) {
+std::string getValidFunctionName(std::string_view name) {
 	std::string out;
-	for (char c : name) {
-		switch (c) {
+	for (size_t i = 0; i < name.size(); ++i) {
+		switch (name[i]) {
 			case '<':
 			case '>':
 			case ' ':
 			case ',': out.push_back('_'); break;
-			default: out.push_back(c);
+			default: out.push_back(name[i]);
 		}
 	}
 	return out;
@@ -24,12 +26,12 @@ std::string getValidFunctionName(std::string const& name) {
 
 }    // namespace
 Objc::Conversions::Conversion
-getUserDefinedConversionNames(std::string const& fullyQualifiedName,
-                              std::string const& ns) {
+getUserDefinedConversionNames(std::string_view fullyQualifiedName,
+                              std::string_view ns) {
 	Objc::Conversions::Conversion names;
 	auto validName = getValidFunctionName(fullyQualifiedName);
 	names.m_toObjc = fmt::format("convertUserDefined{}ToObjc", validName);
 	names.m_toCpp = fmt::format("convertUserDefined{}ToCpp", validName);
-	return Objc::Conversions::addNamespace(names, ns);
+	return Objc::Conversions::addNamespace(names, std::string(ns));
 }
 }    // namespace Objc::Conversions
