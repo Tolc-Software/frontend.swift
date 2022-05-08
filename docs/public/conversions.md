@@ -1,130 +1,129 @@
 # C++ to python conversions #
 
 This page shows what is automatically translated and to what.
-On the left is the `C++` and to the right what the corresponding interface in `Objective-C` and `Swift` will be.
+On the left is the `C++` and to the right what the corresponding interface in `Objective-C` will be.
 Not converted means there will be no automatic translation to a corresponding language object.
 Note that any restriction this poses only applies to the public interface of your code (e.g. your public headers).
 
 ## Conversion tables ##
 
-| C++                                 | Objective-C translation        | Swift translation              |
-|:----------------------------------- |:------------------------------ |:------------------------------ |
-| Namespace                           | Prefix*                        | Class*                         |
-| Nested namespace                    | Prefix                         | Class                          |
-| Class                               | Class                          | Class                          |
-| Public function                     | Class function                 | Class function                 |
-| Private function                    | Not converted                  | Not converted                  |
-| Virtual function                    | ???                            | ???                            |
-| Operator                            | ???                            | ???                            |
-| Static member function              | Static class function          | Static class function          |
-| Static member variable              | Static class variable          | Static class variable          |
-| Public const member variable        | Readonly property              | Readonly property              |
-| Public non const member variable    | Readwrite property             | Readwrite property             |
-| Private member variable             | Not converted                  | Not converted                  |
-| Global variable                     | Static class property***       | ???                            |
-| Global static variable              | Static class property***       | ???                            |
-| Free function                       | Static class function***       | ???                            |
-| Overloaded function                 | ???                            | ???                            |
-| Enum                                | NS\_ENUM                       | ???                            |
-| Scoped enum                         | NS\_ENUM                       | ???                            |
-| Templated class/function            | Not converted**                | Not converted**                |
-| Specialized class template          | ???                            | ???                            |
-| Specialized function template       | ???                            | ???                            |
-| Documentation                       | ???                            | ???                            |
+| C++                                 | Objective-C translation                                                                                                                 |
+|:----------------------------------- |:--------------------------------------------------------------------------------------------------------------------------------------- |
+| Namespace                           | Prefix*                                                                                                                                 |
+| Nested namespace                    | Prefix*                                                                                                                                 |
+| Class                               | Class                                                                                                                                   |
+| Public function                     | Class function                                                                                                                          |
+| Private function                    | Not converted                                                                                                                           |
+| Virtual function                    | ???                                                                                                                                     |
+| Operator                            | ???                                                                                                                                     |
+| Static member function              | Static class function                                                                                                                   |
+| Static member variable              | Static class variable                                                                                                                   |
+| Public const member variable        | Readonly property                                                                                                                       |
+| Public non const member variable    | Readwrite property                                                                                                                      |
+| Private member variable             | Not converted                                                                                                                           |
+| Global variable                     | Static class property**                                                                                                                 |
+| Global static variable              | Static class property**                                                                                                                 |
+| Free function                       | Static class function**                                                                                                                 |
+| Overloaded function                 | ???                                                                                                                                     |
+| Enum                                | [NS\_ENUM](https://developer.apple.com/documentation/swift/objective-c_and_c_code_customization/grouping_related_objective-c_constants) |
+| Scoped enum                         | [NS\_ENUM](https://developer.apple.com/documentation/swift/objective-c_and_c_code_customization/grouping_related_objective-c_constants) |
+| Templated class/function            | Not converted***                                                                                                                        |
+| Specialized class template          | ???                                                                                                                                     |
+| Specialized function template       | ???                                                                                                                                     |
+| Documentation                       | ???                                                                                                                                     |
 
-\* Prefix on all classes and free functions in the namespace. The Swift class only has static functions (corresponding to free functions)
+\* Prefix on all classes and free functions in the namespace.
 
-\*\* No direct translation to Objective-C or Swift. Will not emit warning.
+\*\* Wrapped in a class with a name that starts with the module name.
 
-\*\*\* Wrapped in a class with a name that starts with the module name
+\*\*\* No direct translation to Objective-C. Will not emit warning.
 
-| C++ operator      | Objective-C operator  | Swift operator                 |
-|:----------------- |:--------------------- |:------------------------------ |
-| operator+         | ???                   | ???                            |
-| operator-         | ???                   | ???                            |
-| operator*         | ???                   | ???                            |
-| operator/         | ???                   | ???                            |
-| operator%         | ???                   | ???                            |
-| operator+=        | ???                   | ???                            |
-| operator-=        | ???                   | ???                            |
-| operator*=        | ???                   | ???                            |
-| operator/=        | ???                   | ???                            |
-| operator%=        | ???                   | ???                            |
-| operator==        | ???                   | ???                            |
-| operator!=        | ???                   | ???                            |
-| operator>         | ???                   | ???                            |
-| operator>=        | ???                   | ???                            |
-| operator<         | ???                   | ???                            |
-| operator<=        | ???                   | ???                            |
-| operator[]        | ???                   | ???                            |
-| operator()        | ???                   | ???                            |
-| operator=         | Not converted         | Not converted                  |
-| operator<<        | Not converted         | Not converted                  |
-| operator>>        | Not converted         | Not converted                  |
-| operator++        | Not converted         | Not converted                  |
-| operator--        | Not converted         | Not converted                  |
-
-
-| C++ Standard library class      | Objective-C translation                                           | Swift translation              |
-|:------------------------------- |:----------------------------------------------------------------- |:------------------------------ |
-| std::array                      | NSArray                                                           | ???                            |
-| std::complex                    | ???                                                               | ???                            |
-| std::deque                      | ???                                                               | ???                            |
-| std::filesystem::path           | NSString                                                          | ???                            |
-| std::forward\_list              | Not converted                                                     | Not converted                  |
-| std::function                   | ???                                                               | ???                            |
-| std::list                       | ???                                                               | ???                            |
-| std::map                        | NSDictionary                                                      | ???                            |
-| std::multimap                   | ???                                                               | ???                            |
-| std::multiset                   | ???                                                               | ???                            |
-| std::optional                   | ???                                                               | ???                            |
-| std::pair                       | NSArray                                                           | ???                            |
-| std::priority\_queue            | ???                                                               | ???                            |
-| std::queue                      | ???                                                               | ???                            |
-| std::set                        | NSOrderedSet                                                      | ???                            |
-| std::shared\_ptr                | ???                                                               | ???                            |
-| std::stack                      | ???                                                               | ???                            |
-| std::tuple                      | NSArray                                                           | ???                            |
-| std::unique\_ptr                | ???                                                               | ???                            |
-| std::shared\_ptr                | ???                                                               | ???                            |
-| std::unordered\_map             | NSDictionary                                                      | ???                            |
-| std::unordered\_multimap        | Not converted                                                     | Not converted                  |
-| std::unordered\_multiset        | Not converted                                                     | Not converted                  |
-| std::unordered\_set             | NSSet                                                             | ???                            |
-| std::valarray                   | ???                                                               | ???                            |
-| std::variant                    | ???                                                               | ???                            |
-| std::vector                     | NSArray*                                                          | ???                            |
+| C++ operator      | Objective-C operator  |
+|:----------------- |:--------------------- |
+| operator+         | ???                   |
+| operator-         | ???                   |
+| operator*         | ???                   |
+| operator/         | ???                   |
+| operator%         | ???                   |
+| operator+=        | ???                   |
+| operator-=        | ???                   |
+| operator*=        | ???                   |
+| operator/=        | ???                   |
+| operator%=        | ???                   |
+| operator==        | ???                   |
+| operator!=        | ???                   |
+| operator>         | ???                   |
+| operator>=        | ???                   |
+| operator<         | ???                   |
+| operator<=        | ???                   |
+| operator[]        | ???                   |
+| operator()        | ???                   |
+| operator=         | Not converted         |
+| operator<<        | Not converted         |
+| operator>>        | Not converted         |
+| operator++        | Not converted         |
+| operator--        | Not converted         |
 
 
-| C++ builtin type           | Objective-C translation  | Swift translation              |
-|:-------------------------- |:------------------------ |:------------------------------ |
-| bool                       | bool                     | Bool                           |
-| char                       | char                     | Character                      |
-| char16\_t                  | ???                      | Character                      |
-| char32\_t                  | ???                      | Character                      |
-| double                     | double                   | Double                         |
-| float                      | float                    | Float                          |
-| int                        | int                      | Int32                          |
-| int8\_t                    | ???                      | Int8                           |
-| int16\_t                   | ???                      | Int16                          |
-| int32\_t                   | ???                      | Int32                          |
-| int64\_t                   | ???                      | Int64                          |
-| long double                | ???                      | Double                         |
-| long int                   | ???                      | Int64                          |
-| long long int              | ???                      | Int64                          |
-| short int                  | ???                      | Int8                           |
-| signed char                | ???                      | Character                      |
-| string                     | NSString                 | String                         |
-| string\_view               | NSString                 | String                         |
-| uint8\_t                   | ???                      | UInt                           |
-| uint16\_t                  | ???                      | UInt                           |
-| uint32\_t                  | ???                      | UInt                           |
-| uint64\_t                  | ???                      | UInt                           |
-| unsigned char              | ???                      | Character                      |
-| unsigned int               | ???                      | UInt                           |
-| unsigned long int          | ???                      | UInt                           |
-| unsigned long long int     | ???                      | UInt                           |
-| unsigned short int         | ???                      | UInt                           |
-| wchar\_t                   | ???                      | Character                      |
-| void                       | void                     | Void                           |
+| C++ Standard library class      | Objective-C translation                                                           |
+|:------------------------------- |:--------------------------------------------------------------------------------- |
+| std::array                      | [NSArray](https://developer.apple.com/documentation/foundation/nsarray)           |
+| std::complex                    | ???                                                                               |
+| std::deque                      | ???                                                                               |
+| std::filesystem::path           | [NSString](https://developer.apple.com/documentation/foundation/nsstring)         |
+| std::forward\_list              | Not converted                                                                     |
+| std::function                   | ???                                                                               |
+| std::list                       | ???                                                                               |
+| std::map                        | [NSDictionary](https://developer.apple.com/documentation/foundation/nsdictionary) |
+| std::multimap                   | ???                                                                               |
+| std::multiset                   | ???                                                                               |
+| std::optional                   | ???                                                                               |
+| std::pair                       | [NSArray](https://developer.apple.com/documentation/foundation/nsarray)           |
+| std::priority\_queue            | ???                                                                               |
+| std::queue                      | ???                                                                               |
+| std::set                        | [NSOrderedSet](https://developer.apple.com/documentation/foundation/nsorderedset) |
+| std::shared\_ptr                | ???                                                                               |
+| std::stack                      | ???                                                                               |
+| std::string                     | [NSString](https://developer.apple.com/documentation/foundation/nsstring)         |
+| std::string\_view               | [NSString](https://developer.apple.com/documentation/foundation/nsstring)         |
+| std::tuple                      | [NSArray](https://developer.apple.com/documentation/foundation/nsarray)           |
+| std::unique\_ptr                | ???                                                                               |
+| std::unordered\_map             | [NSDictionary](https://developer.apple.com/documentation/foundation/nsdictionary) |
+| std::unordered\_multimap        | Not converted                                                                     |
+| std::unordered\_multiset        | Not converted                                                                     |
+| std::unordered\_set             | [NSSet](https://developer.apple.com/documentation/foundation/nsset)               |
+| std::valarray                   | ???                                                                               |
+| std::variant                    | ???                                                                               |
+| std::vector                     | [NSArray](https://developer.apple.com/documentation/foundation/nsarray)           |
+
+
+| C++ builtin type           | Objective-C translation  |
+|:-------------------------- |:------------------------ |
+| bool                       | bool                     |
+| char                       | char                     |
+| char16\_t                  | ???                      |
+| char32\_t                  | ???                      |
+| double                     | double                   |
+| float                      | float                    |
+| int                        | int                      |
+| int8\_t                    | ???                      |
+| int16\_t                   | ???                      |
+| int32\_t                   | ???                      |
+| int64\_t                   | ???                      |
+| long double                | ???                      |
+| long int                   | ???                      |
+| long long int              | ???                      |
+| short int                  | ???                      |
+| signed char                | ???                      |
+| uint8\_t                   | ???                      |
+| uint16\_t                  | ???                      |
+| uint32\_t                  | ???                      |
+| uint64\_t                  | ???                      |
+| unsigned char              | ???                      |
+| unsigned int               | ???                      |
+| unsigned long int          | ???                      |
+| unsigned long long int     | ???                      |
+| unsigned short int         | ???                      |
+| wchar\_t                   | ???                      |
+| void                       | void                     |
 
