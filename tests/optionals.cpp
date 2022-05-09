@@ -12,37 +12,30 @@ TEST_CASE("Using std::optionals", "[optionals]") {
 #include <optional>
 #include <string>
 
-class WithMember {
-public:
-	explicit WithMember(std::optional<std::string> s) : m_s(s) {}
-
-	std::optional<std::string> getS() { return m_s; }
-
-private:
-	std::optional<std::string> m_s;
-};
-
-class WithFunction {
-public:
-	std::optional<int> getNullopt() {
-		return std::nullopt;
-	}
-};
+std::string
+answer(std::optional<std::string> const& question) {
+  if (question) {
+    return "Please be more specific.";
+  }
+  return "That's no question!";
+}
 
 )";
 
-	auto pythonTestCode = fmt::format(R"(
-# std::optional is either the value or None in python
-greeting = "hello"
-with_member = {moduleName}.WithMember(greeting)
-self.assertEqual(with_member.getS(), greeting)
+	auto objcTestCode = R"(
+// std::optional is either the value or nil
+NSString* answer = [m answer:@"How do I take over the world?"];
+assert([answer isEqualToString:@"Please be more specific."]);
 
-with_function = {moduleName}.WithFunction()
-self.assertEqual(with_function.getNullopt(), None)
-)",
-	                                  fmt::arg("moduleName", moduleName));
+// nil is the equivalent of std::nullopt on the C++ side
+NSString* noAnswer = [m answer:nil];
+assert([noAnswer isEqualToString:@"That's no question!"]);
+)";
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+	auto swiftTestCode = R"()";
+
+	auto errorCode =
+	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::optional");

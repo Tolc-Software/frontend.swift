@@ -1,5 +1,4 @@
 #include "Swift/Builders/functionBuilder.hpp"
-#include "Objc/getName.hpp"
 #include "ObjcSwift/Helpers/types.hpp"
 #include "Swift/Proxy/function.hpp"
 #include "Swift/getName.hpp"
@@ -29,14 +28,6 @@ buildFunction(IR::Function const& cppFunction, bool isConstructor) {
 			    R"(The function {} takes a std::unique_ptr as one of its argument. Python cannot give up ownership of an object to a function. See https://pybind11.readthedocs.io/en/stable/advanced/smart_ptrs.html for more info.)",
 			    cppFunction.m_representation);
 			return std::nullopt;
-		}
-	}
-
-	if (isConstructor && !cppFunction.m_arguments.empty()) {
-		auto params = Objc::getParameterString(cppFunction.m_arguments);
-		if (!params.empty()) {
-			params[0] = static_cast<char>(tolower(params[0]));
-			swiftFunction.setObjcFirstConstructorParameter(params);
 		}
 	}
 

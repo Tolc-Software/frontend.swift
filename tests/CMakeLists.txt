@@ -112,7 +112,7 @@ foreach(
   memberVariables.cpp
   namespaces.cpp
   # operators.cpp
-  # optionals.cpp
+  optionals.cpp
   # overloadedFunctions.cpp
   pairs.cpp
   sets.cpp

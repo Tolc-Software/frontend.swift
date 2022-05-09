@@ -77,7 +77,7 @@ Note that any restriction this poses only applies to the public interface of you
 | std::map                        | [NSDictionary](https://developer.apple.com/documentation/foundation/nsdictionary) |
 | std::multimap                   | ???                                                                               |
 | std::multiset                   | ???                                                                               |
-| std::optional                   | ???                                                                               |
+| std::optional                   | Value or nil                                                                      |
 | std::pair                       | [NSArray](https://developer.apple.com/documentation/foundation/nsarray)           |
 | std::priority\_queue            | ???                                                                               |
 | std::queue                      | ???                                                                               |

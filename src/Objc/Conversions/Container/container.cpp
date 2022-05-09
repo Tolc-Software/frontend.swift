@@ -3,6 +3,7 @@
 #include "Objc/Conversions/conversion.hpp"
 #include "Objc/Conversions/getConversionName.hpp"
 #include "Objc/cache.hpp"
+#include "Objc/getName.hpp"
 #include <IR/ir.hpp>
 #include <fmt/format.h>
 #include <functional>
@@ -71,14 +72,13 @@ NSArray* {toObjcName}({noQualifiers} const& v) {{
 void convertMapType(ContainerData data) {
 	// map should have two contained value (plus allocators)
 	// TODO: Handle error
-	if (data.containedTypes.size() >= 2) {
-		auto keyConversion = Objc::Conversions::getConversionContainerName(
-		    data.containedTypes[0]);
-		auto valueConversion = Objc::Conversions::getConversionContainerName(
-		    data.containedTypes[1]);
+	auto keyConversion =
+	    Objc::Conversions::getConversionContainerName(data.containedTypes[0]);
+	auto valueConversion =
+	    Objc::Conversions::getConversionContainerName(data.containedTypes[1]);
 
-		data.functions.push_back(fmt::format(
-		    R"(
+	data.functions.push_back(fmt::format(
+	    R"(
 {noQualifiers} {toCppName}(NSDictionary* m) {{
   {noQualifiers} cppMap;
   for (id key in m) {{
@@ -87,15 +87,15 @@ void convertMapType(ContainerData data) {
   }}
   return cppMap;
 }})",
-		    fmt::arg("noQualifiers", data.noQualifiers),
-		    fmt::arg("toCppName", data.names.m_toCpp),
-		    fmt::arg("typeName", data.type.m_representation),
-		    fmt::arg("toCppName", data.names.m_toCpp),
-		    fmt::arg("keyConversion", keyConversion.m_toCpp),
-		    fmt::arg("valueConversion", valueConversion.m_toCpp)));
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("toCppName", data.names.m_toCpp),
+	    fmt::arg("typeName", data.type.m_representation),
+	    fmt::arg("toCppName", data.names.m_toCpp),
+	    fmt::arg("keyConversion", keyConversion.m_toCpp),
+	    fmt::arg("valueConversion", valueConversion.m_toCpp)));
 
-		data.functions.push_back(fmt::format(
-		    R"(
+	data.functions.push_back(fmt::format(
+	    R"(
 NSDictionary* {toObjcName}({noQualifiers} const& m) {{
   NSMutableDictionary* objcMap = [NSMutableDictionary dictionaryWithCapacity:m.size()];
   for (auto const& keyValue : m) {{
@@ -103,12 +103,11 @@ NSDictionary* {toObjcName}({noQualifiers} const& m) {{
   }}
   return objcMap;
 }})",
-		    fmt::arg("noQualifiers", data.noQualifiers),
-		    fmt::arg("toObjcName", data.names.m_toObjc),
-		    fmt::arg("typeName", data.type.m_representation),
-		    fmt::arg("keyConversion", keyConversion.m_toObjc),
-		    fmt::arg("valueConversion", valueConversion.m_toObjc)));
-	}
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("toObjcName", data.names.m_toObjc),
+	    fmt::arg("typeName", data.type.m_representation),
+	    fmt::arg("keyConversion", keyConversion.m_toObjc),
+	    fmt::arg("valueConversion", valueConversion.m_toObjc)));
 }
 
 void convertSetType(ContainerData data, bool isOrdered) {
@@ -149,15 +148,13 @@ NS{ordered}Set* {toObjcName}({noQualifiers} const& s) {{
 }
 
 void convertPairType(ContainerData data) {
-	// Pair should have two contained value (plus allocators)
-	if (data.containedTypes.size() >= 2) {
-		auto firstConversion = Objc::Conversions::getConversionContainerName(
-		    data.containedTypes[0]);
-		auto secondConversion = Objc::Conversions::getConversionContainerName(
-		    data.containedTypes[1]);
+	auto firstConversion =
+	    Objc::Conversions::getConversionContainerName(data.containedTypes[0]);
+	auto secondConversion =
+	    Objc::Conversions::getConversionContainerName(data.containedTypes[1]);
 
-		data.functions.push_back(fmt::format(
-		    R"(
+	data.functions.push_back(fmt::format(
+	    R"(
 {noQualifiers} {toCppName}(NSArray* p) {{
 {errorCheck}
   {noQualifiers} cppPair;
@@ -165,28 +162,27 @@ void convertPairType(ContainerData data) {
   cppPair.second = {secondConversion}([p objectAtIndex:1]);
   return cppPair;
 }})",
-		    fmt::arg("noQualifiers", data.noQualifiers),
-		    fmt::arg("toCppName", data.names.m_toCpp),
-		    fmt::arg("errorCheck", getErrorCheck(data)),
-		    fmt::arg("typeName", data.type.m_representation),
-		    fmt::arg("toCppName", data.names.m_toCpp),
-		    fmt::arg("firstConversion", firstConversion.m_toCpp),
-		    fmt::arg("secondConversion", secondConversion.m_toCpp)));
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("toCppName", data.names.m_toCpp),
+	    fmt::arg("errorCheck", getErrorCheck(data)),
+	    fmt::arg("typeName", data.type.m_representation),
+	    fmt::arg("toCppName", data.names.m_toCpp),
+	    fmt::arg("firstConversion", firstConversion.m_toCpp),
+	    fmt::arg("secondConversion", secondConversion.m_toCpp)));
 
-		data.functions.push_back(fmt::format(
-		    R"(
+	data.functions.push_back(fmt::format(
+	    R"(
 NSArray* {toObjcName}({noQualifiers} const& p) {{
   NSMutableArray* objcPair = [NSMutableArray arrayWithCapacity:2];
   [objcPair addObject: {firstConversion}(p.first)];
   [objcPair addObject: {secondConversion}(p.second)];
   return objcPair;
 }})",
-		    fmt::arg("noQualifiers", data.noQualifiers),
-		    fmt::arg("toObjcName", data.names.m_toObjc),
-		    fmt::arg("typeName", data.type.m_representation),
-		    fmt::arg("firstConversion", firstConversion.m_toObjc),
-		    fmt::arg("secondConversion", secondConversion.m_toObjc)));
-	}
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("toObjcName", data.names.m_toObjc),
+	    fmt::arg("typeName", data.type.m_representation),
+	    fmt::arg("firstConversion", firstConversion.m_toObjc),
+	    fmt::arg("secondConversion", secondConversion.m_toObjc)));
 }
 
 Objc::Conversions::Conversion
@@ -209,37 +205,65 @@ getTupleElementConversions(std::vector<IR::Type> const& containedTypes) {
 }
 
 void convertTupleType(ContainerData data) {
-	// Pair should have two contained value (plus allocators)
-	if (data.containedTypes.size() >= 2) {
-		auto elementConversions =
-		    getTupleElementConversions(data.containedTypes);
+	auto elementConversions = getTupleElementConversions(data.containedTypes);
 
-		data.functions.push_back(fmt::format(
-		    R"(
+	data.functions.push_back(fmt::format(
+	    R"(
 {noQualifiers} {toCppName}(NSArray* t) {{
 {errorCheck}
   {noQualifiers} cppTuple;
 {elementConversions}
   return cppTuple;
 }})",
-		    fmt::arg("noQualifiers", data.noQualifiers),
-		    fmt::arg("toCppName", data.names.m_toCpp),
-		    fmt::arg("errorCheck", getErrorCheck(data)),
-		    fmt::arg("elementConversions", elementConversions.m_toCpp)));
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("toCppName", data.names.m_toCpp),
+	    fmt::arg("errorCheck", getErrorCheck(data)),
+	    fmt::arg("elementConversions", elementConversions.m_toCpp)));
 
-		data.functions.push_back(fmt::format(
-		    R"(
+	data.functions.push_back(fmt::format(
+	    R"(
 NSArray* {toObjcName}({noQualifiers} const& t) {{
   NSMutableArray* objcTuple = [NSMutableArray arrayWithCapacity:{tupleSize}];
 {elementConversions}
   return objcTuple;
 }})",
-		    fmt::arg("noQualifiers", data.noQualifiers),
-		    fmt::arg("tupleSize", data.containedTypes.size()),
-		    fmt::arg("toObjcName", data.names.m_toObjc),
-		    fmt::arg("typeName", data.type.m_representation),
-		    fmt::arg("elementConversions", elementConversions.m_toObjc)));
-	}
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("tupleSize", data.containedTypes.size()),
+	    fmt::arg("toObjcName", data.names.m_toObjc),
+	    fmt::arg("typeName", data.type.m_representation),
+	    fmt::arg("elementConversions", elementConversions.m_toObjc)));
+}
+
+void convertOptionalType(ContainerData data, std::string_view objcValueType) {
+	auto valueConversion =
+	    Objc::Conversions::getConversionContainerName(data.containedTypes[0]);
+
+	data.functions.push_back(fmt::format(
+	    R"(
+{noQualifiers} {toCppName}({objcValueType} o) {{
+  if (o) {{
+    return {valueConversion}(o);
+  }}
+  return std::nullopt;
+}})",
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("toCppName", data.names.m_toCpp),
+	    fmt::arg("objcValueType", objcValueType),
+	    fmt::arg("valueConversion", valueConversion.m_toCpp)));
+
+	data.functions.push_back(fmt::format(
+	    R"(
+{objcValueType} {toObjcName}({noQualifiers} const& o) {{
+  if (o.has_value()) {{
+    return {valueConversion}(o.value());
+  }}
+  return nil;
+}})",
+	    fmt::arg("objcValueType", objcValueType),
+	    fmt::arg("toObjcName", data.names.m_toObjc),
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("typeName", data.type.m_representation),
+	    fmt::arg("valueConversion", valueConversion.m_toObjc)));
 }
 
 Objc::Conversions::Conversion
@@ -255,13 +279,14 @@ containerConversion(IR::Type const& type,
 			if (!container.m_containedTypes.empty()) {
 				// The first one is the Stuff in vector<Stuff>
 				typesToConvert.push(&container.m_containedTypes.front());
+				return convertContainerWrapper(type,
+				                               container.m_container,
+				                               container.m_containedTypes,
+				                               functions,
+				                               cache,
+				                               convertArrayType);
 			}    // TODO: Handle error
-			return convertContainerWrapper(type,
-			                               container.m_container,
-			                               container.m_containedTypes,
-			                               functions,
-			                               cache,
-			                               convertArrayType);
+			return {};
 		}
 		case ContainerType::UnorderedMap:
 		case ContainerType::Map: {
@@ -269,58 +294,81 @@ containerConversion(IR::Type const& type,
 				// The first one is the Stuff, Other in map<Stuff, Other>
 				typesToConvert.push(&container.m_containedTypes[0]);
 				typesToConvert.push(&container.m_containedTypes[1]);
+				return convertContainerWrapper(type,
+				                               container.m_container,
+				                               container.m_containedTypes,
+				                               functions,
+				                               cache,
+				                               convertMapType);
 			}    // TODO: Handle error
-			return convertContainerWrapper(type,
-			                               container.m_container,
-			                               container.m_containedTypes,
-			                               functions,
-			                               cache,
-			                               convertMapType);
+			return {};
 		}
 		case ContainerType::UnorderedSet:
 		case ContainerType::Set: {
 			if (!container.m_containedTypes.empty()) {
 				// The first one is the Stuff, Other in map<Stuff, Other>
 				typesToConvert.push(&container.m_containedTypes[0]);
+				return convertContainerWrapper(
+				    type,
+				    container.m_container,
+				    container.m_containedTypes,
+				    functions,
+				    cache,
+				    [isOrdered = container.m_container ==
+				                 ContainerType::Set](ContainerData data) {
+					    convertSetType(data, isOrdered);
+				    });
 			}    // TODO: Handle error
-			return convertContainerWrapper(
-			    type,
-			    container.m_container,
-			    container.m_containedTypes,
-			    functions,
-			    cache,
-			    [isOrdered = container.m_container == ContainerType::Set](
-			        ContainerData data) { convertSetType(data, isOrdered); });
+			return {};
 		}
 		case ContainerType::Pair: {
 			if (container.m_containedTypes.size() >= 2) {
 				// The first one is the Stuff, Other in pair<Stuff, Other>
 				typesToConvert.push(&container.m_containedTypes[0]);
 				typesToConvert.push(&container.m_containedTypes[1]);
+				return convertContainerWrapper(type,
+				                               container.m_container,
+				                               container.m_containedTypes,
+				                               functions,
+				                               cache,
+				                               convertPairType);
 			}    // TODO: Handle error
-			return convertContainerWrapper(type,
-			                               container.m_container,
-			                               container.m_containedTypes,
-			                               functions,
-			                               cache,
-			                               convertPairType);
+			return {};
 		}
 		case ContainerType::Tuple: {
 			for (auto const& containedType : container.m_containedTypes) {
 				typesToConvert.push(&containedType);
+				return convertContainerWrapper(type,
+				                               container.m_container,
+				                               container.m_containedTypes,
+				                               functions,
+				                               cache,
+				                               convertTupleType);
 			}
-			return convertContainerWrapper(type,
-			                               container.m_container,
-			                               container.m_containedTypes,
-			                               functions,
-			                               cache,
-			                               convertTupleType);
+			return {};
+		}
+		case ContainerType::Optional: {
+			if (!container.m_containedTypes.empty()) {
+				// The first one is the Stuff, Other in map<Stuff, Other>
+				typesToConvert.push(&container.m_containedTypes[0]);
+				return convertContainerWrapper(
+				    type,
+				    container.m_container,
+				    container.m_containedTypes,
+				    functions,
+				    cache,
+				    [objcValueName = Objc::getContainedTypeName(
+				         container.m_containedTypes[0], cache.m_moduleName)](
+				        ContainerData data) {
+					    convertOptionalType(data, objcValueName);
+				    });
+			}    // TODO: Handle error
+			return {};
 		}
 		case ContainerType::Deque:
 		case ContainerType::List:
 		case ContainerType::MultiMap:
 		case ContainerType::MultiSet:
-		case ContainerType::Optional:
 		case ContainerType::PriorityQueue:
 		case ContainerType::Queue:
 		case ContainerType::SharedPtr:

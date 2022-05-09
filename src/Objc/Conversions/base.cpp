@@ -116,4 +116,5 @@ Conversion getBaseTypeConversions(IR::BaseType baseType, Objc::Cache& cache) {
 	}
 	return c;
 }
+
 }    // namespace Objc::Conversions

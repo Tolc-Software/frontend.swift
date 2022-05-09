@@ -7,6 +7,7 @@
 #include <numeric>
 #include <spdlog/spdlog.h>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace Objc {
@@ -37,7 +38,51 @@ std::string getParameterString(std::vector<IR::Type> const& parameters) {
 	                       });
 }
 
-}    // namespace
+std::string valueContainerName(IR::BaseType base) {
+	using IR::BaseType;
+	switch (base) {
+		case BaseType::Bool:
+		case BaseType::Int:
+		case BaseType::Char:
+		case BaseType::Double:
+		case BaseType::Float:
+		case BaseType::LongInt:
+		case BaseType::LongLongInt:
+		case BaseType::ShortInt:
+		case BaseType::SignedChar:
+		case BaseType::UnsignedChar:
+		case BaseType::UnsignedInt:
+		case BaseType::UnsignedLongInt:
+		case BaseType::UnsignedLongLongInt:
+		case BaseType::UnsignedShortInt: {
+			return "NSNumber*";
+		}
+		case BaseType::String:
+		case BaseType::FilesystemPath:
+		case BaseType::StringView: {
+			return "NSString*";
+		}
+		case BaseType::Void: {
+			break;
+		}
+		case BaseType::Wchar_t: {
+			break;
+		}
+		case BaseType::Char16_t: {
+			break;
+		}
+		case BaseType::Char32_t: {
+			break;
+		}
+		case BaseType::LongDouble: {
+			break;
+		}
+		case BaseType::Complex: {
+			break;
+		}
+	}
+	return "Unknown base type name";
+}
 
 std::string getParameterString(std::vector<IR::Argument> const& parameters) {
 	return std::accumulate(parameters.begin(),
@@ -56,6 +101,25 @@ std::string getConstructorExtraName(IR::Function const& f) {
 	}
 	return "With" + getParameterString(f.m_arguments);
 }
+}    // namespace
+
+std::string getContainedTypeName(IR::Type const& type,
+                                 std::string const& moduleName) {
+	if (auto baseType = std::get_if<IR::Type::Value>(&type.m_type)) {
+		return valueContainerName(baseType->m_base);
+	} else if (auto enumType = std::get_if<IR::Type::EnumValue>(&type.m_type)) {
+		return Objc::getEnumName(enumType->m_representation, moduleName);
+	} else if (auto container =
+	               std::get_if<IR::Type::Container>(&type.m_type)) {
+		return Objc::getContainerName(*container, moduleName);
+	} else if (auto userDefined =
+	               std::get_if<IR::Type::UserDefined>(&type.m_type)) {
+		return Objc::getClassName(userDefined->m_representation, moduleName) +
+		       '*';
+	}
+	return "";
+}
+
 
 std::string getClassName(std::string const& cppClassFqName,
                          std::string const& moduleName) {
@@ -85,18 +149,49 @@ std::string getFunctionName(IR::Function const& cppFunction,
 	if (!isConstructor) {
 		return ObjcSwift::Helpers::removeCppTemplate(cppFunction.m_name).first;
 	} else {
-		return "init" + getConstructorExtraName(cppFunction);
+		return "init" + Objc::getConstructorExtraName(cppFunction);
 	}
 }
 
 std::string getEnumName(std::string const& qualifiedEnumName,
                         std::string const& moduleName) {
-	return joinVariableName(qualifiedEnumName, moduleName);
+	return Objc::joinVariableName(qualifiedEnumName, moduleName);
 }
 
-std::string getContainerName(IR::ContainerType const& containerType) {
+std::string getBaseName(IR::BaseType type) {
+	using IR::BaseType;
+	switch (type) {
+		case BaseType::Bool: return "bool";
+		case BaseType::Char16_t: return "char16_t";
+		case BaseType::Char32_t: return "char32_t";
+		case BaseType::Char: return "char";
+		case BaseType::Complex: return "complex";
+		case BaseType::Double: return "double";
+		case BaseType::String:
+		case BaseType::StringView:
+		case BaseType::FilesystemPath: return "NSString*";
+		case BaseType::Float: return "float";
+		case BaseType::Int: return "int";
+		case BaseType::LongDouble: return "long double";
+		case BaseType::LongInt: return "long int";
+		case BaseType::LongLongInt: return "long long int";
+		case BaseType::ShortInt: return "short int";
+		case BaseType::SignedChar: return "signed char";
+		case BaseType::UnsignedChar: return "unsigned char";
+		case BaseType::UnsignedInt: return "unsigned int";
+		case BaseType::UnsignedLongInt: return "unsigned long int";
+		case BaseType::UnsignedLongLongInt: return "unsigned long long int";
+		case BaseType::UnsignedShortInt: return "unsigned short int";
+		case BaseType::Void: return "void";
+		case BaseType::Wchar_t: return "wchar_t";
+	}
+	return "";
+}
+
+std::string getContainerName(IR::Type::Container const& container,
+                             std::string const& moduleName) {
 	using IR::ContainerType;
-	switch (containerType) {
+	switch (container.m_container) {
 		case ContainerType::Vector:
 		case ContainerType::Pair:
 		case ContainerType::Tuple:
@@ -105,12 +200,14 @@ std::string getContainerName(IR::ContainerType const& containerType) {
 		case ContainerType::Map: return "NSDictionary*";
 		case ContainerType::Set: return "NSOrderedSet*";
 		case ContainerType::UnorderedSet: return "NSSet*";
+		case ContainerType::Optional:
+			return Objc::getContainedTypeName(
+			    container.m_containedTypes.front(), moduleName);
 		case ContainerType::UnorderedMultiSet:
 		case ContainerType::Deque:
 		case ContainerType::List:
 		case ContainerType::MultiMap:
 		case ContainerType::MultiSet:
-		case ContainerType::Optional:
 		case ContainerType::PriorityQueue:
 		case ContainerType::Queue:
 		case ContainerType::SharedPtr:

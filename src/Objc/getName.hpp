@@ -20,5 +20,11 @@ std::string getParameterString(std::vector<IR::Argument> const& parameters);
 std::string getEnumName(std::string const& qualifiedEnumName,
                         std::string const& moduleName);
 
-std::string getContainerName(IR::ContainerType const& containerType);
+std::string getContainerName(IR::Type::Container const& container,
+                             std::string const& moduleName);
+
+std::string getContainedTypeName(IR::Type const& type,
+                                 std::string const& moduleName);
+
+std::string getBaseName(IR::BaseType type);
 }    // namespace Objc
