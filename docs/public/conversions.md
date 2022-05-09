@@ -94,7 +94,7 @@ Your internal code can use anything from C++.
 | std::unordered\_multimap        | Not converted                                                                     |
 | std::unordered\_multiset        | Not converted                                                                     |
 | std::unordered\_set             | [NSSet](https://developer.apple.com/documentation/foundation/nsset)               |
-| std::valarray                   | ???                                                                               |
+| std::valarray                   | [NSArray](https://developer.apple.com/documentation/foundation/nsarray)           |
 | std::variant                    | ???                                                                               |
 | std::vector                     | [NSArray](https://developer.apple.com/documentation/foundation/nsarray)           |
 

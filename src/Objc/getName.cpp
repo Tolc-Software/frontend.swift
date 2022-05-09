@@ -196,6 +196,7 @@ std::string getContainerName(IR::Type::Container const& container,
 		case ContainerType::Pair:
 		case ContainerType::Tuple:
 		case ContainerType::List:
+		case ContainerType::Valarray:
 		case ContainerType::Array: return "NSArray*";
 		case ContainerType::UnorderedMap:
 		case ContainerType::Map: return "NSDictionary*";
@@ -214,7 +215,6 @@ std::string getContainerName(IR::Type::Container const& container,
 		case ContainerType::Stack:
 		case ContainerType::UniquePtr:
 		case ContainerType::UnorderedMultiMap:
-		case ContainerType::Valarray:
 		case ContainerType::Variant:
 		case ContainerType::Allocator:
 		case ContainerType::EqualTo:

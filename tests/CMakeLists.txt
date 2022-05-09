@@ -122,7 +122,7 @@ foreach(
   unordered_maps.cpp
   unordered_sets.cpp
   userDefined.cpp
-  # valarrays.cpp
+  valarrays.cpp
   # variants.cpp
   vectors.cpp
   # virtualInheritence.cpp

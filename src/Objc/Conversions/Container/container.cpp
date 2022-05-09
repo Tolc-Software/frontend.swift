@@ -21,6 +21,7 @@ std::string addArrayValue(IR::ContainerType arrayType,
 			return fmt::format("cppArray.push_back({}([v objectAtIndex:i]));",
 			                   conversionFunction);
 		}
+		case ContainerType::Valarray:
 		case ContainerType::Array: {
 			return fmt::format("cppArray[i] = {}([v objectAtIndex:i]);",
 			                   conversionFunction);
@@ -39,6 +40,7 @@ getArrayTraversal(IR::ContainerType arrayType) {
 	using IR::ContainerType;
 	switch (arrayType) {
 		case ContainerType::Vector:
+		case ContainerType::Valarray:
 		case ContainerType::Array: {
 			return {"v[i]", "size_t i = 0; i < v.size(); i++"};
 		}
@@ -59,7 +61,7 @@ void convertArrayType(ContainerData data) {
 	    R"(
 {noQualifiers} {toCppName}(NSArray* v) {{
 {errorCheck}
-  {noQualifiers} cppArray;
+  {noQualifiers} cppArray{init};
   for (size_t i = 0; i < [v count]; i++) {{
     {addArrayValue}
   }}
@@ -68,6 +70,10 @@ void convertArrayType(ContainerData data) {
 	    fmt::arg("noQualifiers", data.noQualifiers),
 	    fmt::arg("toCppName", data.names.m_toCpp),
 	    fmt::arg("errorCheck", getErrorCheck(data)),
+	    fmt::arg("init",
+	             data.containerType == IR::ContainerType::Array ?
+                     "" :
+                     "([v count])"),
 	    fmt::arg("typeName", data.type.m_representation),
 	    fmt::arg("toCppName", data.names.m_toCpp),
 	    fmt::arg(
@@ -298,6 +304,7 @@ containerConversion(IR::Type const& type,
 	using IR::ContainerType;
 	switch (container.m_container) {
 		case ContainerType::Array:
+		case ContainerType::Valarray:
 		case ContainerType::List:
 		case ContainerType::Vector: {
 			if (!container.m_containedTypes.empty()) {
@@ -399,7 +406,6 @@ containerConversion(IR::Type const& type,
 		case ContainerType::UniquePtr:
 		case ContainerType::UnorderedMultiMap:
 		case ContainerType::UnorderedMultiSet:
-		case ContainerType::Valarray:
 		case ContainerType::Variant:
 		case ContainerType::Allocator:
 		case ContainerType::EqualTo:

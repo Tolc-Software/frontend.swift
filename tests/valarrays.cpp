@@ -7,22 +7,31 @@ TEST_CASE("Simple valarrays", "[valarrays]") {
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 #include <valarray>
 
-std::valarray<int> get() {
-	return {1, 2, 3};
+std::valarray<int> getIt() {
+	return {0, 1, 2};
 }
 )";
 
-	auto pythonTestCode = fmt::format(R"(
-v = {moduleName}.get()
-self.assertEqual(v, [1, 2, 3])
-)",
-	                                  fmt::arg("moduleName", moduleName));
+	auto objcTestCode = R"(
+// std::valarray corresponds to NSArray
+NSArray* v = [m getIt];
+assert([v count] == 3);
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+// The vector contains {0, 1, 2}
+assert([[v objectAtIndex:0] intValue] == 0);
+assert([[v objectAtIndex:1] intValue] == 1);
+assert([[v objectAtIndex:2] intValue] == 2);
+)";
+
+	auto swiftTestCode = R"()";
+
+	auto errorCode =
+	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::valarray");
