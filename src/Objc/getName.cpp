@@ -195,6 +195,7 @@ std::string getContainerName(IR::Type::Container const& container,
 		case ContainerType::Vector:
 		case ContainerType::Pair:
 		case ContainerType::Tuple:
+		case ContainerType::List:
 		case ContainerType::Array: return "NSArray*";
 		case ContainerType::UnorderedMap:
 		case ContainerType::Map: return "NSDictionary*";
@@ -205,7 +206,6 @@ std::string getContainerName(IR::Type::Container const& container,
 			    container.m_containedTypes.front(), moduleName);
 		case ContainerType::UnorderedMultiSet:
 		case ContainerType::Deque:
-		case ContainerType::List:
 		case ContainerType::MultiMap:
 		case ContainerType::MultiSet:
 		case ContainerType::PriorityQueue:

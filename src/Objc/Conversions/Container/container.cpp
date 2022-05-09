@@ -25,9 +25,29 @@ std::string addArrayValue(IR::ContainerType arrayType,
 			return fmt::format("cppArray[i] = {}([v objectAtIndex:i]);",
 			                   conversionFunction);
 		}
+		case ContainerType::List: {
+			return fmt::format("cppArray.push_back({}([v objectAtIndex:i]));",
+			                   conversionFunction);
+		}
 		default: break;
 	}
 	return "";
+}
+
+std::pair<std::string, std::string>
+getArrayTraversal(IR::ContainerType arrayType) {
+	using IR::ContainerType;
+	switch (arrayType) {
+		case ContainerType::Vector:
+		case ContainerType::Array: {
+			return {"v[i]", "size_t i = 0; i < v.size(); i++"};
+		}
+		case ContainerType::List: {
+			return {"value", "auto const& value : v"};
+		}
+		default: break;
+	}
+	return {"", ""};
 }
 
 void convertArrayType(ContainerData data) {
@@ -54,17 +74,20 @@ void convertArrayType(ContainerData data) {
 	        "addArrayValue",
 	        addArrayValue(data.containerType, containedConversions.m_toCpp))));
 
+	auto [value, traversal] = getArrayTraversal(data.containerType);
 	data.functions.push_back(fmt::format(
 	    R"(
 NSArray* {toObjcName}({noQualifiers} const& v) {{
   NSMutableArray* objcArray = [NSMutableArray arrayWithCapacity:v.size()];
-  for (size_t i = 0; i < v.size(); i++) {{
-    [objcArray addObject: {convertToObjc}(v[i])];
+  for ({traversal}) {{
+    [objcArray addObject: {convertToObjc}({value})];
   }}
   return objcArray;
 }})",
-	    fmt::arg("noQualifiers", data.noQualifiers),
 	    fmt::arg("toObjcName", data.names.m_toObjc),
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("traversal", traversal),
+	    fmt::arg("value", value),
 	    fmt::arg("typeName", data.type.m_representation),
 	    fmt::arg("convertToObjc", containedConversions.m_toObjc)));
 }
@@ -275,6 +298,7 @@ containerConversion(IR::Type const& type,
 	using IR::ContainerType;
 	switch (container.m_container) {
 		case ContainerType::Array:
+		case ContainerType::List:
 		case ContainerType::Vector: {
 			if (!container.m_containedTypes.empty()) {
 				// The first one is the Stuff in vector<Stuff>
@@ -366,7 +390,6 @@ containerConversion(IR::Type const& type,
 			return {};
 		}
 		case ContainerType::Deque:
-		case ContainerType::List:
 		case ContainerType::MultiMap:
 		case ContainerType::MultiSet:
 		case ContainerType::PriorityQueue:

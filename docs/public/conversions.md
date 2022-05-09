@@ -3,7 +3,9 @@
 This page shows what is automatically translated and to what.
 On the left is the `C++` and to the right what the corresponding interface in `Objective-C` will be.
 Not converted means there will be no automatic translation to a corresponding language object.
+
 Note that any restriction this poses only applies to the public interface of your code (e.g. your public headers).
+Your internal code can use anything from C++.
 
 ## Conversion tables ##
 
@@ -73,7 +75,7 @@ Note that any restriction this poses only applies to the public interface of you
 | std::filesystem::path           | [NSString](https://developer.apple.com/documentation/foundation/nsstring)         |
 | std::forward\_list              | Not converted                                                                     |
 | std::function                   | ???                                                                               |
-| std::list                       | ???                                                                               |
+| std::list                       | [NSArray](https://developer.apple.com/documentation/foundation/nsarray)           |
 | std::map                        | [NSDictionary](https://developer.apple.com/documentation/foundation/nsdictionary) |
 | std::multimap                   | ???                                                                               |
 | std::multiset                   | ???                                                                               |
