@@ -106,14 +106,19 @@ std::string getConstructorExtraName(IR::Function const& f) {
 std::string getContainedTypeName(IR::Type const& type,
                                  std::string const& moduleName) {
 	if (auto baseType = std::get_if<IR::Type::Value>(&type.m_type)) {
+		fmt::print("{}\n", "Is a base");
 		return valueContainerName(baseType->m_base);
 	} else if (auto enumType = std::get_if<IR::Type::EnumValue>(&type.m_type)) {
+		fmt::print("{}\n", "Is a enum");
 		return Objc::getEnumName(enumType->m_representation, moduleName);
 	} else if (auto container =
 	               std::get_if<IR::Type::Container>(&type.m_type)) {
+		fmt::print("{}\n", "Is a container");
 		return Objc::getContainerName(*container, moduleName);
 	} else if (auto userDefined =
 	               std::get_if<IR::Type::UserDefined>(&type.m_type)) {
+		fmt::print("{}\n", "Is a user defined");
+		fmt::print("{}\n", userDefined->m_representation);
 		return Objc::getClassName(userDefined->m_representation, moduleName) +
 		       '*';
 	}
@@ -192,28 +197,33 @@ std::string getContainerName(IR::Type::Container const& container,
                              std::string const& moduleName) {
 	using IR::ContainerType;
 	switch (container.m_container) {
-		case ContainerType::Vector:
+		case ContainerType::Array:
+		case ContainerType::Deque:
+		case ContainerType::List:
 		case ContainerType::Pair:
 		case ContainerType::Tuple:
-		case ContainerType::List:
 		case ContainerType::Valarray:
-		case ContainerType::Array: return "NSArray*";
-		case ContainerType::UnorderedMap:
-		case ContainerType::Map: return "NSDictionary*";
+		case ContainerType::Vector: return "NSArray*";
+
+		case ContainerType::Map:
+		case ContainerType::UnorderedMap: return "NSDictionary*";
+
 		case ContainerType::Set: return "NSOrderedSet*";
+
 		case ContainerType::UnorderedSet: return "NSSet*";
+
 		case ContainerType::Optional:
+		case ContainerType::SharedPtr:
+		case ContainerType::UniquePtr:
 			return Objc::getContainedTypeName(
 			    container.m_containedTypes.front(), moduleName);
+
 		case ContainerType::UnorderedMultiSet:
-		case ContainerType::Deque:
+		case ContainerType::Queue:
 		case ContainerType::MultiMap:
 		case ContainerType::MultiSet:
 		case ContainerType::PriorityQueue:
-		case ContainerType::Queue:
-		case ContainerType::SharedPtr:
 		case ContainerType::Stack:
-		case ContainerType::UniquePtr:
 		case ContainerType::UnorderedMultiMap:
 		case ContainerType::Variant:
 		case ContainerType::Allocator:

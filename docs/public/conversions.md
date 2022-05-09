@@ -1,4 +1,4 @@
-# C++ to python conversions #
+# C++ to Objective-C conversions #
 
 This page shows what is automatically translated and to what.
 On the left is the `C++` and to the right what the corresponding interface in `Objective-C` will be.
@@ -71,25 +71,25 @@ Your internal code can use anything from C++.
 |:------------------------------- |:--------------------------------------------------------------------------------- |
 | std::array                      | [NSArray](https://developer.apple.com/documentation/foundation/nsarray)           |
 | std::complex                    | ???                                                                               |
-| std::deque                      | ???                                                                               |
+| std::deque                      | [NSArray](https://developer.apple.com/documentation/foundation/nsarray)           |
 | std::filesystem::path           | [NSString](https://developer.apple.com/documentation/foundation/nsstring)         |
 | std::forward\_list              | Not converted                                                                     |
 | std::function                   | ???                                                                               |
 | std::list                       | [NSArray](https://developer.apple.com/documentation/foundation/nsarray)           |
 | std::map                        | [NSDictionary](https://developer.apple.com/documentation/foundation/nsdictionary) |
-| std::multimap                   | ???                                                                               |
-| std::multiset                   | ???                                                                               |
+| std::multimap                   | Not converted                                                                     |
+| std::multiset                   | Not converted                                                                     |
 | std::optional                   | Value or nil                                                                      |
 | std::pair                       | [NSArray](https://developer.apple.com/documentation/foundation/nsarray)           |
-| std::priority\_queue            | ???                                                                               |
-| std::queue                      | ???                                                                               |
+| std::priority\_queue            | Not converted                                                                     |
+| std::queue                      | Not converted                                                                     |
 | std::set                        | [NSOrderedSet](https://developer.apple.com/documentation/foundation/nsorderedset) |
 | std::shared\_ptr                | ???                                                                               |
-| std::stack                      | ???                                                                               |
+| std::stack                      | Not converted                                                                     |
 | std::string                     | [NSString](https://developer.apple.com/documentation/foundation/nsstring)         |
 | std::string\_view               | [NSString](https://developer.apple.com/documentation/foundation/nsstring)         |
 | std::tuple                      | [NSArray](https://developer.apple.com/documentation/foundation/nsarray)           |
-| std::unique\_ptr                | ???                                                                               |
+| std::unique\_ptr                | Value                                                                             |
 | std::unordered\_map             | [NSDictionary](https://developer.apple.com/documentation/foundation/nsdictionary) |
 | std::unordered\_multimap        | Not converted                                                                     |
 | std::unordered\_multiset        | Not converted                                                                     |

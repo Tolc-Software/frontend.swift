@@ -7,6 +7,7 @@ TEST_CASE("Using std::tuples", "[tuples]") {
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 #include <string>

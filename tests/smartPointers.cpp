@@ -4,55 +4,61 @@
 #include <fmt/format.h>
 
 TEST_CASE("Smart pointers of custom types work", "[smartPointers]") {
-	// NOTE: Smart pointers only work with custom defined types.
-	//       This makes unique_ptr<int> not computable.
-	//       If this is desirable in the future,
-	//       wrap the int in a lambda and copy the value
-	// Ex:
-	//
-	//   std::unique_ptr<int> create_int() {
-	//      return std::unique_ptr<int>(new int(53));
-	//   }
-	//
-	//   m.def("create_int", []() { return *create_int().get(); });
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 #include <memory>
 
-struct Example {
-	int m_hi = 5;
+struct Data {
+  int i = 5;
 };
 
-struct ExampleShared {
-	int m_hi = 10;
+struct SharedData {
+  int i = 10;
 };
 
-std::unique_ptr<Example> create_unique() {
-	return std::make_unique<Example>();
+std::unique_ptr<Data> createData() {
+  return std::make_unique<Data>();
 }
 
-std::shared_ptr<ExampleShared> create_shared() {
-	return std::make_shared<ExampleShared>();
+// This moves the data,
+// destroying it at the end
+// Same as C++
+int consumeData(std::unique_ptr<Data> data) {
+  return data->i + 20;
 }
+
+// std::shared_ptr<SharedData> createSharedData() {
+//   return std::make_shared<SharedData>();
+// }
 )";
 
-	auto pythonTestCode = fmt::format(R"(
-# std::unique_ptr acts as a normal value
-# Note that passing a std::unique_ptr as an argument gives an error
-#   See https://pybind11.readthedocs.io/en/stable/advanced/smart_ptrs.html
-u = {moduleName}.create_unique()
-self.assertEqual(u.m_hi, 5)
+	auto objcTestCode = R"(
+// std::unique_ptr acts as a normal value
+mData* data = [m createData];
+assert(data.i == 5);
 
-# std::shared_ptr acts as a normal value
-s = {moduleName}.create_shared()
-self.assertEqual(s.m_hi, 10)
-)",
-	                                  fmt::arg("moduleName", moduleName));
+// This moves the data,
+// destroying it at the end
+// Same as C++
+assert([m consumeData:data] == 25);
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+// Any access now results
+// in undefined behaviour
+// NSLog(@"%i", data.i);
+
+// std::shared_ptr acts as a normal value
+// mSharedData* sharedData = [m createSharedData];
+// assert(sharedData.i == 10);
+)";
+
+	auto swiftTestCode = R"()";
+
+	auto errorCode =
+	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Smart Pointers");

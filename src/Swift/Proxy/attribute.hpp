@@ -6,7 +6,6 @@
 namespace Swift::Proxy {
 /**
 * An attribute is a global value
-* NOTE: python throws away const so the value will always be mutable
 */
 class Attribute {
 public:

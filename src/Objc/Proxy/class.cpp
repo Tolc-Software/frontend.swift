@@ -41,6 +41,17 @@ std::string getUnderlyingObject(std::string const& fullyQualifiedName) {
 -({fullyQualifiedName}&) Tolc_getCppObject {{
   return *m_object.get();
 }}
+
+-(instancetype) Tolc_initWithSmartPtr:(std::unique_ptr<{fullyQualifiedName}>)cppClass {{
+  if (self = [super init]) {{
+    m_object = std::move(cppClass);
+  }}
+  return self;
+}}
+
+-(std::unique_ptr<{fullyQualifiedName}>) Tolc_getUnderlyingSmartPtr {{
+  return std::move(m_object);
+}}
 )",
 	                   fmt::arg("fullyQualifiedName", fullyQualifiedName));
 }
@@ -52,9 +63,7 @@ std::string Class::getObjcSource() const {
 	std::string out = fmt::format(
 	    R"(
 @implementation {className}{underlyingObject}
-{constructors}
-{functions}
-{memberVariables}
+{constructors}{functions}{memberVariables}
 @end)",
 	    fmt::arg("className", m_name),
 	    fmt::arg("underlyingObject",
@@ -72,9 +81,7 @@ std::string Class::getObjcHeader() const {
 	std::string out = fmt::format(
 	    R"(
 @interface {className} : NSObject
-{constructors}
-{functions}
-{memberVariables}
+{constructors}{functions}{memberVariables}
 @end)",
 	    fmt::arg("className", m_name),
 	    fmt::arg("constructors", joinFunctions(m_constructors, isSource)),

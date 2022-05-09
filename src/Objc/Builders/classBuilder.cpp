@@ -43,6 +43,8 @@ std::string declareClassCategory(std::string_view objcName,
 	return fmt::format(R"(
 @interface {objcName}(e_{objcName}_private)
 -(instancetype) Tolc_initWithCppObject:({cppName} const&)cppClass;
+-(instancetype) Tolc_initWithSmartPtr:(std::unique_ptr<{cppName}>)cppClass;
+-(std::unique_ptr<{cppName}>) Tolc_getUnderlyingSmartPtr;
 -({cppName}&) Tolc_getCppObject;
 @end
 )",

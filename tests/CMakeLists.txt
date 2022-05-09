@@ -99,7 +99,7 @@ foreach(
   arrays.cpp
   classes.cpp
   # complex.cpp
-  # deques.cpp
+  deques.cpp
   # documentationStyles.cpp
   enums.cpp
   filesystem_paths.cpp
@@ -116,7 +116,7 @@ foreach(
   # overloadedFunctions.cpp
   pairs.cpp
   sets.cpp
-  # smartPointers.cpp
+  smartPointers.cpp
   # templates.cpp
   tuples.cpp
   unordered_maps.cpp

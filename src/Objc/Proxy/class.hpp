@@ -31,7 +31,7 @@ public:
 
 	void setInherited(std::vector<std::string> const& inherited);
 
-	// Will be managed by a std::shared_ptr on the python side
+	// Will be managed by a std::shared_ptr on the Objective-C side
 	// instead of the default std::unique_ptr
 	void setAsManagedByShared();
 

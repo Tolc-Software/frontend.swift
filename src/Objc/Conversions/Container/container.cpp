@@ -17,39 +17,29 @@ std::string addArrayValue(IR::ContainerType arrayType,
                           std::string const& conversionFunction) {
 	using IR::ContainerType;
 	switch (arrayType) {
-		case ContainerType::Vector: {
-			return fmt::format("cppArray.push_back({}([v objectAtIndex:i]));",
-			                   conversionFunction);
-		}
+		// Fixed size containers
 		case ContainerType::Valarray:
 		case ContainerType::Array: {
 			return fmt::format("cppArray[i] = {}([v objectAtIndex:i]);",
 			                   conversionFunction);
 		}
-		case ContainerType::List: {
-			return fmt::format("cppArray.push_back({}([v objectAtIndex:i]));",
-			                   conversionFunction);
-		}
 		default: break;
 	}
-	return "";
+	return fmt::format("cppArray.push_back({}([v objectAtIndex:i]));",
+	                   conversionFunction);
 }
 
 std::pair<std::string, std::string>
 getArrayTraversal(IR::ContainerType arrayType) {
 	using IR::ContainerType;
 	switch (arrayType) {
-		case ContainerType::Vector:
-		case ContainerType::Valarray:
-		case ContainerType::Array: {
-			return {"v[i]", "size_t i = 0; i < v.size(); i++"};
-		}
+		// Need to iterate through list
 		case ContainerType::List: {
 			return {"value", "auto const& value : v"};
 		}
 		default: break;
 	}
-	return {"", ""};
+	return {"v[i]", "size_t i = 0; i < v.size(); i++"};
 }
 
 void convertArrayType(ContainerData data) {
@@ -71,10 +61,9 @@ void convertArrayType(ContainerData data) {
 	    fmt::arg("toCppName", data.names.m_toCpp),
 	    fmt::arg("errorCheck", getErrorCheck(data)),
 	    fmt::arg("init",
-	             data.containerType == IR::ContainerType::Array ?
-                     "" :
-                     "([v count])"),
-	    fmt::arg("typeName", data.type.m_representation),
+	             data.containerType == IR::ContainerType::Valarray ?
+                     "([v count])" :
+                     ""),
 	    fmt::arg("toCppName", data.names.m_toCpp),
 	    fmt::arg(
 	        "addArrayValue",
@@ -94,7 +83,6 @@ NSArray* {toObjcName}({noQualifiers} const& v) {{
 	    fmt::arg("noQualifiers", data.noQualifiers),
 	    fmt::arg("traversal", traversal),
 	    fmt::arg("value", value),
-	    fmt::arg("typeName", data.type.m_representation),
 	    fmt::arg("convertToObjc", containedConversions.m_toObjc)));
 }
 
@@ -118,7 +106,6 @@ void convertMapType(ContainerData data) {
 }})",
 	    fmt::arg("noQualifiers", data.noQualifiers),
 	    fmt::arg("toCppName", data.names.m_toCpp),
-	    fmt::arg("typeName", data.type.m_representation),
 	    fmt::arg("toCppName", data.names.m_toCpp),
 	    fmt::arg("keyConversion", keyConversion.m_toCpp),
 	    fmt::arg("valueConversion", valueConversion.m_toCpp)));
@@ -134,7 +121,6 @@ NSDictionary* {toObjcName}({noQualifiers} const& m) {{
 }})",
 	    fmt::arg("noQualifiers", data.noQualifiers),
 	    fmt::arg("toObjcName", data.names.m_toObjc),
-	    fmt::arg("typeName", data.type.m_representation),
 	    fmt::arg("keyConversion", keyConversion.m_toObjc),
 	    fmt::arg("valueConversion", valueConversion.m_toObjc)));
 }
@@ -155,7 +141,6 @@ void convertSetType(ContainerData data, bool isOrdered) {
 	    fmt::arg("noQualifiers", data.noQualifiers),
 	    fmt::arg("toCppName", data.names.m_toCpp),
 	    fmt::arg("ordered", isOrdered ? "Ordered" : ""),
-	    fmt::arg("typeName", data.type.m_representation),
 	    fmt::arg("toCppName", data.names.m_toCpp),
 	    fmt::arg("valueConversion", valueConversion.m_toCpp)));
 
@@ -172,7 +157,6 @@ NS{ordered}Set* {toObjcName}({noQualifiers} const& s) {{
 	    fmt::arg("toObjcName", data.names.m_toObjc),
 	    fmt::arg("ordered", isOrdered ? "Ordered" : ""),
 	    fmt::arg("initOrdered", isOrdered ? "orderedSet" : "set"),
-	    fmt::arg("typeName", data.type.m_representation),
 	    fmt::arg("valueConversion", valueConversion.m_toObjc)));
 }
 
@@ -194,7 +178,6 @@ void convertPairType(ContainerData data) {
 	    fmt::arg("noQualifiers", data.noQualifiers),
 	    fmt::arg("toCppName", data.names.m_toCpp),
 	    fmt::arg("errorCheck", getErrorCheck(data)),
-	    fmt::arg("typeName", data.type.m_representation),
 	    fmt::arg("toCppName", data.names.m_toCpp),
 	    fmt::arg("firstConversion", firstConversion.m_toCpp),
 	    fmt::arg("secondConversion", secondConversion.m_toCpp)));
@@ -209,7 +192,6 @@ NSArray* {toObjcName}({noQualifiers} const& p) {{
 }})",
 	    fmt::arg("noQualifiers", data.noQualifiers),
 	    fmt::arg("toObjcName", data.names.m_toObjc),
-	    fmt::arg("typeName", data.type.m_representation),
 	    fmt::arg("firstConversion", firstConversion.m_toObjc),
 	    fmt::arg("secondConversion", secondConversion.m_toObjc)));
 }
@@ -259,7 +241,6 @@ NSArray* {toObjcName}({noQualifiers} const& t) {{
 	    fmt::arg("noQualifiers", data.noQualifiers),
 	    fmt::arg("tupleSize", data.containedTypes.size()),
 	    fmt::arg("toObjcName", data.names.m_toObjc),
-	    fmt::arg("typeName", data.type.m_representation),
 	    fmt::arg("elementConversions", elementConversions.m_toObjc)));
 }
 
@@ -291,8 +272,33 @@ void convertOptionalType(ContainerData data, std::string_view objcValueType) {
 	    fmt::arg("objcValueType", objcValueType),
 	    fmt::arg("toObjcName", data.names.m_toObjc),
 	    fmt::arg("noQualifiers", data.noQualifiers),
-	    fmt::arg("typeName", data.type.m_representation),
 	    fmt::arg("valueConversion", valueConversion.m_toObjc)));
+}
+
+void convertUniquePtrType(ContainerData data, std::string_view objcValueType) {
+	std::string_view objcClassName = objcValueType;
+	if (objcClassName.ends_with('*')) {
+		objcClassName.remove_suffix(1);
+	}
+
+	data.functions.push_back(fmt::format(
+	    R"(
+{noQualifiers} {toCppName}({objcValueType} objcClass) {{
+  return std::move([objcClass Tolc_getUnderlyingSmartPtr]);
+}})",
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("toCppName", data.names.m_toCpp),
+	    fmt::arg("objcValueType", objcValueType)));
+
+	data.functions.push_back(fmt::format(
+	    R"(
+{objcValueType} {toObjcName}({noQualifiers} cppClass) {{
+  return [[{objcClassName} alloc] Tolc_initWithSmartPtr:std::move(cppClass)];
+}})",
+	    fmt::arg("objcValueType", objcValueType),
+	    fmt::arg("toObjcName", data.names.m_toObjc),
+	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("objcClassName", objcClassName)));
 }
 
 Objc::Conversions::Conversion
@@ -304,8 +310,9 @@ containerConversion(IR::Type const& type,
 	using IR::ContainerType;
 	switch (container.m_container) {
 		case ContainerType::Array:
-		case ContainerType::Valarray:
+		case ContainerType::Deque:
 		case ContainerType::List:
+		case ContainerType::Valarray:
 		case ContainerType::Vector: {
 			if (!container.m_containedTypes.empty()) {
 				// The first one is the Stuff in vector<Stuff>
@@ -369,18 +376,17 @@ containerConversion(IR::Type const& type,
 		case ContainerType::Tuple: {
 			for (auto const& containedType : container.m_containedTypes) {
 				typesToConvert.push(&containedType);
-				return convertContainerWrapper(type,
-				                               container.m_container,
-				                               container.m_containedTypes,
-				                               functions,
-				                               cache,
-				                               convertTupleType);
 			}
-			return {};
+			return convertContainerWrapper(type,
+			                               container.m_container,
+			                               container.m_containedTypes,
+			                               functions,
+			                               cache,
+			                               convertTupleType);
 		}
 		case ContainerType::Optional: {
 			if (!container.m_containedTypes.empty()) {
-				// The first one is the Stuff, Other in map<Stuff, Other>
+				// The first one is the Stuff in optional<Stuff>
 				typesToConvert.push(&container.m_containedTypes[0]);
 				return convertContainerWrapper(
 				    type,
@@ -396,14 +402,33 @@ containerConversion(IR::Type const& type,
 			}    // TODO: Handle error
 			return {};
 		}
-		case ContainerType::Deque:
+		case ContainerType::UniquePtr: {
+			if (!container.m_containedTypes.empty()) {
+				// The first one is the Stuff in unique_ptr<Stuff>
+				fmt::print("{}\n", container.m_containedTypes.size());
+				fmt::print("{}\n",
+				           container.m_containedTypes.front().m_representation);
+				typesToConvert.push(&container.m_containedTypes[0]);
+				return convertContainerWrapper(
+				    type,
+				    container.m_container,
+				    container.m_containedTypes,
+				    functions,
+				    cache,
+				    [objcValueName = Objc::getContainedTypeName(
+				         container.m_containedTypes[0], cache.m_moduleName)](
+				        ContainerData data) {
+					    convertUniquePtrType(data, objcValueName);
+				    });
+			}    // TODO: Handle error
+			return {};
+		}
 		case ContainerType::MultiMap:
 		case ContainerType::MultiSet:
 		case ContainerType::PriorityQueue:
 		case ContainerType::Queue:
 		case ContainerType::SharedPtr:
 		case ContainerType::Stack:
-		case ContainerType::UniquePtr:
 		case ContainerType::UnorderedMultiMap:
 		case ContainerType::UnorderedMultiSet:
 		case ContainerType::Variant:
