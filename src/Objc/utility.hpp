@@ -16,4 +16,7 @@ std::string wrapInInterface(std::string_view objcClass,
 std::string wrapInImplementation(std::string_view objcClass,
                                  std::string_view category,
                                  std::string_view code);
+
+// Get a documentation string if not empty
+std::string getDocumentationString(std::string_view documentation);
 }

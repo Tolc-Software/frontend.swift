@@ -101,7 +101,7 @@ foreach(
   classes.cpp
   # complex.cpp
   deques.cpp
-  # documentationStyles.cpp
+  documentationStyles.cpp
   enums.cpp
   filesystem_paths.cpp
   # functional.cpp

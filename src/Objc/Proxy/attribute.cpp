@@ -60,15 +60,23 @@ std::string Attribute::getObjcSource() const {
 }
 
 std::string Attribute::getObjcHeader() const {
-	auto out = fmt::format("@property {options} {type} {name};\n",
-	                       fmt::arg("options", getPropertyOptions()),
-	                       fmt::arg("type", m_type.m_name),
-	                       fmt::arg("name", m_name));
+	auto declaration = fmt::format("@property {options} {type} {name};\n",
+	                               fmt::arg("options", getPropertyOptions()),
+	                               fmt::arg("type", m_type.m_name),
+	                               fmt::arg("name", m_name));
 	if (m_isStandalone) {
-		return Objc::wrapInInterface(
-		    m_objcClass, Objc::getCategoryName('a', m_objcClass, m_name), out);
+		declaration = Objc::wrapInInterface(
+		    m_objcClass,
+		    Objc::getCategoryName('a', m_objcClass, m_name),
+		    declaration);
 	}
-	return out;
+
+	return fmt::format(R"({documentation}
+{declaration}
+)",
+	                   fmt::arg("documentation",
+	                            Objc::getDocumentationString(m_documentation)),
+	                   fmt::arg("declaration", declaration));
 }
 
 std::string Attribute::getPropertyOptions() const {

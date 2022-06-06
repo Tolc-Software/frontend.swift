@@ -125,12 +125,17 @@ std::string Function::getObjcSource() const {
 std::string Function::getObjcHeader() const {
 	// E.g.
 	// - (int)add:(int)x y:(int)y;
-	auto declaration = getFunctionDeclaration() + ';';
-	return m_isStandalone ? Objc::wrapInInterface(
-	                            m_objcClass,
-	                            Objc::getCategoryName('f', m_objcClass, m_name),
-	                            declaration) :
-                            declaration;
+	auto declaration = Objc::getDocumentationString(m_documentation) + '\n' +
+	                   getFunctionDeclaration() + ';';
+
+	if (m_isStandalone) {
+		declaration = Objc::wrapInInterface(
+		    m_objcClass,
+		    Objc::getCategoryName('f', m_objcClass, m_name),
+		    declaration);
+	}
+
+	return declaration;
 }
 
 Function::Function(std::string const& name,
@@ -138,9 +143,9 @@ Function::Function(std::string const& name,
                    std::string const& objcClass,
                    std::string const& cppClass)
     : m_name(name), m_fullyQualifiedName(fullyQualifiedName),
-      m_objcClass(objcClass), m_cppClass(cppClass), m_returnType(),
-      m_isOverloaded(false), m_isStatic(false), m_isConstructor(false),
-      m_isStandalone(false) {}
+      m_objcClass(objcClass), m_cppClass(cppClass), m_documentation(),
+      m_returnType(), m_isOverloaded(false), m_isStatic(false),
+      m_isConstructor(false), m_isStandalone(false) {}
 
 void Function::setReturnType(Objc::Proxy::Type const& type) {
 	m_returnType = type;

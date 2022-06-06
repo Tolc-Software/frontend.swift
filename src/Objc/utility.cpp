@@ -38,4 +38,15 @@ std::string wrapInImplementation(std::string_view objcClass,
 	                   code);
 }
 
+std::string getDocumentationString(std::string_view documentation) {
+	if (documentation.empty()) {
+		return "";
+	}
+	return fmt::format(R"(
+/**
+{documentation}
+*/)",
+	                   fmt::arg("documentation", documentation));
+}
+
 }    // namespace Objc

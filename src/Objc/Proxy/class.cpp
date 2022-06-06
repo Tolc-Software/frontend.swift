@@ -1,4 +1,5 @@
 #include "Objc/Proxy/class.hpp"
+#include "Objc/utility.hpp"
 #include "ObjcSwift/Helpers/getDocumentationParameter.hpp"
 #include "ObjcSwift/Helpers/wrapInFunction.hpp"
 #include <fmt/format.h>
@@ -60,7 +61,6 @@ std::string getUnderlyingObject(std::string const& fullyQualifiedName,
 	    fmt::arg("rightMove", isManagedByShared ? "" : ")"),
 	    fmt::arg("fullyQualifiedName", fullyQualifiedName));
 }
-
 }    // namespace
 
 std::string Class::getObjcSource() const {
@@ -85,10 +85,13 @@ std::string Class::getObjcSource() const {
 std::string Class::getObjcHeader() const {
 	bool isSource = false;
 	std::string out = fmt::format(
-	    R"(
+	    R"({documentation}
 @interface {className} : NSObject
 {constructors}{functions}{memberVariables}
-@end)",
+@end
+)",
+	    fmt::arg("documentation",
+	             Objc::getDocumentationString(m_documentation)),
 	    fmt::arg("className", m_name),
 	    fmt::arg("constructors", joinFunctions(m_constructors, isSource)),
 	    fmt::arg("functions", joinFunctions(m_functions, isSource)),

@@ -32,7 +32,7 @@ Your internal code can use anything from C++.
 | Templated class/function            | Not converted***                                                                                                                        |
 | Specialized class template          | ???                                                                                                                                     |
 | Specialized function template       | ???                                                                                                                                     |
-| Documentation                       | ???                                                                                                                                     |
+| Documentation                       | Documentation                                                                                                                           |
 
 \* Prefix on all classes and free functions in the namespace.
 
