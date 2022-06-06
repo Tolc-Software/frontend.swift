@@ -275,7 +275,9 @@ void convertOptionalType(ContainerData data, std::string_view objcValueType) {
 	    fmt::arg("valueConversion", valueConversion.m_toObjc)));
 }
 
-void convertUniquePtrType(ContainerData data, std::string_view objcValueType) {
+void convertSmartPtrType(ContainerData data,
+                         std::string_view objcValueType,
+                         bool isSharedPtr) {
 	std::string_view objcClassName = objcValueType;
 	if (objcClassName.ends_with('*')) {
 		objcClassName.remove_suffix(1);
@@ -284,20 +286,24 @@ void convertUniquePtrType(ContainerData data, std::string_view objcValueType) {
 	data.functions.push_back(fmt::format(
 	    R"(
 {noQualifiers} {toCppName}({objcValueType} objcClass) {{
-  return std::move([objcClass Tolc_getUnderlyingSmartPtr]);
+  return {leftMove}[objcClass Tolc_getUnderlyingSmartPtr]{rightMove};
 }})",
 	    fmt::arg("noQualifiers", data.noQualifiers),
 	    fmt::arg("toCppName", data.names.m_toCpp),
+	    fmt::arg("leftMove", isSharedPtr ? "" : "std::move("),
+	    fmt::arg("rightMove", isSharedPtr ? "" : ")"),
 	    fmt::arg("objcValueType", objcValueType)));
 
 	data.functions.push_back(fmt::format(
 	    R"(
 {objcValueType} {toObjcName}({noQualifiers} cppClass) {{
-  return [[{objcClassName} alloc] Tolc_initWithSmartPtr:std::move(cppClass)];
+  return [[{objcClassName} alloc] Tolc_initWithSmartPtr:{leftMove}cppClass{rightMove}];
 }})",
 	    fmt::arg("objcValueType", objcValueType),
 	    fmt::arg("toObjcName", data.names.m_toObjc),
 	    fmt::arg("noQualifiers", data.noQualifiers),
+	    fmt::arg("leftMove", isSharedPtr ? "" : "std::move("),
+	    fmt::arg("rightMove", isSharedPtr ? "" : ")"),
 	    fmt::arg("objcClassName", objcClassName)));
 }
 
@@ -404,12 +410,6 @@ containerConversion(IR::Type const& type,
 		}
 		case ContainerType::UniquePtr: {
 			if (!container.m_containedTypes.empty()) {
-				if (auto userDefined = std::get_if<IR::Type::UserDefined>(
-				        &container.m_containedTypes[0].m_type)) {
-					// Register as unique
-					cache.m_uniquePtrClasses.insert(
-					    userDefined->m_representation);
-				}
 				// The first one is the Stuff in unique_ptr<Stuff>
 				typesToConvert.push(&container.m_containedTypes[0]);
 				return convertContainerWrapper(
@@ -421,7 +421,7 @@ containerConversion(IR::Type const& type,
 				    [objcValueName = Objc::getContainedTypeName(
 				         container.m_containedTypes[0], cache.m_moduleName)](
 				        ContainerData data) {
-					    convertUniquePtrType(data, objcValueName);
+					    convertSmartPtrType(data, objcValueName, false);
 				    });
 			}    // TODO: Handle error
 			return {};
@@ -445,7 +445,7 @@ containerConversion(IR::Type const& type,
 				    [objcValueName = Objc::getContainedTypeName(
 				         container.m_containedTypes[0], cache.m_moduleName)](
 				        ContainerData data) {
-					    convertUniquePtrType(data, objcValueName);
+					    convertSmartPtrType(data, objcValueName, true);
 				    });
 			}    // TODO: Handle error
 			return {};

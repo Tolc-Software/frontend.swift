@@ -38,20 +38,6 @@ void buildMemberFunction(Objc::Proxy::Function& objcFunction,
 	}
 }
 
-std::string declareClassCategory(std::string_view objcName,
-                                 std::string_view cppName) {
-	return fmt::format(R"(
-@interface {objcName}(e_{objcName}_private)
--(instancetype) Tolc_initWithCppObject:({cppName} const&)cppClass;
--(instancetype) Tolc_initWithSmartPtr:(std::unique_ptr<{cppName}>)cppClass;
--(std::unique_ptr<{cppName}>) Tolc_getUnderlyingSmartPtr;
--({cppName}&) Tolc_getCppObject;
-@end
-)",
-	                   fmt::arg("objcName", objcName),
-	                   fmt::arg("cppName", cppName));
-}
-
 std::string getConversions(std::string_view objcName,
                            std::string_view cppName) {
 	// No need for conversions for an object that cannot be instantiated
@@ -89,9 +75,6 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	objcClass.setDocumentation(cppClass.m_documentation);
 
 	objcClass.setInherited(cppClass.m_public.m_inherited);
-
-	cache.m_extraClassCategories.push_back(
-	    declareClassCategory(objcClass.getName(), cppClass.m_representation));
 
 	cache.m_extraClassConversions.push_back(
 	    getConversions(objcClass.getName(), cppClass.m_representation));

@@ -30,9 +30,15 @@ int consumeData(std::unique_ptr<Data> data) {
   return data->i + 20;
 }
 
-// std::shared_ptr<SharedData> createSharedData() {
-//   return std::make_shared<SharedData>();
-// }
+std::shared_ptr<SharedData> createSharedData() {
+  return std::make_shared<SharedData>();
+}
+
+// Does not move the data
+// The pointer is valid after the function call
+int consumeSharedData(std::shared_ptr<SharedData> data) {
+  return data->i + 20;
+}
 )";
 
 	auto objcTestCode = R"(
@@ -47,11 +53,22 @@ assert([m consumeData:data] == 25);
 
 // Any access now results
 // in undefined behaviour
+// (possibly a crash)
 // NSLog(@"%i", data.i);
 
 // std::shared_ptr acts as a normal value
-// mSharedData* sharedData = [m createSharedData];
-// assert(sharedData.i == 10);
+// But all mSharedData have their internal
+// classes handled by a std::shared_ptr
+mSharedData* sharedData = [m createSharedData];
+assert(sharedData.i == 10);
+
+// This copies the smart pointer,
+// incrementing its counter.
+// Valid to use sharedData after this call.
+assert([m consumeSharedData:sharedData] == 30);
+
+// No crash
+NSLog(@"%i", sharedData.i);
 )";
 
 	auto swiftTestCode = R"()";

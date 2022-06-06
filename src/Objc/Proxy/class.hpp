@@ -39,6 +39,11 @@ public:
 	// Meaning it has no underlying C++ class
 	void setAsPurelyStatic();
 
+	std::string const& getCppClassName() const;
+
+	// Get the extension of this class
+	std::string declareCategory() const;
+
 private:
 	std::string joinMemberVariables(bool isSource) const;
 

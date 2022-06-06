@@ -22,18 +22,20 @@ std::string joinFunctions(std::vector<Objc::Proxy::Function> const& functions,
 	return out;
 }
 
-std::string getUnderlyingObject(std::string const& fullyQualifiedName) {
+std::string getUnderlyingObject(std::string const& fullyQualifiedName,
+                                bool isManagedByShared) {
 	// NOTE: The object is actually only public for the implementation file
 	//       Used for copy constructors
-	return fmt::format(R"( {{
+	return fmt::format(
+	    R"( {{
   // The corresponding C++ object
-  @public std::unique_ptr<{fullyQualifiedName}> m_object;
+  @public std::{smart_ptr}<{fullyQualifiedName}> m_object;
 }}
 
 // Copy constructor
 -(instancetype) Tolc_initWithCppObject:({fullyQualifiedName} const&)cppClass {{
   if (self = [super init]) {{
-    m_object = std::unique_ptr<{fullyQualifiedName}>(new {fullyQualifiedName}(cppClass));
+    m_object = std::{smart_ptr}<{fullyQualifiedName}>(new {fullyQualifiedName}(cppClass));
   }}
   return self;
 }}
@@ -42,18 +44,21 @@ std::string getUnderlyingObject(std::string const& fullyQualifiedName) {
   return *m_object.get();
 }}
 
--(instancetype) Tolc_initWithSmartPtr:(std::unique_ptr<{fullyQualifiedName}>)cppClass {{
+-(instancetype) Tolc_initWithSmartPtr:(std::{smart_ptr}<{fullyQualifiedName}>)cppClass {{
   if (self = [super init]) {{
-    m_object = std::move(cppClass);
+    m_object = {leftMove}cppClass{rightMove};
   }}
   return self;
 }}
 
--(std::unique_ptr<{fullyQualifiedName}>) Tolc_getUnderlyingSmartPtr {{
-  return std::move(m_object);
+-(std::{smart_ptr}<{fullyQualifiedName}>) Tolc_getUnderlyingSmartPtr {{
+  return {leftMove}m_object{rightMove};
 }}
 )",
-	                   fmt::arg("fullyQualifiedName", fullyQualifiedName));
+	    fmt::arg("smart_ptr", isManagedByShared ? "shared_ptr" : "unique_ptr"),
+	    fmt::arg("leftMove", isManagedByShared ? "" : "std::move("),
+	    fmt::arg("rightMove", isManagedByShared ? "" : ")"),
+	    fmt::arg("fullyQualifiedName", fullyQualifiedName));
 }
 
 }    // namespace
@@ -68,7 +73,8 @@ std::string Class::getObjcSource() const {
 	    fmt::arg("className", m_name),
 	    fmt::arg("underlyingObject",
 	             m_isPurelyStatic ? "" :
-                                    getUnderlyingObject(m_fullyQualifiedName)),
+                                    getUnderlyingObject(m_fullyQualifiedName,
+	                                                    m_isManagedByShared)),
 	    fmt::arg("constructors", joinFunctions(m_constructors, isSource)),
 	    fmt::arg("functions", joinFunctions(m_functions, isSource)),
 	    fmt::arg("memberVariables", joinMemberVariables(isSource)));
@@ -89,6 +95,22 @@ std::string Class::getObjcHeader() const {
 	    fmt::arg("memberVariables", joinMemberVariables(isSource)));
 
 	return out;
+}
+
+std::string Class::declareCategory() const {
+	return fmt::format(
+	    R"(
+@interface {objcName}(e_{objcName}_private)
+-(instancetype) Tolc_initWithCppObject:({cppName} const&)cppClass;
+-(instancetype) Tolc_initWithSmartPtr:(std::{smart_ptr}<{cppName}>)cppClass;
+-(std::{smart_ptr}<{cppName}>) Tolc_getUnderlyingSmartPtr;
+-({cppName}&) Tolc_getCppObject;
+@end
+)",
+	    fmt::arg("objcName", getName()),
+	    fmt::arg("cppName", m_fullyQualifiedName),
+	    fmt::arg("smart_ptr",
+	             m_isManagedByShared ? "shared_ptr" : "unique_ptr"));
 }
 
 Class::Class(std::string const& name, std::string const& fullyQualifiedName)
@@ -147,5 +169,9 @@ std::string Class::joinMemberVariables(bool isSource) const {
 void Class::setAsPurelyStatic() {
 	m_isPurelyStatic = true;
 }
+
+std::string const& Class::getCppClassName() const {
+	return m_fullyQualifiedName;
+};
 
 }    // namespace Objc::Proxy

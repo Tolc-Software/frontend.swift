@@ -84,7 +84,7 @@ Your internal code can use anything from C++.
 | std::priority\_queue            | Not converted                                                                     |
 | std::queue                      | Not converted                                                                     |
 | std::set                        | [NSOrderedSet](https://developer.apple.com/documentation/foundation/nsorderedset) |
-| std::shared\_ptr                | ???                                                                               |
+| std::shared\_ptr                | Value*                                                                            |
 | std::stack                      | Not converted                                                                     |
 | std::string                     | [NSString](https://developer.apple.com/documentation/foundation/nsstring)         |
 | std::string\_view               | [NSString](https://developer.apple.com/documentation/foundation/nsstring)         |
@@ -98,6 +98,7 @@ Your internal code can use anything from C++.
 | std::variant                    | ???                                                                               |
 | std::vector                     | [NSArray](https://developer.apple.com/documentation/foundation/nsarray)           |
 
+\* After using a `shared_ptr`, the object is now always managed by a `shared_ptr`.
 
 | C++ builtin type           | Objective-C translation  |
 |:-------------------------- |:------------------------ |

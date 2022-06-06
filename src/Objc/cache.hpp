@@ -14,18 +14,12 @@ struct Cache {
 	// Will be placed in the root under the namespace m_extraFunctionsNamespace
 	std::vector<std::string> m_extraFunctions;
 
-	// Declarations that will be used by conversion functions
-	// for user declared types
-	std::vector<std::string> m_extraClassCategories;
-
 	// Conversion functions for user defined types
 	std::vector<std::string> m_extraClassConversions;
 
 	// Classes that are used in a shared_ptr
+	// Set as fully qualified name of the class
 	std::set<std::string> m_sharedPtrClasses;
-
-	// Classes that are used in a unique_ptr
-	std::set<std::string> m_uniquePtrClasses;
 
 	// The name of the users module we are converting
 	std::string m_moduleName;

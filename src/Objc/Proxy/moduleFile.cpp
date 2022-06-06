@@ -9,6 +9,18 @@
 
 namespace Objc::Proxy {
 
+namespace {
+std::string
+joinClassDeclarations(std::vector<Objc::Proxy::Class> const& classes) {
+	std::string out;
+
+	for (auto const& cls : classes) {
+		out += cls.declareCategory();
+	}
+	return out;
+}
+}    // namespace
+
 ModuleFile::ModuleFile() : m_modules(), m_classes(), m_enums(), m_cache() {}
 
 void ModuleFile::sortAllStructures() {
@@ -19,6 +31,7 @@ void ModuleFile::sortAllStructures() {
 	m_allStructures.reserve(m_enums.size() + m_modules.size() +
 	                        m_classes.size() + m_functions.size() +
 	                        m_attributes.size());
+
 	for (auto const& e : m_enums) {
 		m_allStructures.push_back(&e);
 	}
@@ -27,7 +40,12 @@ void ModuleFile::sortAllStructures() {
 		m_allStructures.push_back(&m);
 	}
 
-	for (auto const& cls : m_classes) {
+	for (auto& cls : m_classes) {
+		// Here all the functions of the interface are seen.
+		// Safe to see if this class has ever been used by a shared_ptr
+		if (m_cache.m_sharedPtrClasses.contains(cls.getCppClassName())) {
+			cls.setAsManagedByShared();
+		}
 		m_allStructures.push_back(&cls);
 	}
 
@@ -84,8 +102,7 @@ std::string ModuleFile::getObjcSource() {
 {classDeclarations}
 {conversions}
 )",
-	    fmt::arg("classDeclarations",
-	             fmt::join(m_cache.m_extraClassCategories, "\n")),
+	    fmt::arg("classDeclarations", joinClassDeclarations(m_classes)),
 	    fmt::arg("conversions", createExtraFunctionsSource(m_cache)),
 	    fmt::arg("libraryName", m_cache.m_moduleName));
 
