@@ -101,7 +101,6 @@ std::string toString(IR::Type::Value const& type) {
 void reverseAndAdd(std::vector<IR::Type> const& toReverse,
                    std::stack<IR::Type const*>& toAdd) {
 	for (auto it = toReverse.rbegin(); it != toReverse.rend(); ++it) {
-		fmt::print("{}{}\n", "Adding: ", it->m_representation);
 		toAdd.push(&(*it));
 	}
 }

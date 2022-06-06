@@ -411,9 +411,6 @@ containerConversion(IR::Type const& type,
 					    userDefined->m_representation);
 				}
 				// The first one is the Stuff in unique_ptr<Stuff>
-				fmt::print("{}\n", container.m_containedTypes.size());
-				fmt::print("{}\n",
-				           container.m_containedTypes.front().m_representation);
 				typesToConvert.push(&container.m_containedTypes[0]);
 				return convertContainerWrapper(
 				    type,
@@ -438,9 +435,6 @@ containerConversion(IR::Type const& type,
 					    userDefined->m_representation);
 				}
 				// The first one is the Stuff in unique_ptr<Stuff>
-				fmt::print("{}\n", container.m_containedTypes.size());
-				fmt::print("{}\n",
-				           container.m_containedTypes.front().m_representation);
 				typesToConvert.push(&container.m_containedTypes[0]);
 				return convertContainerWrapper(
 				    type,

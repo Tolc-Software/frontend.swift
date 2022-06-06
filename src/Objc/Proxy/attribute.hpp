@@ -2,7 +2,6 @@
 
 #include "Objc/Proxy/structure.hpp"
 #include "Objc/Proxy/type.hpp"
-#include <iostream>
 #include <string>
 #include <vector>
 
