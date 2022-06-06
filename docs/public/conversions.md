@@ -104,29 +104,29 @@ Your internal code can use anything from C++.
 |:-------------------------- |:------------------------ |
 | bool                       | bool                     |
 | char                       | char                     |
-| char16\_t                  | ???                      |
-| char32\_t                  | ???                      |
+| char16\_t                  | char16\_t                |
+| char32\_t                  | char32\_t                |
 | double                     | double                   |
 | float                      | float                    |
 | int                        | int                      |
-| int8\_t                    | ???                      |
-| int16\_t                   | ???                      |
-| int32\_t                   | ???                      |
-| int64\_t                   | ???                      |
-| long double                | ???                      |
-| long int                   | ???                      |
-| long long int              | ???                      |
-| short int                  | ???                      |
-| signed char                | ???                      |
-| uint8\_t                   | ???                      |
-| uint16\_t                  | ???                      |
-| uint32\_t                  | ???                      |
-| uint64\_t                  | ???                      |
-| unsigned char              | ???                      |
-| unsigned int               | ???                      |
-| unsigned long int          | ???                      |
-| unsigned long long int     | ???                      |
-| unsigned short int         | ???                      |
-| wchar\_t                   | ???                      |
+| int8\_t                    | int8\_t                  |
+| int16\_t                   | int16\_t                 |
+| int32\_t                   | int32\_t                 |
+| int64\_t                   | int64\_t                 |
+| long double                | long double              |
+| long int                   | long int                 |
+| long long int              | long long int            |
+| short int                  | short int                |
+| signed char                | signed char              |
+| uint8\_t                   | uint8\_t                 |
+| uint16\_t                  | uint16\_t                |
+| uint32\_t                  | uint32\_t                |
+| uint64\_t                  | uint64\_t                |
+| unsigned char              | unsigned char            |
+| unsigned int               | unsigned int             |
+| unsigned long int          | unsigned long int        |
+| unsigned long long int     | unsigned long long int   |
+| unsigned short int         | unsigned short int       |
+| wchar\_t                   | wchar\_t                 |
 | void                       | void                     |
 

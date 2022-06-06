@@ -7,6 +7,7 @@ TEST_CASE("Taking functions as arguments", "[functional]") {
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 #include <functional>
@@ -31,28 +32,30 @@ int accumulateArrayOfFunctions(std::vector<std::function<int()>> arrayToSum) {
 }
 )";
 
-	auto pythonTestCode = fmt::format(R"(
+	auto objcTestCode = R"(
 def callback(i):
   return i
 
-# You can send a python function as a C++ callback
+// You can send a python function as a C++ callback
 result0 = {moduleName}.takingFunction(callback)
 self.assertEqual(result0, 5.0)
 
-# Or in the other direction
+// Or in the other direction
 inc_by_one = {moduleName}.returnFunction(callback)
 self.assertEqual(inc_by_one(5), 6)
 
 def fiver():
   return 5
 
-# Or a vector of functions
+// Or a vector of functions
 result1 = {moduleName}.accumulateArrayOfFunctions([fiver, fiver])
 self.assertEqual(result1, 10)
-)",
-	                                  fmt::arg("moduleName", moduleName));
+)";
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+	auto swiftTestCode = R"()";
+
+	auto errorCode =
+	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::function");

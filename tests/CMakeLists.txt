@@ -97,6 +97,7 @@ foreach(
   # ObjcSwift/Proxy/module.cpp
   # ObjcSwift/Proxy/moduleFile.cpp
   arrays.cpp
+  builtins.cpp
   classes.cpp
   # complex.cpp
   deques.cpp
