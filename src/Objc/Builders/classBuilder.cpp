@@ -84,6 +84,8 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 		objcClass.addEnum(buildEnum(e, cache));
 	}
 
+	objcClass.m_id = cppClass.m_id;
+
 	objcClass.setDocumentation(cppClass.m_documentation);
 
 	objcClass.setInherited(cppClass.m_public.m_inherited);

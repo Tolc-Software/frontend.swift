@@ -19,10 +19,9 @@ namespace {
 * Adds the source file moduleName.hpp to the stage with provided content
 * Uses Tolc::Parser to parse the file and returns the parsed data
 */
-std::pair<IR::Namespace, Parser::MetaData>
-parseModuleFile(Stage::CMakeStage& stage,
-                std::string const& moduleName,
-                std::string const& content) {
+IR::Namespace parseModuleFile(Stage::CMakeStage& stage,
+                              std::string const& moduleName,
+                              std::string const& content) {
 	auto testFile =
 	    stage.addSourceFile(moduleName + ".hpp", "#pragma once\n\n" + content);
 
@@ -84,7 +83,7 @@ int ObjcSwiftStage::runObjcSwiftTest(std::string const& cppCode,
 
 	addObjcSwiftTestBodies(m_stage, m_moduleName, objCTestCode, swiftCode);
 
-	auto [globalNS, meta] = parseModuleFile(m_stage, m_moduleName, cppCode);
+	auto globalNS = parseModuleFile(m_stage, m_moduleName, cppCode);
 	if (auto m = Frontend::ObjcSwift::createModule(globalNS, m_moduleName)) {
 		for (auto const& [file, content] : m.value()) {
 

@@ -11,27 +11,47 @@ namespace Objc::Proxy {
 
 ModuleFile::ModuleFile() : m_modules(), m_classes(), m_enums(), m_cache() {}
 
-std::string ModuleFile::getObjcHeader() const {
-	std::string out = "#pragma once\n#import <Foundation/Foundation.h>";
-
+void ModuleFile::sortAllStructures() {
+	// Is the only place m_allStructures should change
+	if (!m_allStructures.empty()) {
+		return;
+	}
+	m_allStructures.reserve(m_enums.size() + m_modules.size() +
+	                        m_classes.size() + m_functions.size() +
+	                        m_attributes.size());
 	for (auto const& e : m_enums) {
-		out += fmt::format("{}\n", e.getObjcHeader());
+		m_allStructures.push_back(&e);
 	}
 
 	for (auto const& m : m_modules) {
-		out += m.getObjcHeader();
+		m_allStructures.push_back(&m);
 	}
 
 	for (auto const& cls : m_classes) {
-		out += fmt::format("{}\n", cls.getObjcHeader());
+		m_allStructures.push_back(&cls);
 	}
 
 	for (auto const& f : m_functions) {
-		out += f.getObjcHeader();
+		m_allStructures.push_back(&f);
 	}
 
 	for (auto const& a : m_attributes) {
-		out += a.getObjcHeader();
+		m_allStructures.push_back(&a);
+	}
+
+	std::sort(m_allStructures.begin(),
+	          m_allStructures.end(),
+	          [](auto const* s0, auto const* s1) -> bool {
+		          return s0->m_id < s1->m_id;
+	          });
+}
+
+std::string ModuleFile::getObjcHeader() {
+	sortAllStructures();
+	std::string out = "#pragma once\n#import <Foundation/Foundation.h>";
+
+	for (auto const& s : m_allStructures) {
+		out += s->getObjcHeader();
 	}
 
 	return out;
@@ -39,7 +59,8 @@ std::string ModuleFile::getObjcHeader() const {
 
 std::string createExtraFunctionsSource(Objc::Cache const& cache) {
 	std::string out;
-	if (!cache.m_extraFunctions.empty()) {
+	if (!cache.m_extraFunctions.empty() ||
+	    !cache.m_extraClassConversions.empty()) {
 		out += fmt::format(R"(
 namespace {} {{
 {}
@@ -53,7 +74,8 @@ namespace {} {{
 	return out;
 }
 
-std::string ModuleFile::getObjcSource() const {
+std::string ModuleFile::getObjcSource() {
+	sortAllStructures();
 	std::string out = fmt::format(
 	    R"(
 #import "{libraryName}_objc.h"
@@ -67,24 +89,8 @@ std::string ModuleFile::getObjcSource() const {
 	    fmt::arg("conversions", createExtraFunctionsSource(m_cache)),
 	    fmt::arg("libraryName", m_cache.m_moduleName));
 
-	for (auto const& e : m_enums) {
-		out += e.getObjcSource();
-	}
-
-	for (auto const& m : m_modules) {
-		out += m.getObjcSource();
-	}
-
-	for (auto const& cls : m_classes) {
-		out += cls.getObjcSource();
-	}
-
-	for (auto const& f : m_functions) {
-		out += f.getObjcSource();
-	}
-
-	for (auto const& a : m_attributes) {
-		out += a.getObjcSource();
+	for (auto const& structure : m_allStructures) {
+		out += structure->getObjcSource();
 	}
 
 	return out;

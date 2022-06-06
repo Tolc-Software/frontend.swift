@@ -21,6 +21,8 @@ buildFunction(std::string const& objcClass,
 	    objcClass,
 	    cppClass);
 
+	objcFunction.m_id = cppFunction.m_id;
+
 	for (auto const& argument : cppFunction.m_arguments) {
 		Objc::Proxy::Function::Argument arg;
 		arg.m_name = argument.m_name;

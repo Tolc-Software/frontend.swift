@@ -1,9 +1,17 @@
 cmake_minimum_required(VERSION 3.15)
 
+# Temporary workaround for clang 14
+# https://github.com/llvm/llvm-project/issues/53950
+if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL Windows)
+  set(frontend_languages CXX)
+else()
+  set(frontend_languages C CXX)
+endif()
+
 project(
   TestStage
   VERSION 1.0
-  LANGUAGES CXX)
+  LANGUAGES ${frontend_languages})
 
 # Export compile flags to compile_commands.json database. Useful for linters and
 # autocompletion

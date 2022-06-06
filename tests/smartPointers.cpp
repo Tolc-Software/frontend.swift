@@ -7,7 +7,6 @@ TEST_CASE("Smart pointers of custom types work", "[smartPointers]") {
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
-	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 #include <memory>

@@ -28,6 +28,8 @@ Objc::Proxy::Attribute buildAttribute(std::string const& objcClass,
                                       Objc::Cache& cache) {
 	Objc::Proxy::Attribute attr(cppClass, objcClass, v.m_name);
 
+	attr.m_id = v.m_id;
+
 	attr.setDocumentation(v.m_documentation);
 
 	if (v.m_type.m_isConst) {

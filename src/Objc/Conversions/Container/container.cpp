@@ -404,6 +404,39 @@ containerConversion(IR::Type const& type,
 		}
 		case ContainerType::UniquePtr: {
 			if (!container.m_containedTypes.empty()) {
+				if (auto userDefined = std::get_if<IR::Type::UserDefined>(
+				        &container.m_containedTypes[0].m_type)) {
+					// Register as unique
+					cache.m_uniquePtrClasses.insert(
+					    userDefined->m_representation);
+				}
+				// The first one is the Stuff in unique_ptr<Stuff>
+				fmt::print("{}\n", container.m_containedTypes.size());
+				fmt::print("{}\n",
+				           container.m_containedTypes.front().m_representation);
+				typesToConvert.push(&container.m_containedTypes[0]);
+				return convertContainerWrapper(
+				    type,
+				    container.m_container,
+				    container.m_containedTypes,
+				    functions,
+				    cache,
+				    [objcValueName = Objc::getContainedTypeName(
+				         container.m_containedTypes[0], cache.m_moduleName)](
+				        ContainerData data) {
+					    convertUniquePtrType(data, objcValueName);
+				    });
+			}    // TODO: Handle error
+			return {};
+		}
+		case ContainerType::SharedPtr: {
+			if (!container.m_containedTypes.empty()) {
+				if (auto userDefined = std::get_if<IR::Type::UserDefined>(
+				        &container.m_containedTypes[0].m_type)) {
+					// Register as shared
+					cache.m_sharedPtrClasses.insert(
+					    userDefined->m_representation);
+				}
 				// The first one is the Stuff in unique_ptr<Stuff>
 				fmt::print("{}\n", container.m_containedTypes.size());
 				fmt::print("{}\n",
@@ -427,7 +460,6 @@ containerConversion(IR::Type const& type,
 		case ContainerType::MultiSet:
 		case ContainerType::PriorityQueue:
 		case ContainerType::Queue:
-		case ContainerType::SharedPtr:
 		case ContainerType::Stack:
 		case ContainerType::UnorderedMultiMap:
 		case ContainerType::UnorderedMultiSet:

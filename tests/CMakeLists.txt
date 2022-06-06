@@ -1,7 +1,7 @@
 include_guard()
 
 include(${modules}/GetParser.cmake)
-get_parser(VERSION v0.5.5)
+get_parser(VERSION v0.6.0)
 
 # Set the include path for the system library in the variable
 # We are using the standard library shipped
@@ -113,6 +113,7 @@ foreach(
   namespaces.cpp
   # operators.cpp
   optionals.cpp
+  order.cpp
   # overloadedFunctions.cpp
   pairs.cpp
   sets.cpp

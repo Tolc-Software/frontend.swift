@@ -9,7 +9,7 @@ namespace TestUtil {
 IR::Namespace parse(std::string code) {
 	auto parsed = Parser::parseString(code, TestUtil::getParserConfig());
 	REQUIRE(parsed.has_value());
-	return parsed.value().first;
+	return parsed.value();
 }
 }    // namespace TestUtil
 

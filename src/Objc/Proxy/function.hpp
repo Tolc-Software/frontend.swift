@@ -1,20 +1,21 @@
 #pragma once
 
+#include "Objc/Proxy/structure.hpp"
 #include "Objc/Proxy/type.hpp"
 #include <optional>
 #include <string>
 #include <vector>
 
 namespace Objc::Proxy {
-class Function {
+class Function : public Structure {
 public:
 	Function(std::string const& name,
 	         std::string const& fullyQualifiedName,
 	         std::string const& objcClass,
 	         std::string const& cppClass);
 
-	std::string getObjcSource() const;
-	std::string getObjcHeader() const;
+	std::string getObjcSource() const override;
+	std::string getObjcHeader() const override;
 
 	/**
 	* Documentation for the corresponding C++ function

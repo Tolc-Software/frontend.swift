@@ -1,16 +1,17 @@
 #pragma once
 
+#include "Objc/Proxy/structure.hpp"
 #include <string>
 #include <vector>
 
 namespace Objc::Proxy {
-class Enum {
+class Enum : public Structure {
 public:
 	Enum(std::string const& name);
 
-	std::string getObjcSource() const;
+	std::string getObjcSource() const override;
 
-	std::string getObjcHeader() const;
+	std::string getObjcHeader() const override;
 
 	/**
 	* Add an enum value. Should be just the value name.

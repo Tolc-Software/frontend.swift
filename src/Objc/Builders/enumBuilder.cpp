@@ -13,6 +13,7 @@ Objc::Proxy::Enum buildEnum(IR::Enum const& e,
 
 	proxyEnum.setScoped(e.m_isScoped);
 	proxyEnum.setDocumentation(e.m_documentation);
+	proxyEnum.m_id = e.m_id;
 
 	for (auto const& value : e.m_values) {
 		proxyEnum.addValue(enumName + value);

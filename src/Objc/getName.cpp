@@ -106,19 +106,14 @@ std::string getConstructorExtraName(IR::Function const& f) {
 std::string getContainedTypeName(IR::Type const& type,
                                  std::string const& moduleName) {
 	if (auto baseType = std::get_if<IR::Type::Value>(&type.m_type)) {
-		fmt::print("{}\n", "Is a base");
 		return valueContainerName(baseType->m_base);
 	} else if (auto enumType = std::get_if<IR::Type::EnumValue>(&type.m_type)) {
-		fmt::print("{}\n", "Is a enum");
 		return Objc::getEnumName(enumType->m_representation, moduleName);
 	} else if (auto container =
 	               std::get_if<IR::Type::Container>(&type.m_type)) {
-		fmt::print("{}\n", "Is a container");
 		return Objc::getContainerName(*container, moduleName);
 	} else if (auto userDefined =
 	               std::get_if<IR::Type::UserDefined>(&type.m_type)) {
-		fmt::print("{}\n", "Is a user defined");
-		fmt::print("{}\n", userDefined->m_representation);
 		return Objc::getClassName(userDefined->m_representation, moduleName) +
 		       '*';
 	}
@@ -131,7 +126,12 @@ std::string getClassName(std::string const& cppClassFqName,
 	// TODO: Handle templateArgs
 	auto [fqName, _templateArgs] =
 	    ObjcSwift::Helpers::removeCppTemplate(cppClassFqName);
-	return moduleName + fqName;
+	return fmt::format(
+	    "{moduleName}{className}{templateArgs}",
+	    fmt::arg("moduleName", moduleName),
+	    fmt::arg("className",
+	             fmt::join(ObjcSwift::Helpers::split(fqName, "::"), "")),
+	    fmt::arg("templateArgs", _templateArgs));
 }
 
 std::string getClassName(IR::Struct const& cppClass,

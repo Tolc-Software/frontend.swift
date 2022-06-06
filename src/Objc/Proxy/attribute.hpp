@@ -1,6 +1,8 @@
 #pragma once
 
+#include "Objc/Proxy/structure.hpp"
 #include "Objc/Proxy/type.hpp"
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -8,13 +10,13 @@ namespace Objc::Proxy {
 /**
 * An attribute is either a global value or a member variable
 */
-struct Attribute {
+struct Attribute : public Structure {
 	explicit Attribute(std::string const& cppClass,
 	                   std::string const& objcClass,
 	                   std::string const& name);
 
-	std::string getObjcHeader() const;
-	std::string getObjcSource() const;
+	std::string getObjcHeader() const override;
+	std::string getObjcSource() const override;
 
 	void setType(Objc::Proxy::Type const& type);
 	void setDocumentation(std::string const& documentation);

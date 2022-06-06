@@ -21,6 +21,12 @@ struct Cache {
 	// Conversion functions for user defined types
 	std::vector<std::string> m_extraClassConversions;
 
+	// Classes that are used in a shared_ptr
+	std::set<std::string> m_sharedPtrClasses;
+
+	// Classes that are used in a unique_ptr
+	std::set<std::string> m_uniquePtrClasses;
+
 	// The name of the users module we are converting
 	std::string m_moduleName;
 

@@ -1,9 +1,18 @@
 cmake_minimum_required(VERSION 3.15)
 
+
+# Temporary workaround for clang 14
+# https://github.com/llvm/llvm-project/issues/53950
+if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL Windows)
+  set(frontend_languages CXX)
+else()
+  set(frontend_languages C CXX)
+endif()
+
 project(
   Frontend.swift
   VERSION 0.1.0
-  LANGUAGES CXX)
+  LANGUAGES ${frontend_languages})
 
 configure_file(docs/ReleaseNotes/version.in
                ${CMAKE_CURRENT_LIST_DIR}/docs/ReleaseNotes/version @ONLY)
@@ -93,6 +102,7 @@ add_library(
   src/Objc/Proxy/function.cpp
   src/Objc/Proxy/function.cpp
   src/Objc/Proxy/moduleFile.cpp
+  src/Objc/Proxy/structure.cpp
   src/Objc/getName.cpp
 
 )

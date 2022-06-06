@@ -4,6 +4,7 @@
 #include "Objc/Proxy/class.hpp"
 #include "Objc/Proxy/enum.hpp"
 #include "Objc/Proxy/function.hpp"
+#include "Objc/Proxy/structure.hpp"
 #include "Objc/cache.hpp"
 #include <filesystem>
 #include <string>
@@ -19,13 +20,13 @@ public:
 	* The code that uses the C++ input
 	*/
 	std::filesystem::path getObjcHeaderFile() const;
-	std::string getObjcHeader() const;
+	std::string getObjcHeader();
 
 	/**
 	* The code that exposes the C++ code to Objective-C
 	*/
 	std::filesystem::path getObjcSourceFile() const;
-	std::string getObjcSource() const;
+	std::string getObjcSource();
 
 	/**
 	* Connects Objective-C++ to Swift
@@ -42,11 +43,15 @@ public:
 	void setCache(Objc::Cache const& cache);
 
 private:
+	void sortAllStructures();
+
 	std::vector<Class> m_modules;
 	std::vector<Class> m_classes;
 	std::vector<Function> m_functions;
 	std::vector<Enum> m_enums;
 	std::vector<Attribute> m_attributes;
+
+	std::vector<Structure const*> m_allStructures;
 
 	Objc::Cache m_cache;
 };
