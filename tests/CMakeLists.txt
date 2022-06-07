@@ -96,38 +96,40 @@ foreach(
   ObjcSwift/Helpers/typeToStringBuilder.cpp
   # ObjcSwift/Proxy/module.cpp
   # ObjcSwift/Proxy/moduleFile.cpp
+
+  # complex.cpp
+  # functional.cpp
+  # inheritence.cpp
+  # operators.cpp
+  # templates.cpp
+  # variants.cpp
+  # virtualInheritence.cpp
   arrays.cpp
   builtins.cpp
   classes.cpp
-  # complex.cpp
+  defaultArgNames.cpp
   deques.cpp
   documentationStyles.cpp
   enums.cpp
   filesystem_paths.cpp
-  # functional.cpp
   functions.cpp
   globalVariables.cpp
-  # inheritence.cpp
   lists.cpp
   maps.cpp
   memberVariables.cpp
   namespaces.cpp
-  # operators.cpp
   optionals.cpp
   order.cpp
   overloadedFunctions.cpp
   pairs.cpp
   sets.cpp
   smartPointers.cpp
-  # templates.cpp
   tuples.cpp
   unordered_maps.cpp
   unordered_sets.cpp
   userDefined.cpp
   valarrays.cpp
-  # variants.cpp
   vectors.cpp
-  # virtualInheritence.cpp
 
   )
   # Ex: ObjcSwift/Proxy/moduleFile.cpp -> moduleFile
