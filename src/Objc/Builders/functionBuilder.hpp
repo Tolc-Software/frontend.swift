@@ -16,5 +16,6 @@ buildFunction(std::string const& objcClass,
               std::string const& cppClass,
               IR::Function const& cppFunction,
               Objc::Cache& cache,
-              bool isConstructor = false);
+              bool isConstructor = false,
+              bool isOverloaded = false);
 }    // namespace Objc::Builders

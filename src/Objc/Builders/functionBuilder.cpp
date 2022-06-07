@@ -14,12 +14,17 @@ buildFunction(std::string const& objcClass,
               std::string const& cppClass,
               IR::Function const& cppFunction,
               Objc::Cache& cache,
-              bool isConstructor) {
-	Objc::Proxy::Function objcFunction(
-	    Objc::getFunctionName(cppFunction, isConstructor),
-	    cppFunction.m_representation,
-	    objcClass,
-	    cppClass);
+              bool isConstructor,
+              bool isOverloaded) {
+	auto objcName = Objc::getFunctionName(cppFunction, isConstructor);
+	if (isOverloaded) {
+		objcName += Objc::getParameterString(cppFunction.m_arguments);
+	}
+	Objc::Proxy::Function objcFunction(objcName,
+	                                   cppFunction.m_name,
+	                                   cppFunction.m_representation,
+	                                   objcClass,
+	                                   cppClass);
 
 	objcFunction.m_id = cppFunction.m_id;
 

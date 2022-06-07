@@ -115,7 +115,7 @@ foreach(
   # operators.cpp
   optionals.cpp
   order.cpp
-  # overloadedFunctions.cpp
+  overloadedFunctions.cpp
   pairs.cpp
   sets.cpp
   smartPointers.cpp

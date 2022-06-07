@@ -15,45 +15,54 @@ TEST_CASE("Overloaded functions", "[overloadedFunctions]") {
 std::string sayHello() {
 	return "Hello!";
 }
+
 std::string sayHello(std::string to) {
 	return std::string("Hello ") + to;
 }
 
-std::string safety() { return "Safe!"; }
+std::string sayHello(size_t times) {
+	std::string greeting = "";
+	for (size_t i = 0; i < times; ++i) {
+		greeting += "Hello!";
+	}
+	return greeting;
+}
 
 class Overload {
 public:
 	// Overloaded constructor
-	Overload() {};
-	Overload(std::string) {};
+	Overload() : m_s() {};
+	Overload(std::string s) : m_s(s) {};
 
 	// Overloaded class functions
 	std::string getStuff() { return "Stuff"; }
 	std::string getStuff(std::string customStuff) { return customStuff; }
 
-	std::string safety() { return "Safe!"; }
+private:
+	std::string m_s;
 };
-
 )";
 
-	auto pythonTestCode = fmt::format(R"(
-# Overloaded functions work the same as in C++
-# Free function overload
-self.assertEqual({moduleName}.sayHello(), "Hello!")
-self.assertEqual({moduleName}.sayHello("to me!"), "Hello to me!")
+	auto objcTestCode = R"(
+// Overloaded functions work the same as in C++
+// Free function overload
+assert([[m sayHello] isEqualToString:@"Hello!"]);
+assert([[m sayHelloString:@"Tolc"] isEqualToString:@"Hello Tolc"]);
+assert([[m sayHelloUnsignedLongInt:2] isEqualToString:@"Hello!Hello!"]);
 
-# Class function overload
-overload = {moduleName}.Overload()
-overload = {moduleName}.Overload("Overloaded!")
-self.assertEqual(overload.getStuff(), "Stuff")
-self.assertEqual(overload.getStuff("My stuff"), "My stuff")
+// Class constructor overload
+mOverload* overload = [[mOverload alloc] init];
+mOverload* overloadWithString = [[mOverload alloc] initWithString:@"Overloaded!"];
 
-self.assertEqual(overload.safety(), "Safe!")
-self.assertEqual(overload.safety(), {moduleName}.safety())
-)",
-	                                  fmt::arg("moduleName", moduleName));
+// Class function overload
+assert([[overload getStuff] isEqualToString:@"Stuff"]);
+assert([[overload getStuffString:@"Other"] isEqualToString:@"Other"]);
+)";
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+	auto swiftTestCode = R"()";
+
+	auto errorCode =
+	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Overloaded Functions");

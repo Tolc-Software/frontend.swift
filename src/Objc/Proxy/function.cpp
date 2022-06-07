@@ -70,13 +70,12 @@ std::string Function::getFunctionCall() const {
 		    fmt::format(R"({dereferenced}{fullyQualifiedName}({arguments}))",
 		                fmt::arg("dereferenced", m_returnType.m_dereference),
 		                fmt::arg("fullyQualifiedName", m_fullyQualifiedName),
-		                fmt::arg("name", m_name),
 		                fmt::arg("arguments", arguments));
 	} else {
 		functionCall =
 		    fmt::format("{dereferenced}m_object->{name}({arguments})",
 		                fmt::arg("dereferenced", m_returnType.m_dereference),
-		                fmt::arg("name", m_name),
+		                fmt::arg("name", m_cppName),
 		                fmt::arg("arguments", arguments));
 	}
 	return m_returnType.m_name == "void" ?
@@ -93,8 +92,7 @@ std::string Function::getFunctionBody() const {
   }}
   return self;)",
 		    fmt::arg("cppClass", m_cppClass),
-		    fmt::arg("arguments", getCallArguments(m_arguments)),
-		    fmt::arg("name", m_name));
+		    fmt::arg("arguments", getCallArguments(m_arguments)));
 	}
 
 	// Class function
@@ -111,15 +109,15 @@ std::string Function::getObjcSource() const {
 {body}
 }}
 )",
-	    fmt::arg("objcClass", m_objcClass),
-	    fmt::arg("category", Objc::getCategoryName('f', m_objcClass, m_name)),
 	    fmt::arg("declaration", getFunctionDeclaration()),
 	    fmt::arg("body", getFunctionBody()));
-	return m_isStandalone ? Objc::wrapInImplementation(
-	                            m_objcClass,
-	                            Objc::getCategoryName('f', m_objcClass, m_name),
-	                            definition) :
-                            definition;
+	if (m_isStandalone) {
+		definition = Objc::wrapInImplementation(
+		    m_objcClass,
+		    Objc::getCategoryName('f', m_objcClass, m_name, m_overloadedIndex),
+		    definition);
+	}
+	return definition;
 }
 
 std::string Function::getObjcHeader() const {
@@ -131,7 +129,7 @@ std::string Function::getObjcHeader() const {
 	if (m_isStandalone) {
 		declaration = Objc::wrapInInterface(
 		    m_objcClass,
-		    Objc::getCategoryName('f', m_objcClass, m_name),
+		    Objc::getCategoryName('f', m_objcClass, m_name, m_overloadedIndex),
 		    declaration);
 	}
 
@@ -139,12 +137,14 @@ std::string Function::getObjcHeader() const {
 }
 
 Function::Function(std::string const& name,
+                   std::string const& cppName,
                    std::string const& fullyQualifiedName,
                    std::string const& objcClass,
                    std::string const& cppClass)
-    : m_name(name), m_fullyQualifiedName(fullyQualifiedName),
-      m_objcClass(objcClass), m_cppClass(cppClass), m_documentation(),
-      m_returnType(), m_isOverloaded(false), m_isStatic(false),
+    : m_name(name), m_cppName(cppName),
+      m_fullyQualifiedName(fullyQualifiedName), m_objcClass(objcClass),
+      m_cppClass(cppClass), m_documentation(), m_returnType(),
+      m_overloadedIndex(std::nullopt), m_isStatic(false),
       m_isConstructor(false), m_isStandalone(false) {}
 
 void Function::setReturnType(Objc::Proxy::Type const& type) {
@@ -155,8 +155,8 @@ void Function::setAsStatic() {
 	m_isStatic = true;
 };
 
-void Function::setAsOverloaded() {
-	m_isOverloaded = true;
+void Function::setAsOverloaded(size_t overloadIndex) {
+	m_overloadedIndex = overloadIndex;
 };
 
 void Function::setDocumentation(std::string const& documentation) {

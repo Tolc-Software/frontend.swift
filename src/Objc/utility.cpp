@@ -1,5 +1,6 @@
 #include "Objc/utility.hpp"
 #include <fmt/format.h>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -8,8 +9,13 @@ namespace Objc {
 // A category is an extension of a class in Objective-C
 std::string getCategoryName(char prefix,
                             std::string_view objcClass,
-                            std::string_view name) {
-	return fmt::format("{}_{}_{}", prefix, objcClass, name);
+                            std::string_view name,
+                            std::optional<size_t> overloadIndex) {
+	auto category = fmt::format("{}_{}_{}", prefix, objcClass, name);
+	if (overloadIndex) {
+		category = fmt::format("{}_{}", category, overloadIndex.value());
+	}
+	return category;
 }
 
 std::string wrapInInterface(std::string_view objcClass,

@@ -10,6 +10,7 @@ namespace Objc::Proxy {
 class Function : public Structure {
 public:
 	Function(std::string const& name,
+	         std::string const& cppName,
 	         std::string const& fullyQualifiedName,
 	         std::string const& objcClass,
 	         std::string const& cppClass);
@@ -24,7 +25,8 @@ public:
 	void setDocumentation(std::string const& documentation);
 
 	// Is there another function with the same name but with different arguments?
-	void setAsOverloaded();
+	// Then add a unique index for this function
+	void setAsOverloaded(size_t overloadIndex);
 
 	void setAsStatic();
 
@@ -49,6 +51,7 @@ private:
 
 	// User defined name of the function
 	std::string m_name;
+	std::string m_cppName;
 	std::string m_fullyQualifiedName;
 	// Containing class
 	std::string m_objcClass;
@@ -57,7 +60,8 @@ private:
 	// Defaults to void
 	Objc::Proxy::Type m_returnType;
 	std::vector<Argument> m_arguments;
-	bool m_isOverloaded;
+	// Gets added to the function category if overloaded
+	std::optional<size_t> m_overloadedIndex;
 	bool m_isStatic;
 	bool m_isConstructor;
 	// If it needs wrappers or not

@@ -26,10 +26,10 @@ Your internal code can use anything from C++.
 | Global variable                     | Static class property**                                                                                                                 |
 | Global static variable              | Static class property**                                                                                                                 |
 | Free function                       | Static class function**                                                                                                                 |
-| Overloaded function                 | ???                                                                                                                                     |
+| Overloaded function                 | Class function***                                                                                                                       |
 | Enum                                | [NS\_ENUM](https://developer.apple.com/documentation/swift/objective-c_and_c_code_customization/grouping_related_objective-c_constants) |
 | Scoped enum                         | [NS\_ENUM](https://developer.apple.com/documentation/swift/objective-c_and_c_code_customization/grouping_related_objective-c_constants) |
-| Templated class/function            | Not converted***                                                                                                                        |
+| Templated class/function            | Not converted****                                                                                                                       |
 | Specialized class template          | ???                                                                                                                                     |
 | Specialized function template       | ???                                                                                                                                     |
 | Documentation                       | Documentation                                                                                                                           |
@@ -38,7 +38,9 @@ Your internal code can use anything from C++.
 
 \*\* Wrapped in a class with a name that starts with the module name.
 
-\*\*\* No direct translation to Objective-C. Will not emit warning.
+\*\*\* The naming convention for these classes can be found under the [Naming Convention page](naming_convention.md).
+
+\*\*\*\* No direct translation to Objective-C. Will not emit warning.
 
 | C++ operator      | Objective-C operator  |
 |:----------------- |:--------------------- |

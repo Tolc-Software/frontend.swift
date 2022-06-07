@@ -34,13 +34,17 @@ bool addNamespaceObjects(Objc::Proxy::ModuleFile& moduleFile,
 	auto overloadedFunctions =
 	    ObjcSwift::getOverloadedFunctions(ns.m_functions);
 	for (auto const& function : ns.m_functions) {
-		if (auto maybeF = Objc::Builders::buildFunction(
-		        objcName, ns.m_representation, function, cache)) {
+		bool isConstructor = false;
+		bool isOverloaded =
+		    overloadedFunctions.find(function.m_representation) !=
+		    overloadedFunctions.end();
+		if (auto maybeF = Objc::Builders::buildFunction(objcName,
+		                                                ns.m_representation,
+		                                                function,
+		                                                cache,
+		                                                isConstructor,
+		                                                isOverloaded)) {
 			auto f = maybeF.value();
-			if (overloadedFunctions.find(function.m_representation) !=
-			    overloadedFunctions.end()) {
-				f.setAsOverloaded();
-			}
 			// Global functions act as static functions
 			f.setAsStatic();
 			f.setAsStandalone();

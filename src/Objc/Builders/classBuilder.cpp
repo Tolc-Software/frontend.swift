@@ -25,19 +25,6 @@ namespace Objc::Builders {
 
 namespace {
 
-void buildMemberFunction(Objc::Proxy::Function& objcFunction,
-                         IR::Function const& cppFunction,
-                         std::set<std::string> const& overloadedFunctions) {
-	if (cppFunction.m_isStatic) {
-		objcFunction.setAsStatic();
-	}
-
-	if (overloadedFunctions.find(cppFunction.m_representation) !=
-	    overloadedFunctions.end()) {
-		objcFunction.setAsOverloaded();
-	}
-}
-
 std::string getConversions(std::string_view objcName,
                            std::string_view cppName) {
 	// No need for conversions for an object that cannot be instantiated
@@ -80,16 +67,25 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	    getConversions(objcClass.getName(), cppClass.m_representation));
 
 	// Ignore private functions
+	size_t overloadIndex = 0;
 	auto overloadedFunctions =
 	    ObjcSwift::getOverloadedFunctions(cppClass.m_public.m_functions);
 	for (auto const& function : cppClass.m_public.m_functions) {
+		bool isOverloaded =
+		    overloadedFunctions.find(function.m_representation) !=
+		    overloadedFunctions.end();
+		bool isConstructor = false;
 		if (auto maybeObjcFunction = buildFunction(objcClass.getName(),
 		                                           cppClass.m_representation,
 		                                           function,
-		                                           cache)) {
+		                                           cache,
+		                                           isConstructor,
+		                                           isOverloaded)) {
 			auto& objcFunction = maybeObjcFunction.value();
 
-			buildMemberFunction(objcFunction, function, overloadedFunctions);
+			if (function.m_isStatic) {
+				objcFunction.setAsStatic();
+			}
 
 			objcClass.addFunction(objcFunction);
 		} else {
@@ -100,15 +96,22 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	auto overloadedOperators =
 	    ObjcSwift::getOverloadedFunctions(cppClass.m_public.m_operators);
 	for (auto const& [op, function] : cppClass.m_public.m_operators) {
+		bool isOverloaded =
+		    overloadedFunctions.find(function.m_representation) !=
+		    overloadedFunctions.end();
+		bool isConstructor = false;
 		if (auto maybeObjcFunction = buildFunction(objcClass.getName(),
 		                                           cppClass.m_representation,
 		                                           function,
-		                                           cache)) {
+		                                           cache,
+		                                           isConstructor,
+		                                           isOverloaded)) {
 			if (auto maybeName = ObjcSwift::Helpers::getOperatorName(op)) {
 				auto& objcFunction = maybeObjcFunction.value();
 
-				buildMemberFunction(
-				    objcFunction, function, overloadedOperators);
+				if (function.m_isStatic) {
+					objcFunction.setAsStatic();
+				}
 
 				objcClass.addFunction(objcFunction);
 			}
@@ -130,7 +133,7 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 			}
 
 			if (cppClass.m_public.m_constructors.size() > 1) {
-				objcFunction.setAsOverloaded();
+				objcFunction.setAsOverloaded(overloadIndex++);
 			}
 
 			objcFunction.setAsConstructor();
@@ -147,6 +150,7 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	// Add default constructor
 	if (cppClass.m_hasImplicitDefaultConstructor) {
 		auto constructor = Objc::Proxy::Function("init",
+		                                         cppClass.m_name,
 		                                         objcClass.getName(),
 		                                         objcClass.getName(),
 		                                         cppClass.m_representation);

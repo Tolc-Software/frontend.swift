@@ -84,6 +84,8 @@ std::string valueContainerName(IR::BaseType base) {
 	return "Unknown base type name";
 }
 
+}    // namespace
+
 std::string getParameterString(std::vector<IR::Argument> const& parameters) {
 	return std::accumulate(parameters.begin(),
 	                       parameters.end(),
@@ -101,7 +103,6 @@ std::string getConstructorExtraName(IR::Function const& f) {
 	}
 	return "With" + getParameterString(f.m_arguments);
 }
-}    // namespace
 
 std::string getContainedTypeName(IR::Type const& type,
                                  std::string const& moduleName) {
