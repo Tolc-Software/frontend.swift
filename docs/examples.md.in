@@ -2,23 +2,15 @@
 
 Each example is taken from the test suite for `Tolc` and, given that you use the latest version, you can expect them all to work.
 
-Each `C++` library named `MyLib` exports their functions and objects with a prefix of `MyLib`. In every test the library name is simply `m` for brevity. The examples that follow contains a bit of `C++` code, and the respective `Objective-C` and `Swift` code using it. Each `Objective-C` example is wrapped in the following boilerplate that is removed to make the examples more readable:
+Each `C++` library named `MyLib` exports their functions and objects with a prefix of `MyLib`. In every test the library name is simply `m` for brevity. The examples that follow contains a bit of `C++` code, and the respective `Objective-C` code using it. Each `Objective-C` example is wrapped in the following boilerplate that is removed to make the examples more readable:
 
 ```objc
-#include <m_objc.h>
+#include <m.h>
 
 int main() {
   @autoreleasepool {
     assert([m sayHello] == "Hello");
   }
 }
-```
-
-And the same for `Swift`:
-
-```swift
-import m_swift
-
-assert(m.sayHello() == "Hello")
 ```
 

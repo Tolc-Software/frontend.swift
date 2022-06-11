@@ -1,6 +1,6 @@
 ![Ubuntu](https://github.com/Tolc-Software/frontend.swift/workflows/Ubuntu/badge.svg) ![MacOS](https://github.com/Tolc-Software/frontend.swift/workflows/MacOS/badge.svg) ![Windows](https://github.com/Tolc-Software/frontend.swift/actions/workflows/windows.yml/badge.svg) ![Windows-debug-deploy](https://github.com/Tolc-Software/frontend.swift/actions/workflows/windows-debug-deploy.yml/badge.svg)
 
-***NOTE: This is a work in progress. It will be added to Tolc in due time.***
+***NOTE: This is a work in progress. The Objective-C output is merged in Tolc and Swift is coming soon***
 
 # frontend.swift #
 
@@ -10,7 +10,7 @@
 
 ## Building ##
 
-`frontend.swift` can be built on Linux, MacOS, and Windows. See the [CI pipelines for more platform specific information.](./.github/workflows/).
+`frontend.swift` can be built on Linux, MacOS, and Windows. The tests however rely on MacOS specific headers (e.g. `Foundation`) and is only built there. See the [CI pipelines for more platform specific information.](./.github/workflows/).
 
 Here is a general overview:
 

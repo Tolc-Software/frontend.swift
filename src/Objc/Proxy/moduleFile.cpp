@@ -96,7 +96,7 @@ std::string ModuleFile::getObjcSource() {
 	sortAllStructures();
 	std::string out = fmt::format(
 	    R"(
-#import "{libraryName}_objc.h"
+#import "{libraryName}.h"
 #import <Foundation/Foundation.h>
 #include <memory>
 {classDeclarations}
@@ -114,12 +114,12 @@ std::string ModuleFile::getObjcSource() {
 }
 
 std::string ModuleFile::getBridgingHeader() const {
-	return fmt::format("#include <{libraryName}_objc.h>",
+	return fmt::format("#include <{libraryName}.h>",
 	                   fmt::arg("libraryName", m_cache->m_moduleName));
 }
 
 std::filesystem::path ModuleFile::getObjcHeaderFile() const {
-	return m_cache->m_moduleName + "_objc.h";
+	return m_cache->m_moduleName + ".h";
 }
 
 std::filesystem::path ModuleFile::getObjcSourceFile() const {

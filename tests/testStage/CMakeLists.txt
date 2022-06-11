@@ -17,6 +17,7 @@ project(
 # autocompletion
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+enable_language(OBJC)
 enable_language(OBJCXX)
 enable_language(Swift)
 
@@ -26,7 +27,7 @@ include(cmake/TargetName.cmake)
 
 # The users C++ library
 add_library(${target_name} INTERFACE)
-target_include_directories(${target_name} INTERFACE src)
+target_include_directories(${target_name} INTERFACE include)
 
 # Use C++17 since the tests are using std::optional etc.
 set_target_properties(

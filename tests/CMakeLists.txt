@@ -82,9 +82,9 @@ set_tests_properties(ConfigureTestStage PROPERTIES FIXTURES_SETUP TestStage)
 foreach(
   test
 
+  # Objc/Builders/enumBuilder.cpp
   # ObjcSwift/Builders/attributeBuilder.cpp
   # ObjcSwift/Builders/classBuilder.cpp
-  # Objc/Builders/enumBuilder.cpp
   # ObjcSwift/Builders/functionBuilder.cpp
   # ObjcSwift/Builders/moduleFileBuilder.cpp
   # ObjcSwift/Builders/typeToStringBuilder.cpp
@@ -93,9 +93,9 @@ foreach(
   # ObjcSwift/Proxy/class.cpp
   # ObjcSwift/Proxy/enum.cpp
   # ObjcSwift/Proxy/function.cpp
-  ObjcSwift/Helpers/typeToStringBuilder.cpp
   # ObjcSwift/Proxy/module.cpp
   # ObjcSwift/Proxy/moduleFile.cpp
+  ObjcSwift/Helpers/typeToStringBuilder.cpp
 
   # complex.cpp
   # functional.cpp

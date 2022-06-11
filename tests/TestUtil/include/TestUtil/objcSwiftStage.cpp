@@ -22,8 +22,10 @@ namespace {
 IR::Namespace parseModuleFile(Stage::CMakeStage& stage,
                               std::string const& moduleName,
                               std::string const& content) {
-	auto testFile =
-	    stage.addSourceFile(moduleName + ".hpp", "#pragma once\n\n" + content);
+	using path = std::filesystem::path;
+
+	auto testFile = stage.addFile(path("include") / (moduleName + ".hpp"),
+	                              "#pragma once\n\n" + content);
 
 	auto parsed = Parser::parseFile(testFile, TestUtil::getParserConfig());
 	REQUIRE(parsed.has_value());
@@ -37,7 +39,7 @@ void addObjcSwiftTestBodies(Stage::CMakeStage& stage,
 	using path = std::filesystem::path;
 	stage.addFile(path("tests") / "main.mm",
 	              fmt::format(R"(
-#include <{moduleName}_objc.h>
+#include <{moduleName}.h>
 
 int main() {{
   @autoreleasepool {{
@@ -49,7 +51,7 @@ int main() {{
 	                          fmt::arg("code", objc)));
 	stage.addFile(path("tests") / "main.swift",
 	              fmt::format(R"(
-import {moduleName}_swift
+import {moduleName}
 
 {code}
 )",
@@ -69,6 +71,12 @@ ObjcSwiftStage::ObjcSwiftStage(std::filesystem::path const& baseStage,
     : m_stage(baseStage,
               {"cmake", "tests", "CMakeLists.txt", "configureAndBuild.bat"}),
       m_moduleName(moduleName) {
+	using path = std::filesystem::path;
+	using std::filesystem::create_directories;
+	create_directories(m_stage.m_stage / path("src"));
+	create_directories(m_stage.m_stage / path("include"));
+	create_directories(m_stage.m_stage / path("tests"));
+
 	m_stage.setTargetName(m_moduleName);
 	m_stage.setWindowsCMakeBuildAndConfigureScript("configureAndBuild.bat");
 }
@@ -76,24 +84,23 @@ ObjcSwiftStage::ObjcSwiftStage(std::filesystem::path const& baseStage,
 int ObjcSwiftStage::runObjcSwiftTest(std::string const& cppCode,
                                      std::string const& objCTestCode,
                                      std::string const& swiftCode) {
+	using path = std::filesystem::path;
 	// Save as what has been used
-	m_exports = {Code {"cpp", cppCode},
-	             Code {"objc", objCTestCode},
-	             Code {"swift", swiftCode}};
+	m_exports = {Code {"cpp", cppCode}, Code {"objc", objCTestCode}};
+	// Code {"swift", swiftCode}};
 
 	addObjcSwiftTestBodies(m_stage, m_moduleName, objCTestCode, swiftCode);
 
 	auto globalNS = parseModuleFile(m_stage, m_moduleName, cppCode);
 	if (auto m = Frontend::ObjcSwift::createModule(globalNS, m_moduleName)) {
 		for (auto const& [file, content] : m.value()) {
-
 			auto ext = file.extension().string();
 			if (ext == ".mm") {
 				addModuleFile(file, content);
 			} else {
 				// Add an Objective-C++/Swift/whatever file
 				// Assumes to be referred to in CMakeLists.txt properly
-				m_stage.addFile(std::filesystem::path("src") / file, content);
+				m_stage.addFile(path("src") / file, content);
 			}
 		}
 		if (m_stage.configureAndBuild() == 0) {

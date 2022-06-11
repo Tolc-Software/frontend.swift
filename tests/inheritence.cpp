@@ -23,17 +23,20 @@ struct Dog : public Pet {
 };
 )";
 
-	auto pythonTestCode = R"(
+	auto objcTestCode = R"(
 fido = m.Dog("Fido")
 
-# Inherits public properties
+// Inherits public properties
 self.assertEqual(fido.name, "Fido")
 
-# But has its new functions
+// But has its new functions
 self.assertEqual(fido.bark(), "woof!")
 )";
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+	auto swiftTestCode = R"()";
+
+	auto errorCode =
+	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Simple inheritence");

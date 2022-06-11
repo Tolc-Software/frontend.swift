@@ -2,23 +2,24 @@
 
 Each example is taken from the test suite for `Tolc` and, given that you use the latest version, you can expect them all to work.
 
-Each `C++` library named `MyLib` exports as a `python module` called `MyLib`, in every test the module name is simply `m` for brevity. All tests use the `python` builtin [`unittest`](https://docs.python.org/3/library/unittest.html) library. The examples that follow contains a bit of `C++` code, and the respective `python` code using it. Each `python` example is wrapped in the following boilerplate that is removed to make the examples more readable:
+Each `C++` library named `MyLib` exports their functions and objects with a prefix of `MyLib`. In every test the library name is simply `m` for brevity. The examples that follow contains a bit of `C++` code, and the respective `Objective-C` and `Swift` code using it. Each `Objective-C` example is wrapped in the following boilerplate that is removed to make the examples more readable:
 
-```python
-import unittest
-import m
+```objc
+#include <m.h>
 
-class TestMyLib(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        pass
+int main() {
+  @autoreleasepool {
+    assert([m sayHello] == "Hello");
+  }
+}
+```
 
-    def test_m(self):
-        # The actual python example body goes here
-        self.assertEqual(m.sayTen(), 10)
+And the same for `Swift`:
 
-if __name__ == "__main__":
-    unittest.main()
+```swift
+import m_swift
+
+assert(m.sayHello() == "Hello")
 ```
 
 
@@ -27,179 +28,73 @@ if __name__ == "__main__":
 
 ```cpp
 
-#include <string>
-#include <string_view>
-
 class WithConstructor {
 public:
-	explicit WithConstructor(std::string s) : m_s(s) {}
+  explicit WithConstructor() : m_v(10) {}
+  explicit WithConstructor(int v) : m_v(v) {}
 
-	static int const i = 5;
-
-	// This class has a readwrite variable
-	int readwrite = 10;
-
-	std::string getS() { return m_s; }
-	std::string_view getSView() { return m_s; }
-
+  int getV() { return m_v; }
 private:
-	std::string m_s;
+  int m_v;
 };
 
 class WithFunction {
 public:
-	int add(int i, int j) {
-		return i + j;
-	}
+  int add(int i, int j) {
+    return i + j;
+  }
 };
 
-class WithPrivateFunction {
-	double multiply(double i, double j) {
-		return i * j;
-	}
+class WithStatic {
+public:
+  static double getPi() {
+    return 3.14;
+  }
+
+  static int const answer = 42;
 };
 
-namespace MyLib {
+class WithMember {
+public:
+  explicit WithMember() : i(10), phi(1.618) {}
 
-	class Nested {
-	public:
-		double divideByTwo(double d) {
-			return d / 2;
-		}
-	};
-}
-
-/** Documentation carries over */
-struct Documentation {};
-
-/*****************************
-* JavaDoc Style
-* is
-* boxy
-****************************/
-struct JavaDoc {};
+  int i;
+  double const phi;
+};
 
 ```
 
 
-```python
+```objc
 
-# You can access static variables without instantiating class
-self.assertEqual(m.WithConstructor.i, 5)
+// Constructors are overloaded with their argument types
+mWithConstructor* ten = [[mWithConstructor alloc] init];
+assert([ten getV] == 10);
 
-# Creating classes via their constructor
-with_constructor = m.WithConstructor("Hello")
-self.assertEqual(with_constructor.getS(), "Hello")
+mWithConstructor* five = [[mWithConstructor alloc] initWithInt:5];
+assert([five getV] == 5);
 
-# Documentation for variables carries over aswell
-self.assertIn("This class has a readwrite variable", m.WithConstructor.readwrite.__doc__)
+// Member functions are available after construction
+mWithFunction* withFunction = [[mWithFunction alloc] init];
+assert([withFunction add: 2 j: 5] == 7);
 
-# Named arguments in constructors
-with_constructor = m.WithConstructor(s="named argument")
-self.assertEqual(with_constructor.getS(), "named argument")
-self.assertEqual(with_constructor.getSView(), "named argument")
+// Static functions can be called
+// without instantiating the class
+assert([mWithStatic getPi] == 3.14);
+// You can access static variables
+// without instantiating the class
+assert([mWithStatic answer] == 42);
 
-# Member functions are available after construction
-with_function = m.WithFunction()
-self.assertEqual(with_function.add(2, 5), 7)
+// Member variables
+mWithMember* member = [[mWithMember alloc] init];
+assert(member.i == 10);
+// i is not marked const
+member.i = 5;
+assert(member.i == 5);
 
-# Private functions have no bindings
-with self.assertRaises(AttributeError) as error_context:
-    with_private_function = m.WithPrivateFunction()
-    with_private_function.multiply(3, 2)
-
-self.assertEqual(len(error_context.exception.args), 1)
-# print(error_context.test_case)
-self.assertEqual(
-    "'m.WithPrivateFunction' object has no attribute 'multiply'",
-    error_context.exception.args[0],
-    "Not correct exception on private functions",
-)
-
-# Classes under namespaces are available under the corresponding submodule
-nested = m.MyLib.Nested()
-self.assertEqual(nested.divideByTwo(10), 5)
-
-# Different styles of documentation on classes carries over
-self.assertIn("Documentation carries over", m.Documentation.__doc__)
-self.assertIn("JavaDoc Style", m.JavaDoc.__doc__)
-
-
-```
-
-
-## Documentation Styles ##
-
-
-```cpp
-
-// One line comment
-class OneLiner {};
-
-/** Single multi line comment */
-class SingleMulti {};
-
-/**
-* Multi
-* line
-* comment
-*/
-class Multi {};
-
-/**
-Bare multi
-Another line
-*/
-class BareMulti {};
-
-/*!
-* Qt style
-*/
-class QtStyle {};
-
-/*****************************
-* JavaDoc Style
-* is
-* boxy
-****************************/
-class JavaDoc {};
-
-///
-/// Triplets is a commitment
-///
-class Triplets {};
-
-//!
-//! This is one of the doxy styles
-//!
-class DoxyBang {};
-
-```
-
-
-```python
-
-# These types of documentations are supported for:
-#   Classes
-#   Member variables
-#   Enums
-#   Functions
-
-self.assertIn("One line comment", m.OneLiner.__doc__)
-
-self.assertIn("Single multi line", m.SingleMulti.__doc__)
-
-self.assertIn("Multi", m.Multi.__doc__)
-
-self.assertIn("Bare multi", m.BareMulti.__doc__)
-
-self.assertIn("Qt style", m.QtStyle.__doc__)
-
-self.assertIn("JavaDoc Style", m.JavaDoc.__doc__)
-
-self.assertIn("Triplets", m.Triplets.__doc__)
-
-self.assertIn("one of the doxy styles", m.DoxyBang.__doc__)
+// phi is marked const
+// Cannot be assigned
+assert(member.phi == 1.618);
 
 ```
 
@@ -223,12 +118,12 @@ class EnumTest {
 public:
 	explicit EnumTest(Scoped _s) : s(_s) {};
 
+	Unscoped f(Unscoped u) {
+		return u;
+	}
+
 	Scoped s;
 };
-
-Unscoped f(Unscoped u) {
-	return u;
-}
 
 namespace NS {
 	// Documentation describing the enum
@@ -242,24 +137,24 @@ namespace NS {
 ```
 
 
-```python
+```objc
 
-# C++11 enums work
-scoped = m.Scoped.Snail
-enumTest = m.EnumTest(scoped)
-self.assertEqual(enumTest.s, scoped)
+// C++11 enums work
+mEnumTest* enumTest = [[mEnumTest alloc] initWithScoped:mScopedSnail];
+mScoped snail = mScopedSnail;
+assert(enumTest.s == snail);
 
-# Aswell as legacy enums
-unscoped = m.Unscoped.Uboat
-u = m.f(unscoped)
-self.assertEqual(u, unscoped)
+// Aswell as legacy enums
+mUnscoped uboat = mUnscopedUboat;
+assert([enumTest f:uboat] == uboat);
 
-# Enums under namespaces are available under the corresponding submodule
-deep = m.NS.Deep.Down
-self.assertNotEqual(deep, m.NS.Deep.Double)
+// Enums under namespaces are available
+// under the corresponding submodule
+/* deep = m.NS.Deep.Down */
+/* assert(deep != m.NS.Deep.Double) */
 
-# Documentation carries over from C++
-self.assertIn("Documentation describing the enum", m.NS.Deep.__doc__)
+// Documentation carries over from C++
+// self.assertIn("Documentation describing the enum", m.NS.Deep.__doc__)
 
 ```
 
@@ -269,75 +164,47 @@ self.assertIn("Documentation describing the enum", m.NS.Deep.__doc__)
 
 ```cpp
 
-#include <fstream>
+#include <filesystem>
 #include <string>
 
-void sayHello() {
-	std::ofstream f("hello.txt");
-	f << "Hello!";
-	f.close();
+int meaningOfLife() {
+	return 42;
 }
 
-void addYourOwn(std::string content) {
-	std::ofstream f("hello.txt");
-	f << content;
-	f.close();
+std::string sayHello(std::string const& name) {
+	return "Hello " + name;
 }
 
-/**
-* Documentation carries over
-*/
-int calculate() {
-	return 5;
+std::filesystem::path getPath() {
+	return std::filesystem::path("/path/to/stuff.hpp");
 }
 
-// Different documentation styles are supported
-int missingArgumentsNaming(int, int i) {
-	return i;
-}
-
-char firstLetter(std::string_view s) {
-	return s[0];
-}
-
-int static getZero() {
-	return 0;
+namespace Inner {
+	double pi() {
+		return 3.14;
+	}
 }
 
 ```
 
 
-```python
+```objc
 
-m.sayHello()
-with open("hello.txt", "r") as f:
-    self.assertEqual(f.readline(), "Hello!")
+// Global functions gets added to
+// a purely static class with
+// the name of the library
+assert([m meaningOfLife] == 42);
 
-content = "This is from python!"
-m.addYourOwn(content)
-with open("hello.txt", "r") as f:
-    self.assertEqual(f.readline(), content)
+// Strings can be used
+assert([[m sayHello:@"Tolc"] isEqualToString:@"Hello Tolc"]);
 
-result = m.calculate()
-self.assertEqual(result, 5)
-self.assertIn("Documentation carries over", m.calculate.__doc__)
+// Aswell as filesystem paths
+assert([[m getPath] isEqualToString:@"/path/to/stuff.hpp"]);
 
-# Without naming variables is fine
-result = m.missingArgumentsNaming(2, 5)
-self.assertEqual(result, 5)
-self.assertIn("Different documentation styles are supported", \
-  m.missingArgumentsNaming.__doc__)
-
-# Not possible to name any variables unless they are all known
-with self.assertRaises(TypeError) as error_context:
-  result = m.missingArgumentsNaming(2, i=5)
-
-# std::string_view works fine
-result = m.firstLetter("Hello")
-self.assertEqual(result, "H")
-
-# Static functions are just normal module functions in python
-self.assertEqual(m.getZero(), 0)
+// Functions within namespaces
+// are available with the
+// namespaces names merged
+assert([mInner pi] == 3.14);
 
 ```
 
@@ -348,61 +215,33 @@ self.assertEqual(m.getZero(), 0)
 ```cpp
 
 #include <string>
+#include <string_view>
 
 static int i = 0;
 namespace Nested {
-	int i = 0;
-	std::string s = "Hello world";
+	int life = 42;
+	std::string s = "Hello World";
+	constexpr std::string_view constant = "A constant";
 }
 
 ```
 
 
-```python
+```objc
 
-# Starts at 0 and can be changed
-self.assertEqual(m.i, 0)
-m.i = 5
-self.assertEqual(m.i, 5)
+// Starts at 0 and can be changed
+assert(m.i == 0);
+m.i = 5;
+assert(m.i == 5);
 
-# Nested with the same name
-self.assertEqual(m.Nested.i, 0)
+// Nested with the same name
+assert(mNested.life == 42);
 
-# More complex variables are available aswell
-self.assertEqual(m.Nested.s, "Hello world")
+// Strings also work
+assert([mNested.s isEqualToString:@"Hello World"]);
 
-```
-
-
-## Inheritence ##
-
-
-```cpp
-
-#include <string>
-
-struct Pet {
-    Pet(const std::string &name) : name(name) { }
-    std::string name;
-};
-
-struct Dog : public Pet {
-    Dog(const std::string &name) : Pet(name) { }
-    std::string bark() const { return "woof!"; }
-};
-
-```
-
-
-```python
-
-fido = m.Dog("Fido")
-
-# Inherits public properties
-self.assertEqual(fido.name, "Fido")
-
-# But has its new functions
-self.assertEqual(fido.bark(), "woof!")
+// And string_view
+assert([mNested.constant isEqualToString:@"A constant"]);
 
 ```
 
@@ -442,46 +281,22 @@ namespace MyLib {
 	};
 }
 
-
 ```
 
 
-```python
+```objc
 
-# Mutable member variables can be changed
-simpleMember = m.SimpleMember()
-self.assertEqual(simpleMember.myString, "Hello")
-simpleMember.myString = "Changed now!"
-self.assertEqual(simpleMember.myString, "Changed now!")
+// Mutable member variables can be changed
+mSimpleMember* simpleMember = [[mSimpleMember alloc] init];
+assert([simpleMember.myString isEqualToString:@"Hello"]);
+simpleMember.myString = @"Changed now!";
+assert([simpleMember.myString isEqualToString:@"Changed now!"]);
 
-constMember = m.ConstMember()
-self.assertEqual(constMember.i, 42)
+mConstMember* constMember = [[mConstMember alloc] init];
+assert(constMember.i == 42);
 
-# Const member variables cannot be changed
-with self.assertRaises(AttributeError) as error_context:
-    constMember.i = 0
-
-self.assertEqual(len(error_context.exception.args), 1)
-self.assertEqual(
-    "can't set attribute",
-    error_context.exception.args[0],
-    "Prohibiting changing const variables does not work!",
-)
-
-# Private member variables are not available
-with self.assertRaises(AttributeError) as error_context:
-    privateMember = m.PrivateMember("Hello")
-    print(privateMember.myString)
-
-self.assertEqual(len(error_context.exception.args), 1)
-self.assertEqual(
-    "'m.PrivateMember' object has no attribute 'myString'",
-    error_context.exception.args[0],
-    "Prohibiting changing const variables does not work!",
-)
-
-nested = m.MyLib.Nested()
-self.assertEqual(nested.d, 4.3)
+mMyLibNested* nested = [[mMyLibNested alloc] init];
+assert(nested.d == 4.3);
 
 ```
 
@@ -521,111 +336,16 @@ int complexFunction() {
 ```
 
 
-```python
+```objc
 
-# Namespaces corresponds to submodules
-result = m.MyLib.complexFunction()
-self.assertEqual(result, 5)
+// Namespaces corresponds to classes
+// with {library name} + join(namespaces)
+// where functions are static class functions
+assert([mMyLib complexFunction] == 5);
 
-# Documentation carries over for namespaces
-self.assertIn("MyLib contains a bunch of MyLib functions", \
-  m.MyLib.__doc__)
-
-# You can nest namespaces arbitrarily deep
-lifeProTips = m.MyLib.We.Are.Going.Pretty.Deep.meaningOfLife()
-self.assertEqual(lifeProTips, "42")
-
-```
-
-
-## Operators ##
-
-
-```cpp
-
-#include <string>
-
-class MyClass {
-public:
-  explicit MyClass(int v) : value(v) {}
-
-  // +-*/&
-  MyClass operator+(int i) { return MyClass(value + i); }
-  MyClass operator-(int i) { return MyClass(value - i); }
-  MyClass operator*(int i) { return MyClass(value * i); }
-  MyClass operator/(int i) { return MyClass(value / i); }
-  MyClass operator%(int i) { return MyClass(value % i); }
-
-  // Assignment
-  MyClass& operator+=(const MyClass& rhs) { value += rhs.value; return *this; }
-  MyClass& operator-=(const MyClass& rhs) { value -= rhs.value; return *this; }
-  MyClass& operator*=(const MyClass& rhs) { value *= rhs.value; return *this; }
-  MyClass& operator/=(const MyClass& rhs) { value /= rhs.value; return *this; }
-  MyClass& operator%=(const MyClass& rhs) { value %= rhs.value; return *this; }
-
-  // Comparisons
-  bool operator==(const MyClass &rhs) { return value == rhs.value; }
-  bool operator!=(const MyClass &rhs) { return value != rhs.value; }
-  bool operator<(const MyClass &rhs) { return value < rhs.value; }
-  bool operator>(const MyClass &rhs) { return value > rhs.value; }
-  bool operator<=(const MyClass &rhs) { return value <= rhs.value; }
-  bool operator>=(const MyClass &rhs) { return value >= rhs.value; }
-
-  // Subscript
-  MyClass operator[](unsigned idx) { return MyClass(static_cast<int>(idx)); }
-
-  // Call
-  int operator()(int x) { return value + x; }
-  std::string operator()(std::string const& x) { return x + std::to_string(value); }
-
-  int value;
-};
-
-```
-
-
-```python
-
-my_class = m.MyClass(10)
-self.assertEqual(my_class.value, 10)
-
-# Normal operators translate as expected
-self.assertEqual((my_class + 5).value, 15)
-self.assertEqual((my_class - 5).value, 5)
-self.assertEqual((my_class * 5).value, 50)
-self.assertEqual((my_class / 5).value, 2)
-self.assertEqual((my_class % 3).value, 1)
-
-other = m.MyClass(5)
-# Comparison operators
-self.assertTrue(my_class != other)
-self.assertTrue(my_class > other)
-self.assertTrue(my_class >= other)
-
-self.assertFalse(my_class == other)
-self.assertFalse(my_class < other)
-self.assertFalse(my_class <= other)
-
-# Can also use the {operator}= functions
-# other.value = 5
-my_class += other
-self.assertEqual(my_class.value, 15)
-my_class -= other
-self.assertEqual(my_class.value, 10)
-my_class *= other
-self.assertEqual(my_class.value, 50)
-my_class /= other
-self.assertEqual(my_class.value, 10)
-my_class %= other
-self.assertEqual(my_class.value, 0)
-
-# Subscript []
-self.assertEqual(my_class[100].value, 100)
-
-# Call ()
-self.assertEqual(my_class(100), 100)
-# Overloading works
-self.assertEqual(my_class("The inner value is: "), "The inner value is: 0")
+// You can nest namespaces arbitrarily deep
+NSString* lifeProTips = [mMyLibWeAreGoingPrettyDeep meaningOfLife];
+assert([lifeProTips isEqualToString:@"42"]);
 
 ```
 
@@ -641,206 +361,120 @@ self.assertEqual(my_class("The inner value is: "), "The inner value is: 0")
 std::string sayHello() {
 	return "Hello!";
 }
+
 std::string sayHello(std::string to) {
 	return std::string("Hello ") + to;
 }
 
-std::string safety() { return "Safe!"; }
+std::string sayHello(size_t times) {
+	std::string greeting = "";
+	for (size_t i = 0; i < times; ++i) {
+		greeting += "Hello!";
+	}
+	return greeting;
+}
 
 class Overload {
 public:
 	// Overloaded constructor
-	Overload() {};
-	Overload(std::string) {};
+	Overload() : m_s() {};
+	Overload(std::string s) : m_s(s) {};
 
 	// Overloaded class functions
 	std::string getStuff() { return "Stuff"; }
 	std::string getStuff(std::string customStuff) { return customStuff; }
 
-	std::string safety() { return "Safe!"; }
+private:
+	std::string m_s;
 };
 
+```
+
+
+```objc
+
+// Overloaded functions work the same as in C++
+// Free function overload
+assert([[m sayHello] isEqualToString:@"Hello!"]);
+assert([[m sayHelloString:@"Tolc"] isEqualToString:@"Hello Tolc"]);
+assert([[m sayHelloUnsignedLongInt:2] isEqualToString:@"Hello!Hello!"]);
+
+// Class constructor overload
+mOverload* overload = [[mOverload alloc] init];
+mOverload* overloadWithString = [[mOverload alloc] initWithString:@"Overloaded!"];
+
+// Class function overload
+assert([[overload getStuff] isEqualToString:@"Stuff"]);
+assert([[overload getStuffString:@"Other"] isEqualToString:@"Other"]);
 
 ```
 
 
-```python
-
-# Overloaded functions work the same as in C++
-# Free function overload
-self.assertEqual(m.sayHello(), "Hello!")
-self.assertEqual(m.sayHello("to me!"), "Hello to me!")
-
-# Class function overload
-overload = m.Overload()
-overload = m.Overload("Overloaded!")
-self.assertEqual(overload.getStuff(), "Stuff")
-self.assertEqual(overload.getStuff("My stuff"), "My stuff")
-
-self.assertEqual(overload.safety(), "Safe!")
-self.assertEqual(overload.safety(), m.safety())
-
-```
-
-
-## Overriding virtual functions in python ##
+## Passing classes between languages ##
 
 
 ```cpp
 
 #include <string>
 
-class Animal {
+class MyClass {
 public:
-	virtual ~Animal() { }
-	virtual std::string sound(int n_times, bool grumpy) = 0;
+	explicit MyClass(std::string s) : m_s(s) {}
+
+	std::string* getS() { return &m_s; }
+
+private:
+	std::string m_s;
 };
 
-class Dog : public Animal {
-public:
-	std::string sound(int n_times, bool grumpy) override {
-		if (grumpy) {
-			return "No.";
-		}
+MyClass buildMyClass(std::string const& s) {
+	return MyClass(s);
+}
 
-		std::string result;
-		for (int i = 0; i < n_times; ++i) {
-			result += "woof! ";
-		}
-		return result;
-	}
+class Owner {
+public:
+	explicit Owner(MyClass m) : m_myClass(m) {};
+
+	MyClass getMyClass() const { return m_myClass; }
+
+private:
+	MyClass m_myClass;
 };
 
-std::string call_sound(Animal *animal) {
-	return animal->sound(3, false);
+struct Point2d {
+	int x;
+	int y;
+};
+
+Point2d getMiddle(std::pair<Point2d, Point2d> p) {
+	return {(p.first.x + p.second.x) / 2, (p.first.y + p.second.y) / 2};
 }
 
 ```
 
 
-```python
+```objc
 
-fido = m.Dog()
-grumpy = True
+NSString* phrase = @"Hello from Objective-C";
+mMyClass* myClass = [m buildMyClass:phrase];
+assert([[myClass getS] isEqualToString:phrase]);
 
-# Overloaded function in C++
-self.assertEqual(fido.sound(1, not grumpy), "woof! ")
+// Passing Objective-C classes to C++ classes
+mOwner* owner = [[mOwner alloc] initWithMyClass:myClass];
+assert([[[owner getMyClass] getS] isEqualToString:phrase]);
 
-# Polymorphic function in C++
-self.assertEqual(m.call_sound(fido), "woof! woof! woof! ")
+// Container of user defined classes
+mPoint2d* a = [[mPoint2d alloc] init];
+a.x = 1;
+a.y = 0;
+mPoint2d* b = [[mPoint2d alloc] init];
+b.x = 3;
+b.y = 0;
 
-# Inherit from virtual C++ classes in python
-class Cat(m.Animal):
-  # Override C++ function
-  def sound(self, n_times, grumpy):
-    return "No." if grumpy else "meow! " * n_times
-
-whiskers = Cat()
-
-# Overloaded C++ function in python
-self.assertEqual(whiskers.sound(1, grumpy), "No.")
-self.assertEqual(whiskers.sound(1, not grumpy), "meow! ")
-
-# Polymorphic function in C++ called with python object
-self.assertEqual(m.call_sound(whiskers), "meow! meow! meow! ")
-
-```
-
-
-## Overriding virtual in python ##
-
-
-```cpp
-
-#include <string>
-
-class Animal {
-public:
-	virtual ~Animal() { }
-	virtual std::string sound(int n_times, bool grumpy) = 0;
-};
-
-class Dog : public Animal {
-public:
-	std::string sound(int n_times, bool grumpy) override {
-		if (grumpy) {
-			return "No.";
-		}
-
-		std::string result;
-		for (int i = 0; i < n_times; ++i) {
-			result += "woof! ";
-		}
-		return result;
-	}
-};
-
-std::string call_sound(Animal *animal) {
-	return animal->sound(3, false);
-}
-
-```
-
-
-```python
-
-fido = m.Dog()
-grumpy = True
-
-# Overloaded function in C++
-self.assertEqual(fido.sound(1, grumpy), "No.")
-self.assertEqual(fido.sound(1, not grumpy), "woof! ")
-
-# Polymorphic function in C++
-self.assertEqual(m.call_sound(fido), "woof! woof! woof! ")
-
-# Inherit from virtual C++ classes in python
-class Cat(m.Animal):
-  # Override C++ function
-  def sound(self, n_times, grumpy):
-    return "No." if grumpy else "meow! " * n_times
-
-whiskers = Cat()
-
-# Overloaded C++ function in python
-self.assertEqual(whiskers.sound(1, grumpy), "No.")
-self.assertEqual(whiskers.sound(1, not grumpy), "meow! ")
-
-# Polymorphic function in C++ called with python object
-self.assertEqual(m.call_sound(whiskers), "meow! meow! meow! ")
-
-```
-
-
-## Simple inheritence ##
-
-
-```cpp
-
-#include <string>
-
-struct Pet {
-    Pet(const std::string &name) : name(name) { }
-    std::string name;
-};
-
-struct Dog : public Pet {
-    Dog(const std::string &name) : Pet(name) { }
-    std::string bark() const { return "woof!"; }
-};
-
-```
-
-
-```python
-
-fido = m.Dog("Fido")
-
-# Inherits public properties
-self.assertEqual(fido.name, "Fido")
-
-# But has its new functions
-self.assertEqual(fido.bark(), "woof!")
+NSArray* points = [NSArray arrayWithObjects:a, b, nil];
+mPoint2d* middle = [m getMiddle:points];
+assert(middle.x == 2);
+assert(middle.y == 0);
 
 ```
 
@@ -852,839 +486,67 @@ self.assertEqual(fido.bark(), "woof!")
 
 #include <memory>
 
-struct Example {
-	int m_hi = 5;
+struct Data {
+  int i = 5;
 };
 
-struct ExampleShared {
-	int m_hi = 10;
+struct SharedData {
+  int i = 10;
 };
 
-std::unique_ptr<Example> create_unique() {
-	return std::make_unique<Example>();
+std::unique_ptr<Data> createData() {
+  return std::make_unique<Data>();
 }
 
-std::shared_ptr<ExampleShared> create_shared() {
-	return std::make_shared<ExampleShared>();
+// This moves the data,
+// destroying it at the end
+// Same as C++
+int consumeData(std::unique_ptr<Data> data) {
+  return data->i + 20;
 }
 
-```
-
-
-```python
-
-# std::unique_ptr acts as a normal value
-# Note that passing a std::unique_ptr as an argument gives an error
-#   See https://pybind11.readthedocs.io/en/stable/advanced/smart_ptrs.html
-u = m.create_unique()
-self.assertEqual(u.m_hi, 5)
-
-# std::shared_ptr acts as a normal value
-s = m.create_shared()
-self.assertEqual(s.m_hi, 10)
-
-```
-
-
-## std::array ##
-
-
-```cpp
-
-#include <array>
-#include <string>
-
-class WithMember {
-public:
-	explicit WithMember(std::array<std::string, 2> s) : m_s(s) {}
-
-	std::array<std::string, 2> getS() { return m_s; }
-
-private:
-	std::array<std::string, 2> m_s;
-};
-
-class WithFunction {
-public:
-	int sum(std::array<int, 5> v) {
-		int s = 0;
-		for (auto i : v) {
-			s += i;
-		}
-		return s;
-	}
-};
-
-
-```
-
-
-```python
-
-# std::array translates to a normal array in python
-my_array = ["hi", "ho"]
-with_member = m.WithMember(my_array)
-self.assertEqual(with_member.getS(), my_array)
-
-with_function = m.WithFunction()
-self.assertEqual(with_function.sum([1, 2, 3, 4, 5]), 15)
-
-# It still corresponds to a fixed amount of elements
-for incompatible_array in [["too many", "too many", "too many"], ["too few"]]:
-    with self.assertRaises(TypeError) as error_context:
-        with_member = m.WithMember(incompatible_array)
-
-    self.assertEqual(len(error_context.exception.args), 1)
-    self.assertTrue(
-        "incompatible constructor arguments" in error_context.exception.args[0],
-        "Error msg does not mention incompatible arguments: "
-        + str(error_context.exception.args[0]),
-    )
-    self.assertTrue(
-        "Invoked with: " + str(incompatible_array)
-        in error_context.exception.args[0],
-        "Error msg does not mention the given arguments: " + str(error_context.exception.args[0]),
-    )
-
-```
-
-
-## std::complex ##
-
-
-```cpp
-
-#include <complex>
-
-using namespace std::complex_literals;
-
-std::complex<int> i() {
-	return 5;
+std::shared_ptr<SharedData> createSharedData() {
+  return std::make_shared<SharedData>();
 }
 
-std::complex<double> d() {
-	return 1. + 2i;
-}
-
-std::complex<float> f() {
-	return 0.f + 5if;
-}
-
-std::complex<double> r(std::complex<double> d) {
-	return d;
+// Does not move the data
+// The pointer is valid after the function call
+int consumeSharedData(std::shared_ptr<SharedData> data) {
+  return data->i + 20;
 }
 
 ```
 
 
-```python
-
-# std::complex translates to a complex in python
-i = m.i()
-self.assertEqual(i.real, 5)
-self.assertEqual(i.imag, 0)
-
-d = m.d()
-self.assertEqual(d.real, 1)
-self.assertEqual(d.imag, 2)
-
-f = m.f()
-self.assertEqual(f.real, 0)
-self.assertEqual(f.imag, 5)
-
-# Using python builtin complex class
-r = m.r(complex(1, 2))
-self.assertEqual(r.real, 1)
-self.assertEqual(r.imag, 2)
-
-```
-
-
-## std::deque ##
-
-
-```cpp
-
-#include <string>
-#include <deque>
-
-class WithMember {
-public:
-	explicit WithMember(std::deque<std::string> s) : m_s(s) {}
-
-	std::deque<std::string> getS() { return m_s; }
-
-private:
-	std::deque<std::string> m_s;
-};
-
-class WithFunction {
-public:
-	int sum(std::deque<int> v) {
-		int s = 0;
-		for (auto i : v) {
-			s += i;
-		}
-		return s;
-	}
-};
-
-
-```
-
-
-```python
-
-# std::deque translates to a normal array in python
-my_array = ["hi", "ho"]
-with_member = m.WithMember(my_array)
-self.assertEqual(with_member.getS(), my_array)
-
-with_function = m.WithFunction()
-self.assertEqual(with_function.sum([1, 2, 3]), 6)
-
-```
-
-
-## std::filesystem::path ##
-
-
-```cpp
-
-#include <filesystem>
-#include <vector>
-
-std::filesystem::path takingPath(std::filesystem::path p) {
-	return p;
-}
-
-std::string toString(std::filesystem::path p) {
-	return p.string();
-}
-
-std::filesystem::path joinPaths(std::vector<std::filesystem::path> arrayToSum) {
-	std::filesystem::path sum;
-	for (auto f : arrayToSum) {
-		sum /= f;
-	}
-	return sum;
-}
-
-```
-
-
-```python
-
-# std::filesystem::path translates to pathlib.Path in python
-from pathlib import Path
-
-p0 = Path("Hello")
-result0 = m.takingPath(p0)
-self.assertEqual(result0, p0)
-
-p1 = Path("Something")
-toString = m.toString(p1)
-self.assertEqual(toString, p1.name)
-
-result1 = m.joinPaths([p0, p1])
-self.assertEqual(result1, p0 / p1)
-
-```
-
-
-## std::function ##
-
-
-```cpp
-
-#include <functional>
-#include <vector>
-
-double takingFunction(std::function<double(int)> callMe) {
-	return callMe(5);
-}
-
-std::function<int(int)> returnFunction(const std::function<int(int)> &f) {
-	return [f](int i) {
-		return f(i) + 1;
-	};
-}
-
-int accumulateArrayOfFunctions(std::vector<std::function<int()>> arrayToSum) {
-	int sum = 0;
-	for (auto f : arrayToSum) {
-		sum += f();
-	}
-	return sum;
-}
-
-```
-
-
-```python
-
-def callback(i):
-  return i
-
-# You can send a python function as a C++ callback
-result0 = m.takingFunction(callback)
-self.assertEqual(result0, 5.0)
-
-# Or in the other direction
-inc_by_one = m.returnFunction(callback)
-self.assertEqual(inc_by_one(5), 6)
-
-def fiver():
-  return 5
-
-# Or a vector of functions
-result1 = m.accumulateArrayOfFunctions([fiver, fiver])
-self.assertEqual(result1, 10)
-
-```
-
-
-## std::list ##
-
-
-```cpp
-
-#include <string>
-#include <list>
-
-class WithMember {
-public:
-	explicit WithMember(std::list<std::string> s) : m_s(s) {}
-
-	std::list<std::string> getS() { return m_s; }
-
-private:
-	std::list<std::string> m_s;
-};
-
-class WithFunction {
-public:
-	int sum(std::list<int> v) {
-		int s = 0;
-		for (auto i : v) {
-			s += i;
-		}
-		return s;
-	}
-};
-
-
-```
-
-
-```python
-
-# std::list translates to a normal array in python
-my_array = ["hi", "ho"]
-with_member = m.WithMember(my_array)
-self.assertEqual(with_member.getS(), my_array)
-
-with_function = m.WithFunction()
-self.assertEqual(with_function.sum([1, 2, 3]), 6)
-
-```
-
-
-## std::map ##
-
-
-```cpp
-
-#include <map>
-#include <string>
-
-class MyClass {
-public:
-	explicit MyClass(std::map<std::string, int> s) : m_s(s) {}
-
-	std::map<std::string, int> getS() { return m_s; }
-
-	std::string getValue(std::map<int, std::string> const& m, int key) {
-		auto it = m.find(key);
-		if (it != m.end()) {
-			return it->second;
-		}
-		return "";
-	}
-
-private:
-	std::map<std::string, int> m_s;
-};
-
-
-```
-
-
-```python
-
-# std::map translates to a normal dictionary in python
-my_map = {"hi": 4, "ho": 5}
-c = m.MyClass(my_map)
-self.assertEqual(c.getS(), my_map)
-
-# The maps are typed on the C++ side
-for incopatible_map in [{"key": "value"}, {5: 2}]:
-    with self.assertRaises(TypeError) as error_context:
-        c = m.MyClass(incopatible_map)
-        c.getValue(incopatible_map, 5)
-
-    self.assertEqual(len(error_context.exception.args), 1)
-    self.assertTrue(
-        "incompatible function arguments" in error_context.exception.args[0]
-        or "incompatible constructor arguments"
-        in error_context.exception.args[0],
-        "Error msg does not mention incompatible arguments: \n\t"
-        + str(error_context.exception.args[0]),
-    )
-    self.assertTrue(
-        str(incopatible_map) in error_context.exception.args[0],
-        "Error msg does not mention the given arguments: \n\t"
-        + str(error_context.exception.args[0]),
-    )
-
-```
-
-
-## std::optional ##
-
-
-```cpp
-
-#include <optional>
-#include <string>
-
-class WithMember {
-public:
-	explicit WithMember(std::optional<std::string> s) : m_s(s) {}
-
-	std::optional<std::string> getS() { return m_s; }
-
-private:
-	std::optional<std::string> m_s;
-};
-
-class WithFunction {
-public:
-	std::optional<int> getNullopt() {
-		return std::nullopt;
-	}
-};
-
-
-```
-
-
-```python
-
-# std::optional is either the value or None in python
-greeting = "hello"
-with_member = m.WithMember(greeting)
-self.assertEqual(with_member.getS(), greeting)
-
-with_function = m.WithFunction()
-self.assertEqual(with_function.getNullopt(), None)
-
-```
-
-
-## std::pair ##
-
-
-```cpp
-
-#include <string>
-
-class MyClass {
-public:
-	explicit MyClass(std::pair<std::string, int> s) : m_s(s) {}
-
-	std::pair<std::string, int> getS() { return m_s; }
-
-private:
-	std::pair<std::string, int> m_s;
-};
-
-class WithFunction {
-public:
-	int sum(std::pair<int, int> v) {
-		return v.first + v.second;
-	}
-};
-
-
-```
-
-
-```python
-
-# Converts to a tuple, but is convertible from array aswell
-my_array = ["hi", 4]
-for t in [my_array, tuple(my_array)]:
-    with_member = m.MyClass(t)
-    self.assertEqual(with_member.getS(), tuple(t))
-
-with_function = m.WithFunction()
-self.assertEqual(with_function.sum((1, 2)), 3)
-
-```
-
-
-## std::set ##
-
-
-```cpp
-
-#include <set>
-#include <string>
-
-class MyClass {
-public:
-	explicit MyClass(std::set<std::string> s) : m_s(s) {}
-
-	std::set<std::string> getS() { return m_s; }
-
-	int getValue(std::set<int> const& m, int key) {
-		auto it = m.find(key);
-		if (it != m.end()) {
-			return *it;
-		}
-		return -1;
-	}
-
-private:
-	std::set<std::string> m_s;
-};
-
-
-```
-
-
-```python
-
-# std::set translates to a normal array or a set in python
-mySet = {"hi", "this is a set"}
-c = m.MyClass(mySet)
-self.assertEqual(c.getS(), mySet)
-
-self.assertEqual(c.getValue({1, 2, 3}, 3), 3)
-self.assertEqual(c.getValue({1, 2, 3}, 4), -1)
-
-# Test set of the wrong type
-for incompatibleset in [{"key": "value"}, (5, 2)]:
-    with self.assertRaises(TypeError) as error_context:
-        c = m.MyClass(incompatibleset)
-        c.getValue(incompatibleset, 5)
-
-self.assertEqual(len(error_context.exception.args), 1)
-self.assertTrue(
-    "incompatible function arguments" in error_context.exception.args[0]
-    or "incompatible constructor arguments" in error_context.exception.args[0],
-    "Error msg does not mention incompatible arguments: \n\t"
-    + str(error_context.exception.args[0]),
-)
-self.assertTrue(
-    str(incompatibleset) in error_context.exception.args[0],
-    "Error msg does not mention the given arguments: \n\t"
-    + str(error_context.exception.args[0]),
-)
-
-
-
-```
-
-
-## std::tuple ##
-
-
-```cpp
-
-#include <string>
-#include <tuple>
-
-class MyClass {
-public:
-	explicit MyClass(std::tuple<std::string, int> s) : m_s(s) {}
-
-	std::tuple<std::string, int> getS() { return m_s; }
-
-	std::tuple<std::string, int> m_s;
-};
-
-class WithFunction {
-public:
-	double sum(std::tuple<int, int, float, double> t) {
-		return std::get<0>(t)
-			   + std::get<1>(t)
-			   + std::get<2>(t)
-			   + std::get<3>(t);
-	}
-};
-
-
-```
-
-
-```python
-
-# Converts to a tuple, but is convertible from array aswell
-my_array = ["hi", 4]
-for t in [my_array, tuple(my_array)]:
-    with_member = m.MyClass(t)
-    self.assertEqual(with_member.getS(), tuple(t))
-
-with_function = m.WithFunction()
-self.assertAlmostEqual(with_function.sum((1, 2, 3.3, 2.0)), 8.3, delta=0.0001)
-
-```
-
-
-## std::unordered_map ##
-
-
-```cpp
-
-#include <string>
-#include <unordered_map>
-
-class MyClass {
-public:
-	explicit MyClass(std::unordered_map<std::string, int> s) : m_s(s) {}
-
-	std::unordered_map<std::string, int> getS() { return m_s; }
-
-	std::string getValue(std::unordered_map<int, std::string> const& m, int key) {
-		auto it = m.find(key);
-		if (it != m.end()) {
-			return it->second;
-		}
-		return "";
-	}
-
-private:
-	std::unordered_map<std::string, int> m_s;
-};
-
-
-```
-
-
-```python
-
-# std::unordered_map translates to a normal dictionary in python
-myunordered_map = {"hi": 4, "ho": 5}
-c = m.MyClass(myunordered_map)
-self.assertEqual(c.getS(), myunordered_map)
-
-# Test unordered_map of the wrong type
-for incompatible_map in [{"key": "value"}, {5: 2}]:
-    with self.assertRaises(TypeError) as error_context:
-        c = m.MyClass(incompatible_map)
-        c.getValue(incompatible_map, 5)
-
-    self.assertEqual(len(error_context.exception.args), 1)
-    self.assertTrue(
-        "incompatible function arguments" in error_context.exception.args[0]
-        or "incompatible constructor arguments"
-        in error_context.exception.args[0],
-        "Error msg does not mention incompatible arguments: \n\t"
-        + str(error_context.exception.args[0]),
-    )
-    self.assertTrue(
-        str(incompatible_map) in error_context.exception.args[0],
-        "Error msg does not mention the given arguments: \n\t"
-        + str(error_context.exception.args[0]),
-    )
-
-
-```
-
-
-## std::unordered_set ##
-
-
-```cpp
-
-#include <string>
-#include <unordered_set>
-
-class MyClass {
-public:
-	explicit MyClass(std::unordered_set<std::string> s) : m_s(s) {}
-
-	std::unordered_set<std::string> getS() { return m_s; }
-
-	int getValue(std::unordered_set<int> const& m, int key) {
-		auto it = m.find(key);
-		if (it != m.end()) {
-			return *it;
-		}
-		return -1;
-	}
-
-private:
-	std::unordered_set<std::string> m_s;
-};
-
-
-```
-
-
-```python
-
-# std::unordered_set translates to a normal array or a set in python
-my_unordered_set = {"hi", "this is a unordered_set"}
-c = m.MyClass(my_unordered_set)
-self.assertEqual(c.getS(), my_unordered_set)
-
-self.assertEqual(c.getValue({1, 2, 3}, 3), 3)
-self.assertEqual(c.getValue({1, 2, 3}, 4), -1)
-
-# Test unordered_set of the wrong type
-for incompatible_set in [{"key": "value"}, (5, 2)]:
-    with self.assertRaises(TypeError) as error_context:
-        c = m.MyClass(incompatible_set)
-        c.getValue(incompatible_set, 5)
-
-self.assertEqual(len(error_context.exception.args), 1)
-self.assertTrue(
-    "incompatible function arguments" in error_context.exception.args[0]
-    or "incompatible constructor arguments" in error_context.exception.args[0],
-    "Error msg does not mention incompatible arguments: \n\t"
-    + str(error_context.exception.args[0]),
-)
-self.assertTrue(
-    str(incompatible_set) in error_context.exception.args[0],
-    "Error msg does not mention the given arguments: \n\t"
-    + str(error_context.exception.args[0]),
-)
-
-```
-
-
-## std::valarray ##
-
-
-```cpp
-
-#include <valarray>
-
-std::valarray<int> get() {
-	return {1, 2, 3};
-}
-
-```
-
-
-```python
-
-v = m.get()
-self.assertEqual(v, [1, 2, 3])
-
-```
-
-
-## std::variant ##
-
-
-```cpp
-
-#include <string>
-#include <variant>
-
-class WithMember {
-public:
-	explicit WithMember(std::variant<int, bool> s) : m_s(s) {}
-
-	std::variant<int, bool> getS() { return m_s; }
-
-private:
-	std::variant<int, bool> m_s;
-};
-
-class WithFunction {
-public:
-	std::variant<int, std::string, bool> getFive() {
-		return 5;
-	}
-
-	std::variant<int, std::string, bool> getHello() {
-		return std::string("Hello");
-	}
-
-	std::variant<int, std::string, bool> getTrue() {
-		return true;
-	}
-};
-
-
-```
-
-
-```python
-
-# std::variant translates to one of the values in python
-number = 6
-withNumber = m.WithMember(number)
-self.assertEqual(withNumber.getS(), number)
-
-withBool = m.WithMember(True)
-self.assertEqual(withBool.getS(), True)
-
-with_function = m.WithFunction()
-self.assertEqual(with_function.getFive(), 5)
-self.assertEqual(with_function.getHello(), "Hello")
-self.assertEqual(with_function.getTrue(), True)
-
-```
-
-
-## std::vector ##
-
-
-```cpp
-
-#include <string>
-#include <vector>
-
-class WithMember {
-public:
-	explicit WithMember(std::vector<std::string> s) : m_s(s) {}
-
-	std::vector<std::string> getS() { return m_s; }
-
-private:
-	std::vector<std::string> m_s;
-};
-
-class WithFunction {
-public:
-	int sum(std::vector<int> v) {
-		int s = 0;
-		for (auto i : v) {
-			s += i;
-		}
-		return s;
-	}
-};
-
-
-```
-
-
-```python
-
-# std::vector translates to a normal array in python
-my_array = ["hi", "ho"]
-with_member = m.WithMember(my_array)
-self.assertEqual(with_member.getS(), my_array)
-
-with_function = m.WithFunction()
-self.assertEqual(with_function.sum([1, 2, 3]), 6)
+```objc
+
+// std::unique_ptr acts as a normal value
+mData* data = [m createData];
+assert(data.i == 5);
+
+// This moves the data,
+// destroying it at the end
+// Same as C++
+assert([m consumeData:data] == 25);
+
+// Any access now results
+// in undefined behaviour
+// (possibly a crash)
+// NSLog(@"%i", data.i);
+
+// std::shared_ptr acts as a normal value
+// But all mSharedData have their internal
+// classes handled by a std::shared_ptr
+mSharedData* sharedData = [m createSharedData];
+assert(sharedData.i == 10);
+
+// This copies the smart pointer,
+// incrementing its counter.
+// Valid to use sharedData after this call.
+assert([m consumeSharedData:sharedData] == 30);
+
+// No crash
+NSLog(@"%i", sharedData.i);
 
 ```
 
@@ -1716,38 +578,592 @@ T myFun(T type) {
 }
 };
 
+MyClass<char> getMyClass(MyClass<char> c) {
+	return c;
+}
+
 template class MyClass<int>;
-template class MyClass<std::map<char, std::vector<int>>>;
 template class MyClass<std::array<int, 3>>;
 
 ```
 
 
-```python
+```objc
 
-# getSomething<std::string>
-hi = m.getSomething("hi")
-self.assertEqual(hi, "hi")
+// getSomething<std::string>
+NSString* hi = [m getSomethingString:@"Hi"];
+assert([hi isEqualToString:@"Hi"]);
 
-# getSomething<int>
-five = m.getSomething(5)
-self.assertEqual(five, 5)
+// getSomething<int>
+int five = [m getSomethingInt:5];
+assert(five == 5);
 
-# getSomething<std::vector<std::string>>
-l = m.getSomething(["hi"])
-self.assertEqual(l, ["hi"])
+// getSomething<std::vector<std::string>>
+NSArray* v = [m getSomethingVectorString:@[@"Hi"]];
+assert([v count] == 1);
+assert([[v objectAtIndex:0] isEqualToString:@"Hi"]);
 
-# MyClass<int>
-my_class_int = m.MyClass_int()
-self.assertEqual(my_class_int.myFun(25), 25)
+// MyClass<char>
+mMyClassChar* myClassChar = [[mMyClassChar alloc] init];;
+assert([myClassChar myFun:25] == 25);;
+// Still the same after passing through a function
+mMyClassChar* passedThrough = [m getMyClass:myClassChar];;
+assert([passedThrough myFun:25] == 25);;
 
-# MyClass<std::map<char, std::vector<int>>>
-my_class_map = m.MyClass_map_char_vector_int()
-self.assertEqual(my_class_map.myFun({'h': [1]}), {'h': [1]})
+// MyClass<int>
+mMyClassInt* myClassInt = [[mMyClassInt alloc] init];
+assert([myClassInt myFun:25] == 25);
 
-# MyClass<std::array<int, 3>>
-my_class_array = m.MyClass_array_int_3()
-self.assertEqual(my_class_array.myFun([1, 2, 3]), [1, 2, 3])
+// MyClass<std::array<int, 3>>
+mMyClassArrayInt3* myClassArray = [[mMyClassArrayInt3 alloc] init];
+NSArray* arr = [myClassArray myFun:@[@(0), @(1), @(2)]];
+assert([arr count] == 3);
+assert([[arr objectAtIndex:0] intValue] == 0);
+assert([[arr objectAtIndex:1] intValue] == 1);
+assert([[arr objectAtIndex:2] intValue] == 2);
+
+```
+
+
+## std::array ##
+
+
+```cpp
+
+#include <algorithm>
+#include <array>
+
+std::array<int, 3> const f() {
+  return {0, 1, 2};
+}
+
+bool allOf(std::array<bool, 3> const& conditions) {
+  return std::all_of(
+      conditions.begin(), conditions.end(),
+      [](auto c) { return c; });
+}
+
+double sum(std::array<double, 3> const& numbers) {
+  double sum = 0;
+  for (double number : numbers) {
+    sum += number;
+  }
+  return sum;
+}
+
+
+```
+
+
+```objc
+
+// std::array corresponds to NSArray
+NSArray* v = [m f];
+assert([v count] == 3);
+
+// The array contains {0, 1, 2}
+assert([[v objectAtIndex:0] intValue] == 0);
+assert([[v objectAtIndex:1] intValue] == 1);
+assert([[v objectAtIndex:2] intValue] == 2);
+
+// Sending NSArray into function works as well
+NSArray* conditions = @[@(YES), @(YES), @(NO)];
+assert([m allOf:conditions] == NO);
+
+NSArray<NSNumber*>* toSum = @[@(1.1), @(2.2), @(3.3)];
+assert([m sum:toSum] == 6.6);
+
+// Error handling
+@try {
+  // Array with the wrong size
+  NSArray<NSNumber*>* toSum = @[@(1.1), @(2.2)];
+  // Expected size == 3
+  [m sum:toSum];
+  // Should throw exception before
+  assert(NO);
+} @catch(NSException* error) {
+  assert([[error name] isEqualToString:@"TypeException"]);
+  NSString* reason =
+    @"The size of the array does not match the expected fixed size. Expected: 3, Got: 2.";
+  assert([[error reason] isEqualToString:reason]);
+}
+
+```
+
+
+## std::deque ##
+
+
+```cpp
+
+#include <string>
+#include <deque>
+
+std::deque<std::string>
+surround(std::deque<std::string> d,
+         std::string const& message) {
+  d.push_front(message);
+  d.push_back(message);
+  return d;
+}
+
+```
+
+
+```objc
+
+// std::deque corresponds to NSArray
+NSArray* myDeque = @[@"middle"];
+NSArray* surroundedDeque =
+  [m surround:myDeque message:@"surrounded"];
+assert([surroundedDeque count] == 3);
+
+assert([[surroundedDeque objectAtIndex:0]
+  isEqualToString:@"surrounded"]);
+
+assert([[surroundedDeque objectAtIndex:1]
+  isEqualToString:@"middle"]);
+
+assert([[surroundedDeque objectAtIndex:2]
+  isEqualToString:@"surrounded"]);
+
+```
+
+
+## std::filesystem::path ##
+
+
+```cpp
+
+#include <filesystem>
+#include <vector>
+
+std::filesystem::path
+takingPath(std::filesystem::path const& p) {
+	return p;
+}
+
+std::filesystem::path
+parent(std::filesystem::path const& p) {
+	return p.parent_path();
+}
+
+std::filesystem::path
+joinPaths(std::vector<std::filesystem::path> arrayToSum) {
+	std::filesystem::path sum;
+	for (auto f : arrayToSum) {
+		sum /= f;
+	}
+	return sum;
+}
+
+```
+
+
+```objc
+
+// std::filesystem::path corresponds to NSString
+NSString* path = @"Hello/my/name/is/Tolc";
+
+// Passing through a function
+NSString* result = [m takingPath:path];
+assert([result isEqualToString:path]);
+
+NSString* parent = [m parent:path];
+assert([parent isEqualToString:@"Hello/my/name/is"]);
+
+NSArray* paths = @[@"to", @"the", @"heart"];
+NSString* joined = [m joinPaths:paths];
+assert([joined isEqualToString:@"to/the/heart"]);
+
+```
+
+
+## std::list ##
+
+
+```cpp
+
+#include <string>
+#include <list>
+
+std::list<std::string> getList() {
+  return {"Linked", "list", "fun"};
+}
+
+```
+
+
+```objc
+
+// std::list corresponds to NSArray
+NSArray* words = [m getList];
+assert([words count] == 3);
+
+assert([[words objectAtIndex:0] isEqualToString:@"Linked"]);
+assert([[words objectAtIndex:1] isEqualToString:@"list"]);
+assert([[words objectAtIndex:2] isEqualToString:@"fun"]);
+
+```
+
+
+## std::map ##
+
+
+```cpp
+
+#include <map>
+#include <string>
+#include <vector>
+
+std::map<std::string, int> getThings() {
+  return {{"Greetings", 5}};
+}
+
+std::map<std::string, std::vector<double>> getCities() {
+  return {
+  {"Stockholm",
+    {59.33, 18.06}},
+  {"San Francisco",
+    {37.77, -122.43}}
+  };
+}
+
+```
+
+
+```objc
+
+// std::map translates to a NSDictionary
+NSDictionary* dict = [m getThings];
+assert([dict count] == 1);
+NSNumber* n = [dict objectForKey:@"Greetings"];
+assert(n != nil);
+assert([n intValue] == 5);
+
+// Nested containers work as well
+NSDictionary* cities = [m getCities];
+assert([cities count] == 2);
+NSArray* stockholm = [cities objectForKey:@"Stockholm"];
+assert(stockholm != nil);
+assert([stockholm count] == 2);
+assert([[stockholm objectAtIndex:0] doubleValue] == 59.33);
+assert([[stockholm objectAtIndex:1] doubleValue] == 18.06);
+
+NSArray* sanFrancisco = [cities objectForKey:@"San Francisco"];
+assert(sanFrancisco != nil);
+assert([sanFrancisco count] == 2);
+assert([[sanFrancisco objectAtIndex:0] doubleValue] == 37.77);
+assert([[sanFrancisco objectAtIndex:1] doubleValue] == -122.43);
+
+```
+
+
+## std::optional ##
+
+
+```cpp
+
+#include <optional>
+#include <string>
+
+std::string
+answer(std::optional<std::string> const& question) {
+  if (question) {
+    return "Please be more specific.";
+  }
+  return "That's no question!";
+}
+
+
+```
+
+
+```objc
+
+// std::optional is either the value or nil
+NSString* answer = [m answer:@"How do I take over the world?"];
+assert([answer isEqualToString:@"Please be more specific."]);
+
+// nil is the equivalent of std::nullopt on the C++ side
+NSString* noAnswer = [m answer:nil];
+assert([noAnswer isEqualToString:@"That's no question!"]);
+
+```
+
+
+## std::pair ##
+
+
+```cpp
+
+#include <string>
+
+class Greeter {
+public:
+  explicit Greeter(std::pair<std::string, int> greetings)
+    : m_greetings(greetings) {}
+
+  std::pair<std::string, int> getGreetings() {
+    return m_greetings;
+  }
+
+  std::string joinGreetings() {
+    std::string joined;
+    for (int i = 0; i < m_greetings.second; ++i) {
+      joined += m_greetings.first;
+    }
+    return joined;
+  }
+
+private:
+  std::pair<std::string, int> m_greetings;
+};
+
+```
+
+
+```objc
+
+// std::pair corresponds to a NSArray
+// with two values
+NSArray* greetings = [NSArray
+  arrayWithObjects:@"Hey ", @(3), nil];
+assert([greetings count] == 2);
+
+// Sending a pair to a function
+mGreeter* g = [[mGreeter alloc]
+  initWithPairStringInt:greetings];
+
+// Joining the greetings 3 times
+NSString* joined = [g joinGreetings];
+assert([joined isEqualToString:@"Hey Hey Hey "]);
+
+// Error handling
+@try {
+  // Sending an array with size != 2
+  NSArray* tooManyArgs =
+    [greetings arrayByAddingObject:@"Oh no"];
+  mGreeter* boom = [[mGreeter alloc]
+    initWithPairStringInt:tooManyArgs];
+  // Should throw exception before
+  assert(NO);
+} @catch(NSException* error) {
+  assert([[error name] isEqualToString:@"TypeException"]);
+  NSString* reason =
+    @"The array passed does not match the number of types in a pair. Expected: 2, Got: 3.";
+  assert([[error reason] isEqualToString:reason]);
+}
+
+```
+
+
+## std::set ##
+
+
+```cpp
+
+#include <set>
+#include <string>
+
+std::set<std::string> getLanguages() {
+	return {"English", "Spanish"};
+}
+
+```
+
+
+```objc
+
+// std::set corresponds to NSOrderedSet
+NSOrderedSet* languages = [m getLanguages];
+assert([languages count] == 2);
+assert([languages containsObject:@"English"]);
+assert([languages containsObject:@"Spanish"]);
+
+```
+
+
+## std::tuple ##
+
+
+```cpp
+
+#include <string>
+#include <tuple>
+
+std::tuple<int, std::string> sumInts(std::tuple<int, int, std::string> t) {
+  // Sum the first two elements
+  return {
+    std::get<0>(t) + std::get<1>(t),
+    std::get<2>(t)
+  };
+}
+
+```
+
+
+```objc
+
+// std::tuple corresponds to a NSArray
+// with the same amount of values
+NSArray* toSum = [NSArray
+  arrayWithObjects:@(1), @(2), @"Hello", nil];
+assert([toSum count] == 3);
+
+// Sending a tuple to a function
+NSArray* summed = [m sumInts:toSum];
+assert([summed count] == 2);
+assert([[summed objectAtIndex:0] intValue] == 3);
+assert([[summed objectAtIndex:1] isEqualToString:@"Hello"]);
+
+// Error handling
+@try {
+  // Sending an array with size != 3
+  NSArray* tooManyArgs =
+    [toSum arrayByAddingObject:@"Boom"];
+  [m sumInts:tooManyArgs];
+  // Should throw exception before
+  assert(NO);
+} @catch(NSException* error) {
+  assert([[error name] isEqualToString:@"TypeException"]);
+  NSString* reason =
+    @"The array passed does not match the number of types expected in the tuple. Expected: 3, Got: 4.";
+  assert([[error reason] isEqualToString:reason]);
+}
+
+```
+
+
+## std::unordered_map ##
+
+
+```cpp
+
+#include <string>
+#include <unordered_map>
+
+std::unordered_map<std::string, int>
+getUnordered() {
+  return {{"Unordered", 1}};
+}
+
+```
+
+
+```objc
+
+// std::unordered_map translates to a NSDictionary
+NSDictionary* dict = [m getUnordered];
+assert([dict count] == 1);
+NSNumber* n = [dict objectForKey:@"Unordered"];
+assert(n != nil);
+assert([n intValue] == 1);
+
+```
+
+
+## std::unordered_set ##
+
+
+```cpp
+
+#include <string>
+#include <unordered_set>
+
+std::unordered_set<std::string> getLanguages() {
+	return {"C++", "Objective-C"};
+}
+
+```
+
+
+```objc
+
+// std::unordered_set corresponds to NSSet
+NSSet* languages = [m getLanguages];
+assert([languages count] == 2);
+assert([languages containsObject:@"C++"]);
+assert([languages containsObject:@"Objective-C"]);
+
+```
+
+
+## std::valarray ##
+
+
+```cpp
+
+#include <valarray>
+
+std::valarray<int> getIt() {
+	return {0, 1, 2};
+}
+
+```
+
+
+```objc
+
+// std::valarray corresponds to NSArray
+NSArray* v = [m getIt];
+assert([v count] == 3);
+
+// The vector contains {0, 1, 2}
+assert([[v objectAtIndex:0] intValue] == 0);
+assert([[v objectAtIndex:1] intValue] == 1);
+assert([[v objectAtIndex:2] intValue] == 2);
+
+```
+
+
+## std::vector ##
+
+
+```cpp
+
+#include <algorithm>
+#include <vector>
+
+std::vector<int> f() {
+  return {0, 1, 2};
+}
+
+bool allOf(std::vector<bool> const& conditions) {
+  return std::all_of(
+      conditions.begin(), conditions.end(),
+      [](auto c) { return c; });
+}
+
+double sum(std::vector<double> const& numbers) {
+  double sum = 0;
+  for (double number : numbers) {
+    sum += number;
+  }
+  return sum;
+}
+
+
+```
+
+
+```objc
+
+// std::vector corresponds to NSArray
+NSArray* v = [m f];
+assert([v count] == 3);
+
+// The vector contains {0, 1, 2}
+assert([[v objectAtIndex:0] intValue] == 0);
+assert([[v objectAtIndex:1] intValue] == 1);
+assert([[v objectAtIndex:2] intValue] == 2);
+
+// Sending NSArray into function works as well
+NSArray* conditions = @[@(YES), @(YES), @(NO)];
+assert([m allOf:conditions] == NO);
+
+NSArray<NSNumber*>* toSum = @[@(1.1), @(2.2), @(3.3)];
+assert([m sum:toSum] == 6.6);
 
 ```
 
