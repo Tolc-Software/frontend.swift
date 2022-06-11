@@ -147,6 +147,6 @@ if(PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 
   option(ENABLE_PACKAGING "Enables install and packaging via CPack" OFF)
   if(ENABLE_PACKAGING)
-    # add_subdirectory(tools/packaging)
+    add_subdirectory(tools/packaging)
   endif()
 endif()
