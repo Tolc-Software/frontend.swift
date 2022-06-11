@@ -7,6 +7,7 @@ TEST_CASE("Specialized templates", "[templates]") {
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 #include <array>
@@ -31,39 +32,52 @@ T myFun(T type) {
 }
 };
 
+MyClass<char> getMyClass(MyClass<char> c) {
+	return c;
+}
+
 template class MyClass<int>;
-template class MyClass<std::map<char, std::vector<int>>>;
 template class MyClass<std::array<int, 3>>;
 )";
 
-	auto pythonTestCode = fmt::format(R"(
-# getSomething<std::string>
-hi = {moduleName}.getSomething("hi")
-self.assertEqual(hi, "hi")
+	auto objcTestCode = R"(
+// getSomething<std::string>
+NSString* hi = [m getSomethingString:@"Hi"];
+assert([hi isEqualToString:@"Hi"]);
 
-# getSomething<int>
-five = {moduleName}.getSomething(5)
-self.assertEqual(five, 5)
+// getSomething<int>
+int five = [m getSomethingInt:5];
+assert(five == 5);
 
-# getSomething<std::vector<std::string>>
-l = {moduleName}.getSomething(["hi"])
-self.assertEqual(l, ["hi"])
+// getSomething<std::vector<std::string>>
+NSArray* v = [m getSomethingVectorString:@[@"Hi"]];
+assert([v count] == 1);
+assert([[v objectAtIndex:0] isEqualToString:@"Hi"]);
 
-# MyClass<int>
-my_class_int = {moduleName}.MyClass_int()
-self.assertEqual(my_class_int.myFun(25), 25)
+// MyClass<char>
+mMyClassChar* myClassChar = [[mMyClassChar alloc] init];;
+assert([myClassChar myFun:25] == 25);;
+// Still the same after passing through a function
+mMyClassChar* passedThrough = [m getMyClass:myClassChar];;
+assert([passedThrough myFun:25] == 25);;
 
-# MyClass<std::map<char, std::vector<int>>>
-my_class_map = {moduleName}.MyClass_map_char_vector_int()
-self.assertEqual(my_class_map.myFun({{'h': [1]}}), {{'h': [1]}})
+// MyClass<int>
+mMyClassInt* myClassInt = [[mMyClassInt alloc] init];
+assert([myClassInt myFun:25] == 25);
 
-# MyClass<std::array<int, 3>>
-my_class_array = {moduleName}.MyClass_array_int_3()
-self.assertEqual(my_class_array.myFun([1, 2, 3]), [1, 2, 3])
-)",
-	                                  fmt::arg("moduleName", moduleName));
+// MyClass<std::array<int, 3>>
+mMyClassArrayInt3* myClassArray = [[mMyClassArrayInt3 alloc] init];
+NSArray* arr = [myClassArray myFun:@[@(0), @(1), @(2)]];
+assert([arr count] == 3);
+assert([[arr objectAtIndex:0] intValue] == 0);
+assert([[arr objectAtIndex:1] intValue] == 1);
+assert([[arr objectAtIndex:2] intValue] == 2);
+)";
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+	auto swiftTestCode = R"()";
+
+	auto errorCode =
+	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Templates");

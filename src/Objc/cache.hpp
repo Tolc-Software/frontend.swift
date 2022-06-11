@@ -21,6 +21,9 @@ struct Cache {
 	// Set as fully qualified name of the class
 	std::set<std::string> m_sharedPtrClasses;
 
+	// {C++ fully qualified name, Objective-C fully qualified name}
+	std::map<std::string, std::string> m_cppToObjcClassNames;
+
 	// The name of the users module we are converting
 	std::string m_moduleName;
 

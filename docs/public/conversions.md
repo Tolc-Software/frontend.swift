@@ -30,15 +30,15 @@ Your internal code can use anything from C++.
 | Enum                                | [NS\_ENUM](https://developer.apple.com/documentation/swift/objective-c_and_c_code_customization/grouping_related_objective-c_constants) |
 | Scoped enum                         | [NS\_ENUM](https://developer.apple.com/documentation/swift/objective-c_and_c_code_customization/grouping_related_objective-c_constants) |
 | Templated class/function            | Not converted****                                                                                                                       |
-| Specialized class template          | ???                                                                                                                                     |
-| Specialized function template       | ???                                                                                                                                     |
+| Specialized class template          | Class***                                                                                                                                |
+| Specialized function template       | Function***                                                                                                                             |
 | Documentation                       | Documentation                                                                                                                           |
 
 \* Prefix on all classes and free functions in the namespace.
 
 \*\* Wrapped in a class with a name that starts with the module name.
 
-\*\*\* The naming convention for these classes can be found under the [Naming Convention page](naming_convention.md).
+\*\*\* The naming convention for these classes and functions can be found under the [Naming Convention page](naming_convention.md).
 
 \*\*\*\* No direct translation to Objective-C. Will not emit warning.
 

@@ -31,7 +31,7 @@ std::string Attribute::getObjcSource() const {
 }}
 )",
 	                   fmt::arg("staticAttribute", staticAttribute),
-	                   fmt::arg("type", m_type.m_name),
+	                   fmt::arg("type", m_type.m_name()),
 	                   fmt::arg("name", m_name),
 	                   fmt::arg("call", call));
 	if (!m_isConst) {
@@ -47,7 +47,7 @@ std::string Attribute::getObjcSource() const {
 )",
 		    fmt::arg("staticAttribute", staticAttribute),
 		    fmt::arg("name", m_name),
-		    fmt::arg("type", m_type.m_name),
+		    fmt::arg("type", m_type.m_name()),
 		    fmt::arg("callAccess", callAccess),
 		    fmt::arg("convertedVariable", convertedVariable));
 	}
@@ -62,7 +62,7 @@ std::string Attribute::getObjcSource() const {
 std::string Attribute::getObjcHeader() const {
 	auto declaration = fmt::format("@property {options} {type} {name};\n",
 	                               fmt::arg("options", getPropertyOptions()),
-	                               fmt::arg("type", m_type.m_name),
+	                               fmt::arg("type", m_type.m_name()),
 	                               fmt::arg("name", m_name));
 	if (m_isStandalone) {
 		declaration = Objc::wrapInInterface(

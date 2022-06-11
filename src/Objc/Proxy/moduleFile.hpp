@@ -7,6 +7,7 @@
 #include "Objc/Proxy/structure.hpp"
 #include "Objc/cache.hpp"
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -40,7 +41,7 @@ public:
 	void addFunction(Objc::Proxy::Function const& f);
 	void addAttribute(Objc::Proxy::Attribute const& v);
 
-	void setCache(Objc::Cache const& cache);
+	void setCache(std::unique_ptr<Objc::Cache> cache);
 
 private:
 	void sortAllStructures();
@@ -53,6 +54,6 @@ private:
 
 	std::vector<Structure const*> m_allStructures;
 
-	Objc::Cache m_cache;
+	std::unique_ptr<Objc::Cache> m_cache;
 };
 }    // namespace Objc::Proxy

@@ -32,6 +32,7 @@ std::string getDeclarationArguments(
 	// (int)x y:(int)y z:(int)z
 	// Get the typenames of the arguments
 	// The first one doesn't start with a name
+	fmt::print("{}\n", "Calling getDeclarationArguments()");
 	bool isFirst = true;
 	std::string out;
 	for (auto const& arg : arguments) {
@@ -39,9 +40,13 @@ std::string getDeclarationArguments(
 			out += arg.m_name + ':';
 		}
 		isFirst = false;
+		fmt::print("{}\n", "Args before");
+		fmt::print("{}\n", out);
 		out += fmt::format("({type}){name} ",
-		                   fmt::arg("type", arg.m_type.m_name),
+		                   fmt::arg("type", arg.m_type.m_name()),
 		                   fmt::arg("name", arg.m_name));
+		fmt::print("{}\n", "Args after");
+		fmt::print("{}\n", out);
 	}
 	if (!arguments.empty()) {
 		// Remove the last space
@@ -57,7 +62,7 @@ std::string Function::getFunctionDeclaration() const {
 	return fmt::format(
 	    R"({static}({returnType}) {functionName}{arguments})",
 	    fmt::arg("static", m_isStatic ? "+" : "-"),
-	    fmt::arg("returnType", m_returnType.m_name),
+	    fmt::arg("returnType", m_returnType.m_name()),
 	    fmt::arg("functionName", m_name),
 	    fmt::arg("arguments", arguments.empty() ? arguments : ':' + arguments));
 }
@@ -78,7 +83,7 @@ std::string Function::getFunctionCall() const {
 		                fmt::arg("name", m_cppName),
 		                fmt::arg("arguments", arguments));
 	}
-	return m_returnType.m_name == "void" ?
+	return m_returnType.m_name() == "void" ?
                functionCall :
                ObjcSwift::Helpers::wrapInFunction(
 	               functionCall, m_returnType.m_conversions.m_toObjc);
@@ -98,7 +103,8 @@ std::string Function::getFunctionBody() const {
 	// Class function
 	return fmt::format(
 	    "  {maybeReturn}{functionCall};",
-	    fmt::arg("maybeReturn", m_returnType.m_name == "void" ? "" : "return "),
+	    fmt::arg("maybeReturn",
+	             m_returnType.m_name() == "void" ? "" : "return "),
 	    fmt::arg("functionCall", getFunctionCall()));
 }
 

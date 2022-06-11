@@ -151,9 +151,25 @@ std::string getClassName(IR::Struct const& cppClass,
 }
 
 std::string getFunctionName(IR::Function const& cppFunction,
-                            bool isConstructor) {
+                            bool isConstructor,
+                            bool isOverloaded) {
 	if (!isConstructor) {
-		return ObjcSwift::Helpers::removeCppTemplate(cppFunction.m_name).first;
+		auto objcName =
+		    ObjcSwift::Helpers::removeCppTemplate(cppFunction.m_name).first;
+		if (isOverloaded) {
+			objcName += Objc::getParameterString(cppFunction.m_arguments);
+		}
+		return fmt::format(
+		    "{funcionName}{paramString}{templateArgs}",
+		    fmt::arg("funcionName",
+		             ObjcSwift::Helpers::removeCppTemplate(cppFunction.m_name)
+		                 .first),
+		    fmt::arg("paramString",
+		             isOverloaded ?
+                         Objc::getParameterString(cppFunction.m_arguments) :
+                         ""),
+		    fmt::arg("templateArgs",
+		             getParameterString(cppFunction.m_templateArguments)));
 	} else {
 		return "init" + Objc::getConstructorExtraName(cppFunction);
 	}

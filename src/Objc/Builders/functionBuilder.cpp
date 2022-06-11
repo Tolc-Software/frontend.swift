@@ -16,15 +16,12 @@ buildFunction(std::string const& objcClass,
               Objc::Cache& cache,
               bool isConstructor,
               bool isOverloaded) {
-	auto objcName = Objc::getFunctionName(cppFunction, isConstructor);
-	if (isOverloaded) {
-		objcName += Objc::getParameterString(cppFunction.m_arguments);
-	}
-	Objc::Proxy::Function objcFunction(objcName,
-	                                   cppFunction.m_name,
-	                                   cppFunction.m_representation,
-	                                   objcClass,
-	                                   cppClass);
+	Objc::Proxy::Function objcFunction(
+	    Objc::getFunctionName(cppFunction, isConstructor, isOverloaded),
+	    cppFunction.m_name,
+	    cppFunction.m_representation,
+	    objcClass,
+	    cppClass);
 
 	objcFunction.m_id = cppFunction.m_id;
 
@@ -42,7 +39,9 @@ buildFunction(std::string const& objcClass,
 
 	if (isConstructor) {
 		Objc::Proxy::Type returnType;
-		returnType.m_name = "instancetype";
+		returnType.m_name = []() {
+			return "instancetype";
+		};
 		returnType.m_conversions.m_toObjc = "";
 		returnType.m_conversions.m_toCpp = "";
 		objcFunction.setReturnType(returnType);

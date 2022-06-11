@@ -53,6 +53,9 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 	    Objc::getClassName(cppClass, cache.m_moduleName),
 	    cppClass.m_representation);
 
+	cache.m_cppToObjcClassNames[cppClass.m_representation] =
+	    objcClass.getName();
+
 	for (auto const& e : cppClass.m_public.m_enums) {
 		objcClass.addEnum(buildEnum(e, cache));
 	}
@@ -155,7 +158,9 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 		                                         objcClass.getName(),
 		                                         cppClass.m_representation);
 		Objc::Proxy::Type returnType;
-		returnType.m_name = "instancetype";
+		returnType.m_name = []() {
+			return "instancetype";
+		};
 		returnType.m_conversions.m_toObjc = "";
 		returnType.m_conversions.m_toCpp = "";
 		constructor.setReturnType(returnType);

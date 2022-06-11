@@ -1,10 +1,14 @@
 # Naming Convention #
 
-## Overloaded Functions ##
+## Signatures which depend on a type ##
 
-`Objective-C` does not have support for overloaded functions and relies on each function signature to be unique. When `Tolc` encounters an overloaded function, it simply concatenates the arguments into a `Type String`.
+`Objective-C` does not have support for type dependent signatures so relies on each function and type signature to be unique. When `Tolc` encounters such a signature, it simply concatenates the related type into a `Type String`.
 
-For example, the following `C++`:
+Lets clear that up with some examples:
+
+### Overloaded Functions ###
+
+The following `C++`:
 
 ```cpp
 string sayHello() {
@@ -23,6 +27,46 @@ Can be called from `Objective-C` as:
 [MyLib sayHello];
 // Results in "Hi Tolc"
 [MyLib sayHelloString:@"Tolc"];
+```
+
+### Templated functions ###
+
+The following `C++`:
+
+```cpp
+template <typename T>
+T getSomething(T something) {
+  return something;
+}
+
+template std::string getSomething(std::string something);
+```
+
+Can be called from `Objective-C` as:
+
+```objc
+NSString* hi = [m getSomethingString:@"Hi"];
+assert([hi isEqualToString:@"Hi"]);
+```
+
+### Templated classes ###
+
+The following `C++`:
+
+```cpp
+template <typename T>
+T getSomething(T something) {
+  return something;
+}
+
+template std::string getSomething(std::string something);
+```
+
+Can be called from `Objective-C` as:
+
+```objc
+NSString* hi = [m getSomethingString:@"Hi"];
+assert([hi isEqualToString:@"Hi"]);
 ```
 
 ## Type String ##

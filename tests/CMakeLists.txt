@@ -101,7 +101,6 @@ foreach(
   # functional.cpp
   # inheritence.cpp
   # operators.cpp
-  # templates.cpp
   # variants.cpp
   # virtualInheritence.cpp
   arrays.cpp
@@ -124,6 +123,7 @@ foreach(
   pairs.cpp
   sets.cpp
   smartPointers.cpp
+  templates.cpp
   tuples.cpp
   unordered_maps.cpp
   unordered_sets.cpp

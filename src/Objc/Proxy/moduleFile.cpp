@@ -43,14 +43,18 @@ void ModuleFile::sortAllStructures() {
 	for (auto& cls : m_classes) {
 		// Here all the functions of the interface are seen.
 		// Safe to see if this class has ever been used by a shared_ptr
-		if (m_cache.m_sharedPtrClasses.contains(cls.getCppClassName())) {
+		if (m_cache->m_sharedPtrClasses.contains(cls.getCppClassName())) {
 			cls.setAsManagedByShared();
 		}
 		m_allStructures.push_back(&cls);
 	}
 
 	for (auto const& f : m_functions) {
+		fmt::print("{}\n", f.getName());
+		fmt::print("{}\n", f.m_id);
+		fmt::print("{}\n", f.getObjcHeader());
 		m_allStructures.push_back(&f);
+		fmt::print("{}\n", "Done calling getObjcHeader");
 	}
 
 	for (auto const& a : m_attributes) {
@@ -103,8 +107,8 @@ std::string ModuleFile::getObjcSource() {
 {conversions}
 )",
 	    fmt::arg("classDeclarations", joinClassDeclarations(m_classes)),
-	    fmt::arg("conversions", createExtraFunctionsSource(m_cache)),
-	    fmt::arg("libraryName", m_cache.m_moduleName));
+	    fmt::arg("conversions", createExtraFunctionsSource(*m_cache)),
+	    fmt::arg("libraryName", m_cache->m_moduleName));
 
 	for (auto const& structure : m_allStructures) {
 		out += structure->getObjcSource();
@@ -115,23 +119,23 @@ std::string ModuleFile::getObjcSource() {
 
 std::string ModuleFile::getBridgingHeader() const {
 	return fmt::format("#include <{libraryName}_objc.h>",
-	                   fmt::arg("libraryName", m_cache.m_moduleName));
+	                   fmt::arg("libraryName", m_cache->m_moduleName));
 }
 
 std::filesystem::path ModuleFile::getObjcHeaderFile() const {
-	return m_cache.m_moduleName + "_objc.h";
+	return m_cache->m_moduleName + "_objc.h";
 }
 
 std::filesystem::path ModuleFile::getObjcSourceFile() const {
-	return m_cache.m_moduleName + "_objc.mm";
+	return m_cache->m_moduleName + "_objc.mm";
 }
 
 std::filesystem::path ModuleFile::getBridgingHeaderFile() const {
-	return m_cache.m_moduleName + "-Bridging-Header.h";
+	return m_cache->m_moduleName + "-Bridging-Header.h";
 }
 
-void ModuleFile::setCache(Objc::Cache const& cache) {
-	m_cache = cache;
+void ModuleFile::setCache(std::unique_ptr<Objc::Cache> cache) {
+	m_cache = std::move(cache);
 }
 
 void ModuleFile::addEnum(Objc::Proxy::Enum const& e) {

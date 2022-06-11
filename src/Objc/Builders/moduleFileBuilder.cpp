@@ -73,8 +73,8 @@ namespace Objc::Builders {
 std::optional<Objc::Proxy::ModuleFile>
 buildModuleFile(IR::Namespace const& rootNamespace,
                 std::string const& rootModuleName) {
-	Objc::Cache cache;
-	cache.m_moduleName = rootModuleName;
+	std::unique_ptr<Objc::Cache> cache = std::make_unique<Objc::Cache>();
+	cache->m_moduleName = rootModuleName;
 	Objc::Proxy::ModuleFile moduleFile;
 
 	std::queue<IR::Namespace const*> namespaces;
@@ -82,11 +82,11 @@ buildModuleFile(IR::Namespace const& rootNamespace,
 
 	while (!namespaces.empty()) {
 		auto currentNamespace = namespaces.front();
-		if (auto m = Objc::Builders::buildModule(*currentNamespace, cache)) {
+		if (auto m = Objc::Builders::buildModule(*currentNamespace, *cache)) {
 			if (!addNamespaceObjects(moduleFile,
 			                         *currentNamespace,
 			                         m.value().getName(),
-			                         cache)) {
+			                         *cache)) {
 				return std::nullopt;
 			}
 			moduleFile.addModule(m.value());
@@ -101,7 +101,7 @@ buildModuleFile(IR::Namespace const& rootNamespace,
 		namespaces.pop();
 	}
 
-	moduleFile.setCache(cache);
+	moduleFile.setCache(std::move(cache));
 	return moduleFile;
 }
 }    // namespace Objc::Builders
