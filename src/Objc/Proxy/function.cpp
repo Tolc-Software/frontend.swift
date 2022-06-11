@@ -32,7 +32,6 @@ std::string getDeclarationArguments(
 	// (int)x y:(int)y z:(int)z
 	// Get the typenames of the arguments
 	// The first one doesn't start with a name
-	fmt::print("{}\n", "Calling getDeclarationArguments()");
 	bool isFirst = true;
 	std::string out;
 	for (auto const& arg : arguments) {
@@ -40,13 +39,9 @@ std::string getDeclarationArguments(
 			out += arg.m_name + ':';
 		}
 		isFirst = false;
-		fmt::print("{}\n", "Args before");
-		fmt::print("{}\n", out);
 		out += fmt::format("({type}){name} ",
 		                   fmt::arg("type", arg.m_type.m_name()),
 		                   fmt::arg("name", arg.m_name));
-		fmt::print("{}\n", "Args after");
-		fmt::print("{}\n", out);
 	}
 	if (!arguments.empty()) {
 		// Remove the last space

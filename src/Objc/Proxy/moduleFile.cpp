@@ -50,11 +50,7 @@ void ModuleFile::sortAllStructures() {
 	}
 
 	for (auto const& f : m_functions) {
-		fmt::print("{}\n", f.getName());
-		fmt::print("{}\n", f.m_id);
-		fmt::print("{}\n", f.getObjcHeader());
 		m_allStructures.push_back(&f);
-		fmt::print("{}\n", "Done calling getObjcHeader");
 	}
 
 	for (auto const& a : m_attributes) {
