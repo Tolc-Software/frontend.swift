@@ -5,11 +5,11 @@ site_url: 'https://Tolc-Software.github.io/tolc/'
 docs_dir: 'public'
 strict: true
 nav:
-  - python:
+  - objc:
     - Quickstart: 'quickstart.md'
     - Conversions: 'conversions.md'
     - Examples: 'examples.md'
-    - Template Naming Convention: 'template_naming_convention.md'
+    - Naming Convention: 'naming_convention.md'
 markdown_extensions:
   - pymdownx.highlight
   - pymdownx.inlinehilite

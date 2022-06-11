@@ -48,20 +48,13 @@ jobs:
       shell: cmd
       run: |
         call "%VCVARS%"
-        cmake -S. -Bbuild -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_C_COMPILER=clang-cl -DENABLE_TESTING=ON -DENABLE_PACKAGING=ON -DCMAKE_BUILD_TYPE=Release -DCPACK_PACKAGE_FILE_NAME=Frontend.swift-Windows-Release -G Ninja
+        cmake -S. -Bbuild -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_C_COMPILER=clang-cl -DENABLE_PACKAGING=ON -DCMAKE_BUILD_TYPE=Release -DCPACK_PACKAGE_FILE_NAME=Frontend.swift-Windows-Release -G Ninja
 
     - name: Build
       shell: cmd
       run: |
         call "%VCVARS%"
         cmake --build build -j4
-
-    - name: Run tests
-      shell: cmd
-      run: |
-        call "%VCVARS%"
-        cd build
-        ctest --output-on-failure -j4
 
     - name: Build the release tar.xz package
       if: github.ref == 'refs/heads/main'
