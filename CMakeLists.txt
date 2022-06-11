@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
 
-
 # Temporary workaround for clang 14
 # https://github.com/llvm/llvm-project/issues/53950
 if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL Windows)
