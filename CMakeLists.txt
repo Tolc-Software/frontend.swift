@@ -10,7 +10,7 @@ endif()
 
 project(
   Frontend.swift
-  VERSION 0.1.0
+  VERSION 0.2.0
   LANGUAGES ${frontend_languages})
 
 configure_file(docs/ReleaseNotes/version.in
@@ -52,7 +52,6 @@ FetchContent_MakeAvailable(IRSpecification)
 add_library(
   Frontend.swift
 
-  src/Frontend/ObjcSwift/frontend.cpp
   src/ObjcSwift/Helpers/getDocumentationParameter.cpp
   src/ObjcSwift/Helpers/operatorNames.cpp
   src/ObjcSwift/Helpers/split.cpp
@@ -62,6 +61,7 @@ add_library(
   src/ObjcSwift/Helpers/wrapInFunction.cpp
   src/ObjcSwift/getOverloadedFunctions.cpp
 
+  src/Frontend/Swift/frontend.cpp
   src/Swift/Builders/attributeBuilder.cpp
   src/Swift/Builders/classBuilder.cpp
   src/Swift/Builders/enumBuilder.cpp
@@ -78,6 +78,7 @@ add_library(
   src/Swift/getName.cpp
   src/Swift/types.cpp
 
+  src/Frontend/Objc/frontend.cpp
   src/Objc/utility.cpp
   src/Objc/Builders/attributeBuilder.cpp
   src/Objc/Builders/classBuilder.cpp

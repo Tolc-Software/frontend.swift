@@ -1,5 +1,5 @@
 #include "TestUtil/objcSwiftStage.hpp"
-#include "Frontend/ObjcSwift/frontend.hpp"
+#include "Frontend/Objc/frontend.hpp"
 #include "Stage/cmakeStage.hpp"
 #include "TestStage/paths.hpp"
 #include "TestUtil/parserConfig.hpp"
@@ -92,7 +92,7 @@ int ObjcSwiftStage::runObjcSwiftTest(std::string const& cppCode,
 	addObjcSwiftTestBodies(m_stage, m_moduleName, objCTestCode, swiftCode);
 
 	auto globalNS = parseModuleFile(m_stage, m_moduleName, cppCode);
-	if (auto m = Frontend::ObjcSwift::createModule(globalNS, m_moduleName)) {
+	if (auto m = Frontend::Objc::createModule(globalNS, m_moduleName)) {
 		for (auto const& [file, content] : m.value()) {
 			auto ext = file.extension().string();
 			if (ext == ".mm") {
