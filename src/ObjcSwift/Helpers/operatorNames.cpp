@@ -6,6 +6,7 @@
 namespace ObjcSwift::Helpers {
 
 std::optional<std::string> getOperatorName(IR::Operator op) {
+	return std::nullopt;
 	using IR::Operator;
 	switch (op) {
 		case Operator::Addition:

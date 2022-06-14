@@ -9,13 +9,12 @@
 
 namespace Objc::Builders {
 
-std::optional<Objc::Proxy::Function>
-buildFunction(std::string const& objcClass,
-              std::string const& cppClass,
-              IR::Function const& cppFunction,
-              Objc::Cache& cache,
-              bool isConstructor,
-              bool isOverloaded) {
+Objc::Proxy::Function buildFunction(std::string const& objcClass,
+                                    std::string const& cppClass,
+                                    IR::Function const& cppFunction,
+                                    Objc::Cache& cache,
+                                    bool isConstructor,
+                                    bool isOverloaded) {
 	Objc::Proxy::Function objcFunction(
 	    Objc::getFunctionName(cppFunction, isConstructor, isOverloaded),
 	    cppFunction.m_name,

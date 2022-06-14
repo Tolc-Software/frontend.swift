@@ -18,6 +18,7 @@
 #include <numeric>
 #include <optional>
 #include <set>
+#include <spdlog/spdlog.h>
 #include <string>
 #include <string_view>
 
@@ -47,8 +48,7 @@ std::string getConversions(std::string_view objcName,
 
 }    // namespace
 
-std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
-                                             Objc::Cache& cache) {
+Objc::Proxy::Class buildClass(IR::Struct const& cppClass, Objc::Cache& cache) {
 	Objc::Proxy::Class objcClass(
 	    Objc::getClassName(cppClass, cache.m_moduleName),
 	    cppClass.m_representation);
@@ -78,22 +78,18 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 		    overloadedFunctions.find(function.m_representation) !=
 		    overloadedFunctions.end();
 		bool isConstructor = false;
-		if (auto maybeObjcFunction = buildFunction(objcClass.getName(),
-		                                           cppClass.m_representation,
-		                                           function,
-		                                           cache,
-		                                           isConstructor,
-		                                           isOverloaded)) {
-			auto& objcFunction = maybeObjcFunction.value();
+		auto objcFunction = buildFunction(objcClass.getName(),
+		                                  cppClass.m_representation,
+		                                  function,
+		                                  cache,
+		                                  isConstructor,
+		                                  isOverloaded);
 
-			if (function.m_isStatic) {
-				objcFunction.setAsStatic();
-			}
-
-			objcClass.addFunction(objcFunction);
-		} else {
-			return std::nullopt;
+		if (function.m_isStatic) {
+			objcFunction.setAsStatic();
 		}
+
+		objcClass.addFunction(objcFunction);
 	}
 
 	auto overloadedOperators =
@@ -103,46 +99,44 @@ std::optional<Objc::Proxy::Class> buildClass(IR::Struct const& cppClass,
 		    overloadedFunctions.find(function.m_representation) !=
 		    overloadedFunctions.end();
 		bool isConstructor = false;
-		if (auto maybeObjcFunction = buildFunction(objcClass.getName(),
-		                                           cppClass.m_representation,
-		                                           function,
-		                                           cache,
-		                                           isConstructor,
-		                                           isOverloaded)) {
-			if (auto maybeName = ObjcSwift::Helpers::getOperatorName(op)) {
-				auto& objcFunction = maybeObjcFunction.value();
-
-				if (function.m_isStatic) {
-					objcFunction.setAsStatic();
-				}
-
-				objcClass.addFunction(objcFunction);
+		auto objcFunction = buildFunction(objcClass.getName(),
+		                                  cppClass.m_representation,
+		                                  function,
+		                                  cache,
+		                                  isConstructor,
+		                                  isOverloaded);
+		if (auto maybeName = ObjcSwift::Helpers::getOperatorName(op)) {
+			if (function.m_isStatic) {
+				objcFunction.setAsStatic();
 			}
+
+			objcClass.addFunction(objcFunction);
 		} else {
-			return std::nullopt;
+			spdlog::warn(
+			    "Unknown operator {} found while creating an Objective-C version of class {}. Since it currently does not have a translation, it's being ignored.",
+			    function.m_representation,
+			    objcClass.getCppClassName());
 		}
 	}
 
 	for (auto const& constructor : cppClass.m_public.m_constructors) {
-		if (auto maybeObjcFunction = buildFunction(objcClass.getName(),
-		                                           cppClass.m_representation,
-		                                           constructor,
-		                                           cache,
-		                                           true)) {
-			auto& objcFunction = maybeObjcFunction.value();
+		auto objcFunction = buildFunction(objcClass.getName(),
+		                                  cppClass.m_representation,
+		                                  constructor,
+		                                  cache,
+		                                  true);
 
-			if (constructor.m_isStatic) {
-				objcFunction.setAsStatic();
-			}
-
-			if (cppClass.m_public.m_constructors.size() > 1) {
-				objcFunction.setAsOverloaded(overloadIndex++);
-			}
-
-			objcFunction.setAsConstructor();
-
-			objcClass.addConstructor(objcFunction);
+		if (constructor.m_isStatic) {
+			objcFunction.setAsStatic();
 		}
+
+		if (cppClass.m_public.m_constructors.size() > 1) {
+			objcFunction.setAsOverloaded(overloadIndex++);
+		}
+
+		objcFunction.setAsConstructor();
+
+		objcClass.addConstructor(objcFunction);
 	}
 
 	for (auto const& variable : cppClass.m_public.m_memberVariables) {

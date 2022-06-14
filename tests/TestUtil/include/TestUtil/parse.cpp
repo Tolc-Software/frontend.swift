@@ -11,5 +11,10 @@ IR::Namespace parse(std::string code) {
 	REQUIRE(parsed.has_value());
 	return parsed.value();
 }
+
+std::optional<IR::Namespace> parseUnsafe(std::string code) {
+	return Parser::parseString(code, TestUtil::getParserConfig());
+}
+
 }    // namespace TestUtil
 

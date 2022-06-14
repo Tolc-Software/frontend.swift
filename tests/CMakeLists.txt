@@ -113,6 +113,7 @@ foreach(
   filesystem_paths.cpp
   functions.cpp
   globalVariables.cpp
+  libraryNSClash.cpp
   lists.cpp
   maps.cpp
   memberVariables.cpp
