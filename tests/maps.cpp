@@ -53,8 +53,7 @@ assert([[sanFrancisco objectAtIndex:1] doubleValue] == -122.43);
 
 	auto swiftTestCode = R"()";
 
-	auto errorCode =
-	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::map");

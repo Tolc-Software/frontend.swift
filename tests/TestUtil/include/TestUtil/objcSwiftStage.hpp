@@ -2,6 +2,7 @@
 
 #include "Stage/cmakeStage.hpp"
 #include <IR/ir.hpp>
+#include <array>
 #include <filesystem>
 
 namespace TestUtil {
@@ -12,9 +13,9 @@ struct ObjcSwiftStage {
 	/**
 	* Compile and run a test
 	*/
-	int runObjcSwiftTest(std::string const& cppCode,
-	                     std::string const& objCTestCode,
-	                     std::string const& swiftCode);
+	int runObjcTest(std::string const& cppCode,
+	                std::string const& objCTestCode,
+	                std::string const& swiftCode);
 
 	/**
 	* Adds a source file to the stage and imports the module file (moduleName.hpp)
@@ -23,7 +24,7 @@ struct ObjcSwiftStage {
 	                   std::string const& content);
 
 	/**
-	 * Exports as example. Assumes that runObjcSwiftTest has been called before
+	 * Exports as example. Assumes that runObjcTest has been called before
 	 * (to save the code)
 	 */
 	void exportAsExample(std::string const& name);
@@ -42,6 +43,8 @@ struct ObjcSwiftStage {
 
 	Stage::CMakeStage m_stage;
 	std::string m_moduleName;
-	std::vector<Code> m_exports;
+	Code m_cpp;
+	Code m_objc;
+	Code m_swift;
 };
 }    // namespace TestUtil

@@ -65,7 +65,7 @@ self.assertEqual(whiskers.sound(1, not grumpy), "meow! ")
 self.assertEqual(m.call_sound(whiskers), "meow! meow! meow! ")
 )";
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, pythonTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Overriding virtual in python");

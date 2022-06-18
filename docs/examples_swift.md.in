@@ -1,0 +1,12 @@
+# Examples #
+
+Each example is taken from the test suite for `Tolc` and, given that you use the latest version, you can expect them all to work.
+
+Each `C++` library named `MyLib` exports their functions and objects with a prefix of `MyLib`. In every test the library name is simply `m` for brevity. The examples that follow contains a bit of `C++` code, and the respective `Swift` code using it. Each `Swift` example is wrapped in the following boilerplate that is removed to make the examples more readable:
+
+```objc
+import m
+
+assert(m.sayHello() == "Hello")
+```
+

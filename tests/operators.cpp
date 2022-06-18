@@ -92,7 +92,7 @@ self.assertEqual(my_class(100), 100)
 self.assertEqual(my_class("The inner value is: "), "The inner value is: 0")
 )";
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, pythonTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Operators");

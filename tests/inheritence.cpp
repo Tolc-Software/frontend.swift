@@ -35,8 +35,7 @@ self.assertEqual(fido.bark(), "woof!")
 
 	auto swiftTestCode = R"()";
 
-	auto errorCode =
-	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Simple inheritence");

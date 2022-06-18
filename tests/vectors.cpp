@@ -52,8 +52,7 @@ assert([m sum:toSum] == 6.6);
 
 	auto swiftTestCode = R"()";
 
-	auto errorCode =
-	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::vector");

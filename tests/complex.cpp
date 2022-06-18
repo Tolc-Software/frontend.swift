@@ -51,7 +51,7 @@ self.assertEqual(r.imag, 2)
 )",
 	                                  fmt::arg("moduleName", moduleName));
 
-	auto errorCode = stage.runObjcSwiftTest(cppCode, pythonTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, pythonTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::complex");

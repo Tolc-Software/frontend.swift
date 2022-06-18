@@ -64,6 +64,36 @@ std::string makeValidFileName(std::string s) {
 	std::replace(s.begin(), s.end(), ':', '_');
 	return s;
 }
+
+void exportExample(std::string const& name,
+                   ObjcSwiftStage::Code const& cppCode,
+                   ObjcSwiftStage::Code const& code) {
+	std::filesystem::path fileName =
+	    TestStage::getExamplesPath() / code.language /
+	    fmt::format("{}.md", makeValidFileName(name));
+
+	std::string content = fmt::format(R"(
+## {name} ##
+
+```cpp
+{cppCode}
+```
+
+```{language}
+{code}
+```
+
+)",
+	                                  fmt::arg("name", name),
+	                                  fmt::arg("cppCode", cppCode.code),
+	                                  fmt::arg("language", code.language),
+	                                  fmt::arg("code", code.code));
+
+	std::ofstream example(fileName);
+	example << content;
+	example.close();
+}
+
 }    // namespace
 
 ObjcSwiftStage::ObjcSwiftStage(std::filesystem::path const& baseStage,
@@ -81,15 +111,16 @@ ObjcSwiftStage::ObjcSwiftStage(std::filesystem::path const& baseStage,
 	m_stage.setWindowsCMakeBuildAndConfigureScript("configureAndBuild.bat");
 }
 
-int ObjcSwiftStage::runObjcSwiftTest(std::string const& cppCode,
-                                     std::string const& objCTestCode,
-                                     std::string const& swiftCode) {
+int ObjcSwiftStage::runObjcTest(std::string const& cppCode,
+                                std::string const& objcCode,
+                                std::string const& swiftCode) {
 	using path = std::filesystem::path;
 	// Save as what has been used
-	m_exports = {Code {"cpp", cppCode}, Code {"objc", objCTestCode}};
-	// Code {"swift", swiftCode}};
+	m_cpp = Code {"cpp", cppCode};
+	m_objc = Code {"objc", objcCode};
+	m_swift = Code {"swift", swiftCode};
 
-	addObjcSwiftTestBodies(m_stage, m_moduleName, objCTestCode, swiftCode);
+	addObjcSwiftTestBodies(m_stage, m_moduleName, objcCode, swiftCode);
 
 	auto globalNS = parseModuleFile(m_stage, m_moduleName, cppCode);
 	if (auto m = Frontend::Objc::createModule(globalNS, m_moduleName)) {
@@ -122,28 +153,8 @@ void ObjcSwiftStage::addModuleFile(std::filesystem::path const& file,
 }
 
 void ObjcSwiftStage::exportAsExample(std::string const& name) {
-	std::filesystem::path fileName =
-	    TestStage::getExamplesPath() /
-	    fmt::format("{}.md", makeValidFileName(name));
-	std::string content = fmt::format(R"(
-## {} ##
-
-)",
-	                                  name);
-	for (auto const& [language, code] : m_exports) {
-		content += fmt::format(R"(
-```{language}
-{code}
-```
-
-)",
-		                       fmt::arg("language", language),
-		                       fmt::arg("code", code));
-	}
-
-	std::ofstream example(fileName);
-	example << content;
-	example.close();
+	exportExample(name, m_cpp, m_objc);
+	exportExample(name, m_cpp, m_swift);
 }
 
 void ObjcSwiftStage::keepAliveAfterTest() {

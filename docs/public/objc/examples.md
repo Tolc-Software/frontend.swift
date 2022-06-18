@@ -2,7 +2,7 @@
 
 Each example is taken from the test suite for `Tolc` and, given that you use the latest version, you can expect them all to work.
 
-Each `C++` library named `MyLib` exports their functions and objects with a prefix of `MyLib`. In every test the library name is simply `m` for brevity. The examples that follow contains a bit of `C++` code, and the respective `Objective-C` and `Swift` code using it. Each `Objective-C` example is wrapped in the following boilerplate that is removed to make the examples more readable:
+Each `C++` library named `MyLib` exports their functions and objects with a prefix of `MyLib`. In every test the library name is simply `m` for brevity. The examples that follow contains a bit of `C++` code, and the respective `Objective-C` code using it. Each `Objective-C` example is wrapped in the following boilerplate that is removed to make the examples more readable:
 
 ```objc
 #include <m.h>
@@ -14,17 +14,8 @@ int main() {
 }
 ```
 
-And the same for `Swift`:
-
-```swift
-import m_swift
-
-assert(m.sayHello() == "Hello")
-```
-
 
 ## Classes ##
-
 
 ```cpp
 
@@ -64,7 +55,6 @@ public:
 
 ```
 
-
 ```objc
 
 // Constructors are overloaded with their argument types
@@ -101,7 +91,6 @@ assert(member.phi == 1.618);
 
 ## Enums ##
 
-
 ```cpp
 
 enum Unscoped {
@@ -136,7 +125,6 @@ namespace NS {
 
 ```
 
-
 ```objc
 
 // C++11 enums work
@@ -160,7 +148,6 @@ assert([enumTest f:uboat] == uboat);
 
 
 ## Functions ##
-
 
 ```cpp
 
@@ -187,7 +174,6 @@ namespace Inner {
 
 ```
 
-
 ```objc
 
 // Global functions gets added to
@@ -211,7 +197,6 @@ assert([mInner pi] == 3.14);
 
 ## Global Variables ##
 
-
 ```cpp
 
 #include <string>
@@ -225,7 +210,6 @@ namespace Nested {
 }
 
 ```
-
 
 ```objc
 
@@ -247,7 +231,6 @@ assert([mNested.constant isEqualToString:@"A constant"]);
 
 
 ## Member Variables ##
-
 
 ```cpp
 
@@ -283,7 +266,6 @@ namespace MyLib {
 
 ```
 
-
 ```objc
 
 // Mutable member variables can be changed
@@ -302,7 +284,6 @@ assert(nested.d == 4.3);
 
 
 ## Namespaces ##
-
 
 ```cpp
 
@@ -335,7 +316,6 @@ int complexFunction() {
 
 ```
 
-
 ```objc
 
 // Namespaces corresponds to classes
@@ -351,7 +331,6 @@ assert([lifeProTips isEqualToString:@"42"]);
 
 
 ## Overloaded Functions ##
-
 
 ```cpp
 
@@ -390,7 +369,6 @@ private:
 
 ```
 
-
 ```objc
 
 // Overloaded functions work the same as in C++
@@ -411,7 +389,6 @@ assert([[overload getStuffString:@"Other"] isEqualToString:@"Other"]);
 
 
 ## Passing classes between languages ##
-
 
 ```cpp
 
@@ -452,7 +429,6 @@ Point2d getMiddle(std::pair<Point2d, Point2d> p) {
 
 ```
 
-
 ```objc
 
 NSString* phrase = @"Hello from Objective-C";
@@ -480,7 +456,6 @@ assert(middle.y == 0);
 
 
 ## Smart Pointers ##
-
 
 ```cpp
 
@@ -517,7 +492,6 @@ int consumeSharedData(std::shared_ptr<SharedData> data) {
 
 ```
 
-
 ```objc
 
 // std::unique_ptr acts as a normal value
@@ -553,7 +527,6 @@ NSLog(@"%i", sharedData.i);
 
 ## Templates ##
 
-
 ```cpp
 
 #include <array>
@@ -586,7 +559,6 @@ template class MyClass<int>;
 template class MyClass<std::array<int, 3>>;
 
 ```
-
 
 ```objc
 
@@ -627,7 +599,6 @@ assert([[arr objectAtIndex:2] intValue] == 2);
 
 ## std::array ##
 
-
 ```cpp
 
 #include <algorithm>
@@ -653,7 +624,6 @@ double sum(std::array<double, 3> const& numbers) {
 
 
 ```
-
 
 ```objc
 
@@ -693,7 +663,6 @@ assert([m sum:toSum] == 6.6);
 
 ## std::deque ##
 
-
 ```cpp
 
 #include <string>
@@ -708,7 +677,6 @@ surround(std::deque<std::string> d,
 }
 
 ```
-
 
 ```objc
 
@@ -731,7 +699,6 @@ assert([[surroundedDeque objectAtIndex:2]
 
 
 ## std::filesystem::path ##
-
 
 ```cpp
 
@@ -759,7 +726,6 @@ joinPaths(std::vector<std::filesystem::path> arrayToSum) {
 
 ```
 
-
 ```objc
 
 // std::filesystem::path corresponds to NSString
@@ -781,7 +747,6 @@ assert([joined isEqualToString:@"to/the/heart"]);
 
 ## std::list ##
 
-
 ```cpp
 
 #include <string>
@@ -792,7 +757,6 @@ std::list<std::string> getList() {
 }
 
 ```
-
 
 ```objc
 
@@ -808,7 +772,6 @@ assert([[words objectAtIndex:2] isEqualToString:@"fun"]);
 
 
 ## std::map ##
-
 
 ```cpp
 
@@ -830,7 +793,6 @@ std::map<std::string, std::vector<double>> getCities() {
 }
 
 ```
-
 
 ```objc
 
@@ -861,7 +823,6 @@ assert([[sanFrancisco objectAtIndex:1] doubleValue] == -122.43);
 
 ## std::optional ##
 
-
 ```cpp
 
 #include <optional>
@@ -878,7 +839,6 @@ answer(std::optional<std::string> const& question) {
 
 ```
 
-
 ```objc
 
 // std::optional is either the value or nil
@@ -893,7 +853,6 @@ assert([noAnswer isEqualToString:@"That's no question!"]);
 
 
 ## std::pair ##
-
 
 ```cpp
 
@@ -921,7 +880,6 @@ private:
 };
 
 ```
-
 
 ```objc
 
@@ -960,7 +918,6 @@ assert([joined isEqualToString:@"Hey Hey Hey "]);
 
 ## std::set ##
 
-
 ```cpp
 
 #include <set>
@@ -971,7 +928,6 @@ std::set<std::string> getLanguages() {
 }
 
 ```
-
 
 ```objc
 
@@ -985,7 +941,6 @@ assert([languages containsObject:@"Spanish"]);
 
 
 ## std::tuple ##
-
 
 ```cpp
 
@@ -1001,7 +956,6 @@ std::tuple<int, std::string> sumInts(std::tuple<int, int, std::string> t) {
 }
 
 ```
-
 
 ```objc
 
@@ -1037,7 +991,6 @@ assert([[summed objectAtIndex:1] isEqualToString:@"Hello"]);
 
 ## std::unordered_map ##
 
-
 ```cpp
 
 #include <string>
@@ -1049,7 +1002,6 @@ getUnordered() {
 }
 
 ```
-
 
 ```objc
 
@@ -1065,7 +1017,6 @@ assert([n intValue] == 1);
 
 ## std::unordered_set ##
 
-
 ```cpp
 
 #include <string>
@@ -1076,7 +1027,6 @@ std::unordered_set<std::string> getLanguages() {
 }
 
 ```
-
 
 ```objc
 
@@ -1091,7 +1041,6 @@ assert([languages containsObject:@"Objective-C"]);
 
 ## std::valarray ##
 
-
 ```cpp
 
 #include <valarray>
@@ -1101,7 +1050,6 @@ std::valarray<int> getIt() {
 }
 
 ```
-
 
 ```objc
 
@@ -1118,7 +1066,6 @@ assert([[v objectAtIndex:2] intValue] == 2);
 
 
 ## std::vector ##
-
 
 ```cpp
 
@@ -1145,7 +1092,6 @@ double sum(std::vector<double> const& numbers) {
 
 
 ```
-
 
 ```objc
 

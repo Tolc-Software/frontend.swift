@@ -40,8 +40,7 @@ assert([[surroundedDeque objectAtIndex:2]
 
 	auto swiftTestCode = R"()";
 
-	auto errorCode =
-	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::deque");

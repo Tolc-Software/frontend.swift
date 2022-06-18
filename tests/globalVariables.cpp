@@ -39,8 +39,7 @@ assert([mNested.constant isEqualToString:@"A constant"]);
 
 	auto swiftTestCode = R"()";
 
-	auto errorCode =
-	    stage.runObjcSwiftTest(cppCode, objcTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Global Variables");

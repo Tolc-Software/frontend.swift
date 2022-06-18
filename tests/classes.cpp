@@ -113,8 +113,7 @@ assert(member.i == 5);
 assert(member.phi == 1.618);
 )";
 
-	auto errorCode =
-	    stage.runObjcSwiftTest(cppCode, objCTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objCTestCode, swiftTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Classes");
