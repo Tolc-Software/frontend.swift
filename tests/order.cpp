@@ -35,8 +35,8 @@ mDeepMeaningOfLife* meaning = [[mDeepMeaningOfLife alloc] init];
 assert([m answer:meaning] == 42);
 )";
 
-	auto swiftTestCode = R"()";
+	[[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode);
 	REQUIRE(errorCode == 0);
 }

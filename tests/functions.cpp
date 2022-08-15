@@ -4,9 +4,6 @@
 #include <fmt/format.h>
 
 TEST_CASE("Write to file functions", "[functions]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
 
 	auto cppCode = R"(
 #include <filesystem>
@@ -49,9 +46,14 @@ assert([[m getPath] isEqualToString:@"/path/to/stuff.hpp"]);
 assert([mInner pi] == 3.14);
 )";
 
-	auto swiftTestCode = R"()";
+	[[maybe_unused]] auto swiftTestCode = R"(
+print("Hello")
+)";
 
-	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
+	std::string moduleName = "m";
+	auto stage =
+	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Functions");

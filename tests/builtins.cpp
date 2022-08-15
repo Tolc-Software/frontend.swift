@@ -118,8 +118,8 @@ assert([m funsigned_short_int] == 42);
 assert([m fwchar_t] == 'A');
 )";
 
-	auto swiftTestCode = R"()";
+	[[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode);
 	REQUIRE(errorCode == 0);
 }

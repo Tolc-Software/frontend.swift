@@ -27,9 +27,9 @@ assert([[v objectAtIndex:1] intValue] == 1);
 assert([[v objectAtIndex:2] intValue] == 2);
 )";
 
-	auto swiftTestCode = R"()";
+	[[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::valarray");

@@ -50,9 +50,9 @@ assert([[summed objectAtIndex:1] isEqualToString:@"Hello"]);
 }
 )";
 
-	auto swiftTestCode = R"()";
+	[[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::tuple");

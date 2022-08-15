@@ -14,8 +14,12 @@ struct ObjcSwiftStage {
 	* Compile and run a test
 	*/
 	int runObjcTest(std::string const& cppCode,
-	                std::string const& objCTestCode,
-	                std::string const& swiftCode);
+	                std::string const& objCTestCode);
+
+	/**
+	* Compile and run a test
+	*/
+	int runSwiftTest(std::string const& cppCode, std::string const& swiftCode);
 
 	/**
 	* Adds a source file to the stage and imports the module file (moduleName.hpp)

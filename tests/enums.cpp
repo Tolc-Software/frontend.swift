@@ -59,7 +59,7 @@ assert([enumTest f:uboat] == uboat);
 // self.assertIn("Documentation describing the enum", m.NS.Deep.__doc__)
 )";
 
-	auto swiftTestCode = R"(
+	[[maybe_unused]] auto swiftTestCode = R"(
 // C++11 enums work
 scoped = m.Scoped.Snail
 enumTest = m.EnumTest(scoped)
@@ -78,7 +78,7 @@ assert(deep != m.NS.Deep.Double)
 // Documentation carries over from C++
 // self.assertIn("Documentation describing the enum", m.NS.Deep.__doc__)
 )";
-	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Enums");

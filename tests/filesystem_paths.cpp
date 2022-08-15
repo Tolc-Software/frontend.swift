@@ -49,9 +49,9 @@ NSString* joined = [m joinPaths:paths];
 assert([joined isEqualToString:@"to/the/heart"]);
 )";
 
-	auto swiftTestCode = R"()";
+	[[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::filesystem::path");

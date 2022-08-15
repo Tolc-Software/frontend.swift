@@ -36,6 +36,14 @@ set_target_properties(
   CXX_EXTENSIONS OFF
   CXX_STANDARD 17)
 
+option(use_swift OFF)
+if(use_swift)
+  # When outputting Swift, the middle Objective-C layer is "hidden"
+  set(objc_target "_${target_name}")
+else()
+  set(objc_target ${target_name})
+endif()
+
 # The Objective-C++ middle layer
 add_library(${target_name}_objc src/${target_name}_objc.mm)
 target_include_directories(${target_name}_objc PUBLIC src)
@@ -54,8 +62,6 @@ target_link_libraries(objecty PRIVATE "-framework Foundation")
 add_test(NAME objecty
   COMMAND objecty)
 
-# TODO: When Swift is stable, start testing that aswell
-set(use_swift OFF)
 if(use_swift)
   # The ObjcSwift middle layer
   add_library(${target_name}_swift SHARED src/${target_name}_swift.swift)

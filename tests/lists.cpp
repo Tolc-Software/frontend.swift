@@ -27,9 +27,9 @@ assert([[words objectAtIndex:1] isEqualToString:@"list"]);
 assert([[words objectAtIndex:2] isEqualToString:@"fun"]);
 )";
 
-	auto swiftTestCode = R"()";
+	[[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::list");

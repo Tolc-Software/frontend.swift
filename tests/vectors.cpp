@@ -50,9 +50,9 @@ NSArray<NSNumber*>* toSum = @[@(1.1), @(2.2), @(3.3)];
 assert([m sum:toSum] == 6.6);
 )";
 
-	auto swiftTestCode = R"()";
+	[[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::vector");

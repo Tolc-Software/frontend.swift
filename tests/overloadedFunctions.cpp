@@ -59,9 +59,9 @@ assert([[overload getStuff] isEqualToString:@"Stuff"]);
 assert([[overload getStuffString:@"Other"] isEqualToString:@"Other"]);
 )";
 
-	auto swiftTestCode = R"()";
+	[[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runObjcTest(cppCode, objcTestCode, swiftTestCode);
+	auto errorCode = stage.runObjcTest(cppCode, objcTestCode);
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Overloaded Functions");

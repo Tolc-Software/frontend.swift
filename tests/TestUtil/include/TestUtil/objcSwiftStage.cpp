@@ -1,5 +1,6 @@
 #include "TestUtil/objcSwiftStage.hpp"
 #include "Frontend/Objc/frontend.hpp"
+#include "Frontend/Swift/frontend.hpp"
 #include "Stage/cmakeStage.hpp"
 #include "TestStage/paths.hpp"
 #include "TestUtil/parserConfig.hpp"
@@ -32,10 +33,23 @@ IR::Namespace parseModuleFile(Stage::CMakeStage& stage,
 	return parsed.value();
 }
 
-void addObjcSwiftTestBodies(Stage::CMakeStage& stage,
-                            std::string const& moduleName,
-                            std::string const& objc,
-                            std::string const& swift) {
+void addSwiftTestBodies(Stage::CMakeStage& stage,
+                        std::string const& moduleName,
+                        std::string const& swift) {
+	using path = std::filesystem::path;
+	stage.addFile(path("tests") / "main.swift",
+	              fmt::format(R"(
+import {moduleName}
+
+{code}
+)",
+	                          fmt::arg("moduleName", moduleName),
+	                          fmt::arg("code", swift)));
+}
+
+void addObjcTestBodies(Stage::CMakeStage& stage,
+                       std::string const& moduleName,
+                       std::string const& objc) {
 	using path = std::filesystem::path;
 	stage.addFile(path("tests") / "main.mm",
 	              fmt::format(R"(
@@ -49,14 +63,6 @@ int main() {{
 )",
 	                          fmt::arg("moduleName", moduleName),
 	                          fmt::arg("code", objc)));
-	stage.addFile(path("tests") / "main.swift",
-	              fmt::format(R"(
-import {moduleName}
-
-{code}
-)",
-	                          fmt::arg("moduleName", moduleName),
-	                          fmt::arg("code", swift)));
 }
 
 std::string makeValidFileName(std::string s) {
@@ -112,18 +118,45 @@ ObjcSwiftStage::ObjcSwiftStage(std::filesystem::path const& baseStage,
 }
 
 int ObjcSwiftStage::runObjcTest(std::string const& cppCode,
-                                std::string const& objcCode,
-                                std::string const& swiftCode) {
+                                std::string const& objcCode) {
 	using path = std::filesystem::path;
 	// Save as what has been used
 	m_cpp = Code {"cpp", cppCode};
 	m_objc = Code {"objc", objcCode};
-	m_swift = Code {"swift", swiftCode};
 
-	addObjcSwiftTestBodies(m_stage, m_moduleName, objcCode, swiftCode);
+	addObjcTestBodies(m_stage, m_moduleName, objcCode);
 
 	auto globalNS = parseModuleFile(m_stage, m_moduleName, cppCode);
 	if (auto m = Frontend::Objc::createModule(globalNS, m_moduleName)) {
+		for (auto const& [file, content] : m.value()) {
+			auto ext = file.extension().string();
+			if (ext == ".mm") {
+				addModuleFile(file, content);
+			} else {
+				// Add an Objective-C++/Swift/whatever file
+				// Assumes to be referred to in CMakeLists.txt properly
+				m_stage.addFile(path("src") / file, content);
+			}
+		}
+		if (m_stage.configureAndBuild() == 0) {
+			return runCtest();
+		}
+	}
+
+	return 1;
+}
+
+int ObjcSwiftStage::runSwiftTest(std::string const& cppCode,
+                                 std::string const& swiftCode) {
+	using path = std::filesystem::path;
+	// Save as what has been used
+	m_cpp = Code {"cpp", cppCode};
+	m_swift = Code {"swift", swiftCode};
+
+	addSwiftTestBodies(m_stage, m_moduleName, swiftCode);
+
+	auto globalNS = parseModuleFile(m_stage, m_moduleName, cppCode);
+	if (auto m = Frontend::Swift::createModule(globalNS, m_moduleName)) {
 		for (auto const& [file, content] : m.value()) {
 			auto ext = file.extension().string();
 			if (ext == ".mm") {
