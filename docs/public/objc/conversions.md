@@ -42,7 +42,7 @@ Your internal code can use anything from C++.
 
 \*\*\* The naming convention for these classes and functions can be found under the [Naming Convention page](naming_convention.md).
 
-\*\*\*\* No direct translation to Objective-C. Will not emit warning.
+\*\*\*\* No direct translation to `Objective-C`. Will not emit warning.
 
 | C++ operator      | Objective-C operator  |
 |:----------------- |:--------------------- |
