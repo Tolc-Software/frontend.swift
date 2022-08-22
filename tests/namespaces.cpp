@@ -50,7 +50,7 @@ assert([lifeProTips isEqualToString:@"42"]);
 
 	[[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runObjcTest(cppCode, objcTestCode);
+	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Namespaces");

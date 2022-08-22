@@ -13,7 +13,8 @@ TEST_CASE("Classes", "[classes]") {
 	// And https://en.cppreference.com/w/cpp/language/static
 	//
 	// Instantiation (must be in a source file):
-	stage.addModuleFile("test.cpp", "int const WithStatic::answer;");
+	stage.addSrcFile("test.cpp", "int const WithStatic::answer;");
+	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 class WithConstructor {
@@ -113,7 +114,7 @@ assert(member.i == 5);
 assert(member.phi == 1.618);
 )";
 
-	auto errorCode = stage.runObjcTest(cppCode, objCTestCode);
+	auto errorCode = stage.runTest(cppCode, objCTestCode, "objc");
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Classes");

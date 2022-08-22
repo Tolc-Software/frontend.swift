@@ -43,6 +43,12 @@ public:
 
 	void setCache(std::unique_ptr<Objc::Cache> cache);
 
+	/**
+	* Get a sorted list of all structures (namespaces, classes, functions etc.)
+	* translated by this moduleFile
+	*/
+	std::vector<Structure const*> const& getStructures();
+
 private:
 	void sortAllStructures();
 

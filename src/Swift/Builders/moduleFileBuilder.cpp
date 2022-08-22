@@ -1,4 +1,6 @@
 #include "Swift/Builders/moduleFileBuilder.hpp"
+#include "Objc/Proxy/class.hpp"
+#include "Objc/Proxy/structure.hpp"
 #include "ObjcSwift/Helpers/combine.hpp"
 #include "Swift/Builders/moduleBuilder.hpp"
 #include "Swift/Proxy/moduleFile.hpp"
@@ -18,43 +20,28 @@ struct ModulePair {
 namespace Swift::Builders {
 
 std::optional<Swift::Proxy::ModuleFile>
-buildModuleFile(IR::Namespace const& rootNamespace,
-                std::string const& rootModuleName) {
-	if (auto maybeRootModule =
-	        Swift::Builders::buildModule(rootNamespace, rootModuleName)) {
-		auto rootModule = maybeRootModule.value();
-		Swift::Proxy::ModuleFile moduleFile(rootModule, rootModuleName);
-
-		std::queue<ModulePair> namespaces;
-		for (auto const& subNamespace : rootNamespace.m_namespaces) {
-			if (auto m = Swift::Builders::buildModule(subNamespace,
-			                                          rootModuleName)) {
-				namespaces.push({subNamespace, m.value()});
-			} else {
-				return std::nullopt;
+buildModuleFile(std::vector<Objc::Proxy::Structure const*> const& structures) {
+	for (auto const* structure : structures) {
+		using Kind = Objc::Proxy::Structure::Kind;
+		switch (structure->m_kind) {
+			case Kind::Class: {
+				auto cls = static_cast<Objc::Proxy::Class const&>(*structure);
+				break;
 			}
-		}
-
-		while (!namespaces.empty()) {
-			auto const& [currentNamespace, currentModule] = namespaces.front();
-
-			moduleFile.addModule(currentModule);
-
-			// Go deeper into the nested namespaces
-			for (auto const& subNamespace : currentNamespace.m_namespaces) {
-				if (auto m = Swift::Builders::buildModule(subNamespace,
-				                                          rootModuleName)) {
-					namespaces.push({subNamespace, m.value()});
-				} else {
-					return std::nullopt;
-				}
+			case Kind::Namespace: {
+				break;
 			}
-
-			// Need currentNamespace and currentModule to live this far
-			namespaces.pop();
+			case Kind::Function: {
+				break;
+			}
+			case Kind::Enum: {
+				break;
+			}
+			case Kind::Attribute: {
+				break;
+			}
+			break;
 		}
-
-		return moduleFile;
 	}
 
 	return std::nullopt;

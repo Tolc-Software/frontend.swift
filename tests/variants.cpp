@@ -55,7 +55,7 @@ self.assertEqual(with_function.getTrue(), True)
 )",
 	                                  fmt::arg("moduleName", moduleName));
 
-	auto errorCode = stage.runObjcTest(cppCode, pythonTestCode);
+	auto errorCode = stage.runTest(cppCode, pythonTestCode, "objc");
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::variant");

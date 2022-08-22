@@ -13,27 +13,20 @@ struct ObjcSwiftStage {
 	/**
 	* Compile and run a test
 	*/
-	int runObjcTest(std::string const& cppCode,
-	                std::string const& objCTestCode);
+	int runTest(std::string const& cppCode,
+	            std::string const& objCTestCode,
+	            std::string const& lagnuage);
 
 	/**
-	* Compile and run a test
-	*/
-	int runSwiftTest(std::string const& cppCode, std::string const& swiftCode);
-
-	/**
-	* Adds a source file to the stage and imports the module file (moduleName.hpp)
-	*/
-	void addModuleFile(std::filesystem::path const& file,
-	                   std::string const& content);
-
-	/**
-	 * Exports as example. Assumes that runObjcTest has been called before
+	 * Exports as example. Assumes that runTest has been called before
 	 * (to save the code)
 	 */
 	void exportAsExample(std::string const& name);
 
-	int runCtest();
+	void addSrcFile(std::filesystem::path const& file,
+	                std::string const& content);
+
+	int runCtest(std::string const& language);
 
 	/**
 	* Run this to keep the stage on the filesystem after the test has completed

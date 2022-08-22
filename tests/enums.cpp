@@ -78,7 +78,7 @@ assert(deep != m.NS.Deep.Double)
 // Documentation carries over from C++
 // self.assertIn("Documentation describing the enum", m.NS.Deep.__doc__)
 )";
-	auto errorCode = stage.runObjcTest(cppCode, objcTestCode);
+	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Enums");

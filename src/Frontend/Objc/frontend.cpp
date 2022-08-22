@@ -1,8 +1,6 @@
 #include "Frontend/Objc/frontend.hpp"
 #include "Objc/Builders/moduleFileBuilder.hpp"
 #include "Objc/Proxy/moduleFile.hpp"
-#include "Swift/Builders/moduleFileBuilder.hpp"
-#include "Swift/Proxy/moduleFile.hpp"
 #include <IR/ir.hpp>
 #include <filesystem>
 #include <optional>

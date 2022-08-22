@@ -1,15 +1,14 @@
 #pragma once
 
+#include "Objc/Proxy/structure.hpp"
 #include "Swift/Proxy/moduleFile.hpp"
-#include <IR/ir.hpp>
 #include <optional>
 
 namespace Swift::Builders {
 
 /**
-* Goes through the given namespace downwards and creates a moduleFile from it
+* Goes through the given structures and creates a moduleFile from it
 */
 std::optional<Swift::Proxy::ModuleFile>
-buildModuleFile(IR::Namespace const& rootNamespace,
-                std::string const& moduleName);
+buildModuleFile(std::vector<Objc::Proxy::Structure const*> const& structures);
 }    // namespace Swift::Builders

@@ -34,7 +34,7 @@ assert([noAnswer isEqualToString:@"That's no question!"]);
 
 	[[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runObjcTest(cppCode, objcTestCode);
+	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("std::optional");

@@ -32,15 +32,18 @@ void ModuleFile::sortAllStructures() {
 	                        m_classes.size() + m_functions.size() +
 	                        m_attributes.size());
 
-	for (auto const& e : m_enums) {
+	for (auto& e : m_enums) {
+		e.m_kind = Structure::Kind::Enum;
 		m_allStructures.push_back(&e);
 	}
 
-	for (auto const& m : m_modules) {
+	for (auto& m : m_modules) {
+		m.m_kind = Structure::Kind::Namespace;
 		m_allStructures.push_back(&m);
 	}
 
 	for (auto& cls : m_classes) {
+		cls.m_kind = Structure::Kind::Class;
 		// Here all the functions of the interface are seen.
 		// Safe to see if this class has ever been used by a shared_ptr
 		if (m_cache->m_sharedPtrClasses.contains(cls.getCppClassName())) {
@@ -49,11 +52,13 @@ void ModuleFile::sortAllStructures() {
 		m_allStructures.push_back(&cls);
 	}
 
-	for (auto const& f : m_functions) {
+	for (auto& f : m_functions) {
+		f.m_kind = Structure::Kind::Function;
 		m_allStructures.push_back(&f);
 	}
 
-	for (auto const& a : m_attributes) {
+	for (auto& a : m_attributes) {
+		a.m_kind = Structure::Kind::Attribute;
 		m_allStructures.push_back(&a);
 	}
 
@@ -127,7 +132,7 @@ std::filesystem::path ModuleFile::getObjcSourceFile() const {
 }
 
 std::filesystem::path ModuleFile::getBridgingHeaderFile() const {
-	return m_cache->m_moduleName + "-Bridging-Header.h";
+	return m_cache->m_moduleName + "_objc-Bridging-Header.h";
 }
 
 void ModuleFile::setCache(std::unique_ptr<Objc::Cache> cache) {
@@ -152,6 +157,10 @@ void ModuleFile::addFunction(Objc::Proxy::Function const& f) {
 
 void ModuleFile::addAttribute(Objc::Proxy::Attribute const& v) {
 	m_attributes.push_back(v);
+}
+
+std::vector<Structure const*> const& ModuleFile::getStructures() {
+	return m_allStructures;
 }
 
 }    // namespace Objc::Proxy

@@ -16,7 +16,7 @@ createModule(IR::Namespace const& rootNamespace,
              std::string const& moduleName) {
 	std::vector<std::pair<std::filesystem::path, std::string>> out;
 	if (auto maybeObjcFile =
-	        Objc::Builders::buildModuleFile(rootNamespace, moduleName)) {
+	        ::Objc::Builders::buildModuleFile(rootNamespace, moduleName)) {
 		auto& objcFile = maybeObjcFile.value();
 
 		out.push_back(std::make_pair(objcFile.getObjcHeaderFile(),
@@ -24,7 +24,7 @@ createModule(IR::Namespace const& rootNamespace,
 		out.push_back(std::make_pair(objcFile.getObjcSourceFile(),
 		                             objcFile.getObjcSource()));
 		if (auto maybeSwiftFile =
-		        ::Swift::Builders::buildModuleFile(rootNamespace, moduleName)) {
+		        ::Swift::Builders::buildModuleFile(objcFile.getStructures())) {
 			auto& swiftFile = maybeSwiftFile.value();
 			out.push_back(std::make_pair(objcFile.getBridgingHeaderFile(),
 			                             objcFile.getBridgingHeader()));

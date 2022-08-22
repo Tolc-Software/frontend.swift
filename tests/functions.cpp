@@ -53,7 +53,7 @@ print("Hello")
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
-	auto errorCode = stage.runObjcTest(cppCode, objcTestCode);
+	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
 	REQUIRE(errorCode == 0);
 
 	stage.exportAsExample("Functions");
