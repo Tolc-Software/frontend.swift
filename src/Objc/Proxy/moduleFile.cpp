@@ -119,7 +119,7 @@ std::string ModuleFile::getObjcSource() {
 }
 
 std::string ModuleFile::getBridgingHeader() const {
-	return fmt::format("#include <{libraryName}.h>",
+	return fmt::format("#include \"{libraryName}.h\"",
 	                   fmt::arg("libraryName", m_cache->m_moduleName));
 }
 

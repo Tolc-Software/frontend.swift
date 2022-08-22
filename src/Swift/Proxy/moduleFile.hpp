@@ -9,8 +9,7 @@ namespace Swift::Proxy {
 
 class ModuleFile {
 public:
-	explicit ModuleFile(Module const& rootModule,
-	                    std::string const& libraryName);
+	explicit ModuleFile(std::string const& libraryName);
 
 	/**
 	* Add a module to the file.
@@ -33,7 +32,6 @@ public:
 	std::string getBridgingHeader() const;
 
 private:
-	std::string m_rootModuleName;
 	std::string m_libraryName;
 
 	// Will be put one after each other

@@ -18,13 +18,13 @@ public:
 	explicit ModuleFile();
 
 	/**
-	* The code that uses the C++ input
+	* The code that exposes the C++ code to Objective-C
 	*/
 	std::filesystem::path getObjcHeaderFile() const;
 	std::string getObjcHeader();
 
 	/**
-	* The code that exposes the C++ code to Objective-C
+	* The code that uses the C++ input
 	*/
 	std::filesystem::path getObjcSourceFile() const;
 	std::string getObjcSource();

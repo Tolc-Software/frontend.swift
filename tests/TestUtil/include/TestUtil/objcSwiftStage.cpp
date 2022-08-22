@@ -128,8 +128,8 @@ int ObjcSwiftStage::runTest(std::string const& cppCode,
                             std::string const& testCode,
                             std::string const& language) {
 	using path = std::filesystem::path;
-	// Save as what has been used
 	m_cpp = Code {"cpp", cppCode};
+
 	if (language == "objc") {
 		m_objc = Code {language, testCode};
 		addObjcTestBodies(m_stage, m_moduleName, testCode);

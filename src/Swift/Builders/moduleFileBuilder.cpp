@@ -1,7 +1,6 @@
 #include "Swift/Builders/moduleFileBuilder.hpp"
 #include "Objc/Proxy/class.hpp"
 #include "Objc/Proxy/structure.hpp"
-#include "ObjcSwift/Helpers/combine.hpp"
 #include "Swift/Builders/moduleBuilder.hpp"
 #include "Swift/Proxy/moduleFile.hpp"
 #include <IR/ir.hpp>
@@ -20,7 +19,9 @@ struct ModulePair {
 namespace Swift::Builders {
 
 std::optional<Swift::Proxy::ModuleFile>
-buildModuleFile(std::vector<Objc::Proxy::Structure const*> const& structures) {
+buildModuleFile(std::vector<Objc::Proxy::Structure const*> const& structures,
+                std::string const& moduleName) {
+	Swift::Proxy::ModuleFile rootFile(moduleName);
 	for (auto const* structure : structures) {
 		using Kind = Objc::Proxy::Structure::Kind;
 		switch (structure->m_kind) {
@@ -44,6 +45,6 @@ buildModuleFile(std::vector<Objc::Proxy::Structure const*> const& structures) {
 		}
 	}
 
-	return std::nullopt;
+	return rootFile;
 }
 }    // namespace Swift::Builders

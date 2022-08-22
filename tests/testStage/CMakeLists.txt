@@ -71,6 +71,7 @@ if("${language}" STREQUAL swift)
     PROPERTY
     COMPILE_FLAGS
     "-import-objc-header ${CMAKE_CURRENT_LIST_DIR}/${src}/${objc_target}-Bridging-Header.h")
+  set_target_properties(${swift_target} PROPERTIES OUTPUT_NAME ${target_name})
 
   # The ObjcSwift exposed layer
   add_executable(swifty
@@ -79,6 +80,7 @@ if("${language}" STREQUAL swift)
     ${swift_target})
   add_test(NAME swifty
     COMMAND swifty)
+
 else()
   # # The Objective-C exposed layer
   add_executable(objecty tests/main.mm)

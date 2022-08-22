@@ -83,7 +83,7 @@ assert(member.i == 5);
 assert(member.phi == 1.618);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"(
+	auto swiftTestCode = R"(
 // Constructors in swift
 // does not need different names
 var ten: m.WithConstructor = m.WithConstructor()
@@ -114,8 +114,8 @@ assert(member.i == 5);
 assert(member.phi == 1.618);
 )";
 
-	auto errorCode = stage.runTest(cppCode, objCTestCode, "objc");
-	REQUIRE(errorCode == 0);
+	REQUIRE(stage.runTest(cppCode, objCTestCode, "objc") == 0);
+	REQUIRE(stage.runTest(cppCode, swiftTestCode, "swift") == 0);
 
 	stage.exportAsExample("Classes");
 }

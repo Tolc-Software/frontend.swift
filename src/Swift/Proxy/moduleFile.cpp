@@ -4,9 +4,8 @@
 
 namespace Swift::Proxy {
 
-ModuleFile::ModuleFile(Module const& rootModule, std::string const& libraryName)
-    : m_rootModuleName(rootModule.getVariableName()),
-      m_libraryName(libraryName), m_modules({rootModule}) {}
+ModuleFile::ModuleFile(std::string const& libraryName)
+    : m_libraryName(libraryName) {}
 
 void ModuleFile::addModule(Module const& m) {
 	m_modules.push_back(m);
@@ -17,8 +16,7 @@ std::filesystem::path ModuleFile::getFilepath() const {
 }
 
 std::string ModuleFile::getSwift() const {
-	std::string out = fmt::format(R"(
-public class {libraryName} {{
+	std::string out = fmt::format(R"(public class {libraryName} {{
 )",
 	                              fmt::arg("libraryName", m_libraryName));
 
