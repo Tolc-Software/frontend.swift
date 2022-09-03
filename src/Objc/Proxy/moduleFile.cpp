@@ -71,7 +71,7 @@ void ModuleFile::sortAllStructures() {
 
 std::string ModuleFile::getObjcHeader() {
 	sortAllStructures();
-	std::string out = "#pragma once\n#import <Foundation/Foundation.h>";
+	std::string out = "#pragma once\n#import <Foundation/Foundation.h>\n";
 
 	for (auto const& s : m_allStructures) {
 		out += s->getObjcHeader();

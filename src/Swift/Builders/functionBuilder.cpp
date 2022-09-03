@@ -1,30 +1,49 @@
 #include "Swift/Builders/functionBuilder.hpp"
+#include "ObjcSwift/Helpers/split.hpp"
 #include "ObjcSwift/Helpers/types.hpp"
 #include "Swift/Proxy/function.hpp"
 #include "Swift/getName.hpp"
 #include "Swift/types.hpp"
-#include <cctype>
+#include <fmt/format.h>
 #include <optional>
-#include <spdlog/spdlog.h>
 #include <string>
 
 namespace Swift::Builders {
 
-std::optional<Swift::Proxy::Function>
-buildFunction(IR::Function const& cppFunction, bool isConstructor) {
-	Swift::Proxy::Function swiftFunction(
-	    Swift::getFunctionName(cppFunction, isConstructor),
-	    cppFunction.m_representation);
-
-	for (auto const& arg : cppFunction.m_arguments) {
-		Swift::Proxy::Function::Argument proxyArg;
-		proxyArg.name = arg.m_name;
-		proxyArg.type = toSwiftType(arg.m_type);
-		swiftFunction.addArgument(proxyArg);
+std::pair<std::string, std::string>
+getExtensionAndName(std::string const& fullyQualifiedName,
+                    std::string const& libraryName) {
+	auto splitted = ObjcSwift::Helpers::split(fullyQualifiedName, "::");
+	if (splitted.size() == 1) {
+		return {libraryName, splitted[0]};
 	}
 
-	swiftFunction.setReturnType(toSwiftType(cppFunction.m_returnType));
-	swiftFunction.setDocumentation(cppFunction.m_documentation);
+	auto name = splitted.back();
+	// Remove the name
+	splitted.pop_back();
+	splitted.push_front(libraryName);
+	return {fmt::format("{}", fmt::join(splitted, ".")), name};
+}
+
+Swift::Proxy::Function buildFunction(Objc::Proxy::Function const& objcFunction,
+                                     std::string const& libraryName) {
+	fmt::print("{}\n", "Building function");
+	auto [extension, name] =
+	    getExtensionAndName(objcFunction.getCppName(), libraryName);
+	fmt::print("{}\n", extension);
+	fmt::print("{}\n", name);
+
+	Swift::Proxy::Function swiftFunction(
+	    name, objcFunction.getName(), extension);
+
+	if (objcFunction.isStatic()) {
+		swiftFunction.setAsStatic();
+	}
+
+	if (objcFunction.isConstructor()) {
+		swiftFunction.setAsConstructor();
+	} else {
+	}
 
 	return swiftFunction;
 }

@@ -45,26 +45,6 @@ buildModule(IR::Namespace const& ns, std::string const& rootModuleName) {
 		builtModule.addEnum(Swift::Builders::buildEnum(e));
 	}
 
-	auto overloadedFunctions =
-	    ObjcSwift::getOverloadedFunctions(ns.m_functions);
-	for (auto const& function : ns.m_functions) {
-		if (auto maybeF = Swift::Builders::buildFunction(function)) {
-			auto f = maybeF.value();
-			if (overloadedFunctions.find(function.m_representation) !=
-			    overloadedFunctions.end()) {
-				f.setAsOverloaded();
-			}
-			builtModule.addFunction(f);
-		} else {
-			return std::nullopt;
-		}
-	}
-
-	for (auto const& variable : ns.m_variables) {
-		auto v = Swift::Builders::buildAttribute(ns.m_representation, variable);
-		builtModule.addAttribute(v);
-	}
-
 	for (auto const& cls : ns.m_structs) {
 		if (auto maybeC = Swift::Builders::buildClass(cls, rootModuleName)) {
 			auto c = maybeC.value();

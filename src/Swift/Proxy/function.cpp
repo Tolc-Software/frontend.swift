@@ -8,79 +8,69 @@
 namespace Swift::Proxy {
 
 std::string Function::getFunctionDeclaration() const {
-	if (m_isClassFunction) {
-		if (m_isConstructor) {
-			return fmt::format(R"(public{static} {functionName}({arguments}))",
-			                   fmt::arg("static", m_isStatic ? "static " : ""),
-			                   fmt::arg("functionName", m_name),
-			                   fmt::arg("arguments", getArguments()));
-		}
-		// public static func f() -> Int32
-		return fmt::format(
-		    R"(public {static}func {functionName}({arguments}) -> {returnType})",
-		    fmt::arg("static", m_isStatic ? "static " : ""),
-		    fmt::arg("returnType", m_returnType),
-		    fmt::arg("functionName", m_name),
-		    fmt::arg("arguments", getArguments()));
-	}
-	return "// Swift bare function not implemented";
+	// public static func f() -> Int32
+	return fmt::format(
+	    R"(public {static}func {functionName}({arguments}){returnType})",
+	    fmt::arg("static", m_isStatic ? "static " : ""),
+	    fmt::arg("returnType",
+	             m_returnType.empty() ? "" : " -> " + m_returnType),
+	    fmt::arg("functionName", m_name),
+	    fmt::arg("arguments", getArguments()));
 }
 
 std::string Function::getFunctionCall() const {
-	if (m_isClassFunction) {
-		if (m_isStatic) {
-			return fmt::format(R"({objcClassName}.{name}({arguments}))",
-			                   fmt::arg("objcClassName", m_objcClassName),
-			                   fmt::arg("name", m_name),
-			                   fmt::arg("arguments", getArgumentNames()));
-		}
-		// Class function
-		return fmt::format("m_object.{name}({arguments})",
+	if (m_isStatic) {
+		return fmt::format(R"({objcClassName}.{name}({arguments}))",
+		                   fmt::arg("objcClassName", m_objcName),
 		                   fmt::arg("name", m_name),
 		                   fmt::arg("arguments", getArgumentNames()));
 	}
-	return fmt::format("{name}({args})",
+	// Class function
+	return fmt::format("m_object.{name}({arguments})",
 	                   fmt::arg("name", m_name),
-	                   fmt::arg("args", getArgumentNames()));
+	                   fmt::arg("arguments", getArgumentNames()));
 }
 
 std::string Function::getFunctionBody() const {
-	if (m_isClassFunction) {
-		if (m_isConstructor) {
-			return fmt::format(R"(m_object = {objcClassName}({arguments}))",
-			                   fmt::arg("objcClassName", m_objcClassName),
-			                   fmt::arg("arguments", getArgumentNames()));
-		}
-
-		// Class function
-		return fmt::format(
-		    "{maybeReturn}{functionCall};",
-		    fmt::arg("maybeReturn", m_returnType == "Void" ? "" : "return "),
-		    fmt::arg("functionCall", getFunctionCall()));
+	if (m_isConstructor) {
+		return fmt::format(R"(m_object = {objcClassName}({arguments}))",
+		                   fmt::arg("objcClassName", "NotImplemented"),
+		                   fmt::arg("arguments", getArgumentNames()));
 	}
-	// Simple function
-	return "// Swift function body not implemented";
+
+	// Class function
+	return fmt::format(
+	    "{maybeReturn}{functionCall}",
+	    fmt::arg("maybeReturn", m_returnType == "Void" ? "" : "return "),
+	    fmt::arg("functionCall", getFunctionCall()));
 }
 
 std::string Function::getSwift() const {
 	// public func f() -> String {
 	//   return m_object.f()
 	// }
-	return fmt::format(
+	fmt::print("{}\n", "Calling getSwift()");
+	auto swift = fmt::format(
 	    R"(
-    {declaration} {{
-        {body}
-    }}
+extension {className} {{
+  {declaration} {{
+    {body}
+  }}
+}}
 )",
+	    fmt::arg("className", m_className),
 	    fmt::arg("declaration", getFunctionDeclaration()),
 	    fmt::arg("body", getFunctionBody()));
+	fmt::print("{}\n", swift);
+	return swift;
 }
 
 Function::Function(std::string const& name,
-                   std::string const& fullyQualifiedName)
-    : m_name(name), m_fullyQualifiedName(fullyQualifiedName), m_returnType(),
-      m_arguments({}), m_isOverloaded(false), m_isStatic(false),
-      m_isClassFunction(false), m_isConstructor(false) {}
+                   std::string const& objcName,
+                   std::string const& className)
+    : m_name(name), m_objcName(objcName), m_className(className),
+      m_returnType(), m_arguments({}), m_isStatic(false),
+      m_isConstructor(false) {}
 
 void Function::addArgument(Argument const& argument) {
 	m_arguments.push_back(argument);
@@ -94,8 +84,8 @@ void Function::setAsStatic() {
 	m_isStatic = true;
 };
 
-void Function::setAsOverloaded() {
-	m_isOverloaded = true;
+void Function::setAsConstructor() {
+	m_isConstructor = true;
 };
 
 void Function::setDocumentation(std::string const& documentation) {
@@ -110,12 +100,6 @@ std::string Function::getArgumentNames() const {
 		std::string pre = arg.name + ": ";
 		if (isFirst) {
 			pre = "";
-			// Constructors with parameters are special in Objc
-			// This is how the automatic Objc->Swift translation
-			// works for initWithXXX in Objc
-			if (m_isConstructor) {
-				pre = m_objcFirstConstructorParam + ": ";
-			}
 		}
 		names.push_back(fmt::format(
 		    "{pre}{name}", fmt::arg("pre", pre), fmt::arg("name", arg.name)));
@@ -127,9 +111,10 @@ std::string Function::getArgumentNames() const {
 
 std::string Function::getArguments() const {
 	// person: String, alreadyGreeted: Bool
+	// _ condition: Bool, _ message: String = ""
 	std::vector<std::string> out;
 	for (auto const& arg : m_arguments) {
-		out.push_back(fmt::format("{name}: {type}",
+		out.push_back(fmt::format("_ {name}: {type}",
 		                          fmt::arg("type", arg.type),
 		                          fmt::arg("name", arg.name)));
 	}
@@ -138,19 +123,5 @@ std::string Function::getArguments() const {
 
 std::string Function::getName() const {
 	return m_name;
-}
-
-void Function::setAsClassFunction(std::string const& objcClassName) {
-	m_objcClassName = objcClassName;
-	m_isClassFunction = true;
-}
-
-void Function::setAsConstructor() {
-	m_isConstructor = true;
-}
-
-void Function::setObjcFirstConstructorParameter(
-    std::string const& variableName) {
-	m_objcFirstConstructorParam = variableName;
 }
 }    // namespace Swift::Proxy

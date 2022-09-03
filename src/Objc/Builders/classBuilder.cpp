@@ -152,6 +152,7 @@ Objc::Proxy::Class buildClass(IR::Struct const& cppClass, Objc::Cache& cache) {
 		                                         objcClass.getName(),
 		                                         cppClass.m_representation);
 		Objc::Proxy::Type returnType;
+		returnType.m_cppType = nullptr;
 		returnType.m_name = []() {
 			return "instancetype";
 		};

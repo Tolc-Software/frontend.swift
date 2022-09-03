@@ -9,12 +9,12 @@ Enum::Enum(std::string const& name, std::string const& fullyQualifiedName)
     : m_name(name), m_fullyQualifiedName(fullyQualifiedName), m_values({}),
       m_isScoped(false) {};
 
-std::string Enum::getSwift(std::string const& moduleOrClass) const {
+std::string Enum::getSwift() const {
 	std::string out = fmt::format(
 	    "\t\tpy::enum_<{fullyQualifiedName}>({moduleOrClass}, \"{name}\"",
 	    fmt::arg("fullyQualifiedName", m_fullyQualifiedName),
 	    fmt::arg("name", m_name),
-	    fmt::arg("moduleOrClass", moduleOrClass));
+	    fmt::arg("moduleOrClass", " "));
 
 	if (m_isScoped) {
 		out += ", py::arithmetic()";

@@ -1,6 +1,7 @@
 #include "Swift/Builders/moduleFileBuilder.hpp"
 #include "Objc/Proxy/class.hpp"
 #include "Objc/Proxy/structure.hpp"
+#include "Swift/Builders/functionBuilder.hpp"
 #include "Swift/Builders/moduleBuilder.hpp"
 #include "Swift/Proxy/moduleFile.hpp"
 #include <IR/ir.hpp>
@@ -26,13 +27,15 @@ buildModuleFile(std::vector<Objc::Proxy::Structure const*> const& structures,
 		using Kind = Objc::Proxy::Structure::Kind;
 		switch (structure->m_kind) {
 			case Kind::Class: {
-				auto cls = static_cast<Objc::Proxy::Class const&>(*structure);
 				break;
 			}
 			case Kind::Namespace: {
 				break;
 			}
 			case Kind::Function: {
+				rootFile.addFunction(buildFunction(
+				    static_cast<Objc::Proxy::Function const&>(*structure),
+				    moduleName));
 				break;
 			}
 			case Kind::Enum: {

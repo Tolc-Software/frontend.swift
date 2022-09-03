@@ -57,5 +57,5 @@ private:
 	std::vector<Enum> m_enums;
 
 	bool m_isManagedByShared;
-	};
+};
 }    // namespace Swift::Proxy

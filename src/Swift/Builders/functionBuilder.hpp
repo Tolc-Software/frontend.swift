@@ -1,15 +1,14 @@
 #pragma once
 
+#include "Objc/Proxy/function.hpp"
 #include "Swift/Proxy/function.hpp"
-#include <IR/ir.hpp>
-#include <optional>
+#include <string>
 
 namespace Swift::Builders {
 
 /**
-* Transforms a IR::Function to a Swift::Proxy::Function
-* Fails if any of the arguments are std::unique_ptr (https://pybind11.readthedocs.io/en/stable/advanced/smart_ptrs.html)
+* Transforms a Objc::Proxy::Function to a Swift::Proxy::Function
 */
-std::optional<Swift::Proxy::Function>
-buildFunction(IR::Function const& cppFunction, bool isConstructor = false);
+Swift::Proxy::Function buildFunction(Objc::Proxy::Function const& objcFunction,
+                                     std::string const& libraryName);
 }    // namespace Swift::Builders

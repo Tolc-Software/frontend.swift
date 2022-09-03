@@ -38,8 +38,13 @@ void addSwiftTestBodies(Stage::CMakeStage& stage,
                         std::string const& swift) {
 	using path = std::filesystem::path;
 	stage.addFile(path("tests") / "main.swift",
-	              fmt::format(R"(
-import {moduleName}
+	              fmt::format(R"(import {moduleName}
+
+func assert(_ condition: Bool, _ message: String = "") -> Void {{
+    if (!condition) {{
+        fatalError(message)
+    }}
+}}
 
 {code}
 )",
@@ -135,6 +140,7 @@ int ObjcSwiftStage::runTest(std::string const& cppCode,
 		addObjcTestBodies(m_stage, m_moduleName, testCode);
 	} else if (language == "swift") {
 		m_swift = Code {language, testCode};
+		fmt::print("{}\n", "Adding swift bodies");
 		addSwiftTestBodies(m_stage, m_moduleName, testCode);
 	}
 
@@ -145,8 +151,11 @@ int ObjcSwiftStage::runTest(std::string const& cppCode,
                    Frontend::Swift::createModule(globalNS, moduleName);
 	};
 
+	fmt::print("{}\n", "Parsing");
 	auto globalNS = parseModuleFile(m_stage, m_moduleName, cppCode);
+	fmt::print("{}\n", "Creating the module");
 	if (auto m = createModule(globalNS, m_moduleName)) {
+		fmt::print("{}\n", "Writing the files");
 		for (auto& [file, content] : m.value()) {
 			auto ext = file.extension().string();
 			if (ext == ".mm") {
@@ -156,6 +165,7 @@ int ObjcSwiftStage::runTest(std::string const& cppCode,
 
 			m_stage.addFile(path("src-" + language) / file, content);
 		}
+		fmt::print("{}\n", "Configure and build");
 		if (configureAndBuild(m_stage, language)) {
 			return runCtest(language);
 		}

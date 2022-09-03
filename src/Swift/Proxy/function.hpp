@@ -7,7 +7,9 @@
 namespace Swift::Proxy {
 class Function {
 public:
-	Function(std::string const& name, std::string const& fullyQualifiedName);
+	Function(std::string const& name,
+	         std::string const& objcName,
+	         std::string const& className);
 
 	std::string getSwift() const;
 
@@ -34,12 +36,7 @@ public:
 	*/
 	void setDocumentation(std::string const& documentation);
 
-	// Is there another function with the same name but with different arguments?
-	void setAsOverloaded();
-
 	void setAsStatic();
-
-	void setAsClassFunction(std::string const& objcClassName);
 
 	void setAsConstructor();
 
@@ -48,19 +45,6 @@ public:
 	std::string getName() const;
 
 	std::string getArgumentNames() const;
-
-	/**
-	* An overloaded init with parameters is named
-	*   initWithIntDouble(int i, double d)
-	* for a constructor which takes an int and a double
-	* To call this constructor from Swift you need to know how the first variable is called
-	* as it takes on whatever comes after 'With' in the init name
-	* In this case:
-	*   MyClass(intDouble: 5, d: 1.0)
-	* The input to this function is therefore 'intDouble'
-	* Wild.
-	*/
-	void setObjcFirstConstructorParameter(std::string const& variableName);
 
 private:
 	std::string getArguments() const;
@@ -71,19 +55,15 @@ private:
 
 	// User defined name of the function
 	std::string m_name;
-	std::string m_fullyQualifiedName;
+	std::string m_objcName;
+	// The name of the class this function will be added to
+	std::string m_className;
+
 	std::string m_documentation;
-	// Defaults to void
 	std::string m_returnType;
 
-	// Is empty when not a class function
-	std::string m_objcClassName;
-
-	std::string m_objcFirstConstructorParam;
 	std::vector<Argument> m_arguments;
-	bool m_isOverloaded;
 	bool m_isStatic;
-	bool m_isClassFunction;
 	bool m_isConstructor;
 };
 }    // namespace Swift::Proxy

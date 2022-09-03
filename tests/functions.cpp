@@ -4,7 +4,6 @@
 #include <fmt/format.h>
 
 TEST_CASE("Write to file functions", "[functions]") {
-
 	auto cppCode = R"(
 #include <filesystem>
 #include <string>
@@ -28,7 +27,7 @@ namespace Inner {
 }
 )";
 
-	auto objcTestCode = R"(
+	[[maybe_unused]] auto objcTestCode = R"(
 // Global functions gets added to
 // a purely static class with
 // the name of the library
@@ -46,15 +45,19 @@ assert([[m getPath] isEqualToString:@"/path/to/stuff.hpp"]);
 assert([mInner pi] == 3.14);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"(
-print("Hello")
+	auto swiftTestCode = R"(
+// Global functions gets added to
+// a purely static class with
+// the name of the library
+assert(m.meaningOfLife() == 42)
 )";
 
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+	stage.keepAliveAfterTest();
+	REQUIRE(stage.runTest(cppCode, objcTestCode, "objc") == 0);
+	REQUIRE(stage.runTest(cppCode, swiftTestCode, "swift") == 0);
 
 	stage.exportAsExample("Functions");
 }

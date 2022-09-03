@@ -8,12 +8,7 @@ class Enum {
 public:
 	Enum(std::string const& name, std::string const& fullyQualifiedName);
 
-	/**
-	* Creates a string corresponding to the pybind11 conversion of this enum.
-	* E.g.
-	*   py::enum_<Pet::Kind>(pet, "Kind", py::arithmetic())
-	*/
-	std::string getSwift(std::string const& moduleOrClassName) const;
+	std::string getSwift() const;
 
 	/**
 	* Add an enum value. Should be just the value name.

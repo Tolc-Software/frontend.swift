@@ -29,12 +29,17 @@ public:
 	void setAsOverloaded(size_t overloadIndex);
 
 	void setAsStatic();
+	bool isStatic() const;
 
 	void setAsConstructor();
+	bool isConstructor() const;
 
 	void setReturnType(Objc::Proxy::Type const& type);
+	Objc::Proxy::Type const& getReturnType() const;
 
 	std::string getName() const;
+	// Gets the fully qualified name of the C++ function
+	std::string getCppName() const;
 
 	struct Argument {
 		std::string m_name;

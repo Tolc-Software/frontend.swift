@@ -11,30 +11,30 @@ Your internal code can use anything from C++.
 
 ## Conversion tables ##
 
-| C++                                 | Objective-C translation                                                                                                                 |
-|:----------------------------------- |:--------------------------------------------------------------------------------------------------------------------------------------- |
-| Namespace                           | ???                                                                                                                                     |
-| Nested namespace                    | ???                                                                                                                                     |
-| Class                               | ???                                                                                                                                     |
-| Public function                     | ???                                                                                                                                     |
-| Private function                    | Not converted                                                                                                                           |
-| Virtual function                    | ???                                                                                                                                     |
-| Operator                            | ???                                                                                                                                     |
-| Static member function              | ???                                                                                                                                     |
-| Static member variable              | ???                                                                                                                                     |
-| Public const member variable        | ???                                                                                                                                     |
-| Public non const member variable    | ???                                                                                                                                     |
-| Private member variable             | ???                                                                                                                                     |
-| Global variable                     | ???                                                                                                                                     |
-| Global static variable              | ???                                                                                                                                     |
-| Free function                       | ???                                                                                                                                     |
-| Overloaded function                 | ???                                                                                                                                     |
-| Enum                                | ???                                                                                                                                     |
-| Scoped enum                         | ???                                                                                                                                     |
-| Templated class/function            | Not converted****                                                                                                                       |
-| Specialized class template          | ???                                                                                                                                     |
-| Specialized function template       | ???                                                                                                                                     |
-| Documentation                       | ???                                                                                                                                     |
+| C++                                 | Objective-C translation                                 |
+|:----------------------------------- |:------------------------------------------------------- |
+| Namespace                           | ???                                                     |
+| Nested namespace                    | ???                                                     |
+| Class                               | ???                                                     |
+| Public function                     | ???                                                     |
+| Private function                    | Not converted                                           |
+| Virtual function                    | ???                                                     |
+| Operator                            | ???                                                     |
+| Static member function              | ???                                                     |
+| Static member variable              | ???                                                     |
+| Public const member variable        | ???                                                     |
+| Public non const member variable    | ???                                                     |
+| Private member variable             | ???                                                     |
+| Global variable                     | ???                                                     |
+| Global static variable              | ???                                                     |
+| Free function                       | ???                                                     |
+| Overloaded function                 | ???                                                     |
+| Enum                                | ???                                                     |
+| Scoped enum                         | ???                                                     |
+| Templated class/function            | Not converted****                                       |
+| Specialized class template          | ???                                                     |
+| Specialized function template       | ???                                                     |
+| Documentation                       | ???                                                     |
 
 \*\*\*\* No direct translation to `Swift`. Will not emit warning.
 

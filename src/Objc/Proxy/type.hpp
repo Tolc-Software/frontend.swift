@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Objc/Conversions/conversion.hpp"
+#include <IR/ir.hpp>
 #include <functional>
-#include <optional>
 #include <string>
 #include <vector>
 
 namespace Objc::Proxy {
+
 struct Type {
 	// Function that returns the name of the type.
 	// The Objective-C type might not be known
@@ -16,5 +17,8 @@ struct Type {
 	// to be dereferenced to get a standard const&
 	std::string m_dereference;
 	Objc::Conversions::Conversion m_conversions;
+
+	IR::Type const* m_cppType = nullptr;
+	bool m_isNullable = false;
 };
 }    // namespace Objc::Proxy

@@ -180,4 +180,19 @@ void Function::setAsStandalone() {
 	m_isStandalone = true;
 }
 
+bool Function::isStatic() const {
+	return m_isStatic;
+}
+
+bool Function::isConstructor() const {
+	return m_isConstructor;
+}
+
+Objc::Proxy::Type const& Function::getReturnType() const {
+	return m_returnType;
+}
+
+std::string Function::getCppName() const {
+	return m_fullyQualifiedName;
+}
 }    // namespace Objc::Proxy

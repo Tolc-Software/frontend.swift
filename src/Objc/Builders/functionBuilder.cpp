@@ -27,17 +27,17 @@ Objc::Proxy::Function buildFunction(std::string const& objcClass,
 	// For if there is no argument name
 	size_t argNumber = 0;
 	for (auto const& argument : cppFunction.m_arguments) {
-		Objc::Proxy::Function::Argument arg;
-		arg.m_name = argument.m_name.empty() ?
-                         "arg" + std::to_string(argNumber) :
-                         argument.m_name;
-		arg.m_type = Objc::Builders::buildType(argument.m_type, cache);
+		Objc::Proxy::Function::Argument arg {
+		    argument.m_name.empty() ? "arg" + std::to_string(argNumber) :
+                                      argument.m_name,
+		    Objc::Builders::buildType(argument.m_type, cache)};
 		objcFunction.addArgument(arg);
 		argNumber++;
-	}
+		}
 
 	if (isConstructor) {
 		Objc::Proxy::Type returnType;
+		returnType.m_cppType = &cppFunction.m_returnType;
 		returnType.m_name = []() {
 			return "instancetype";
 		};
