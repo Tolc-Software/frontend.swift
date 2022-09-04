@@ -1,11 +1,13 @@
-#include "Swift/types.hpp"
+#include "Swift/Builders/typeBuilder.hpp"
+#include "Objc/Proxy/type.hpp"
 #include <IR/ir.hpp>
 #include <string>
 #include <variant>
 
-namespace Swift {
+namespace Swift::Builders {
 
 namespace {
+
 std::string toSwiftType(IR::BaseType type) {
 	using IR::BaseType;
 	switch (type) {
@@ -35,13 +37,13 @@ std::string toSwiftType(IR::BaseType type) {
 	}
 	return "";
 }
+
 }    // namespace
 
-std::string toSwiftType(IR::Type const& type) {
-	if (auto baseType = std::get_if<IR::Type::Value>(&type.m_type)) {
+std::string buildType(Objc::Proxy::Type const& type) {
+	if (auto baseType = std::get_if<IR::Type::Value>(&type.m_cppType->m_type)) {
 		return toSwiftType(baseType->m_base);
 	}
 	return "";
 }
-
-}    // namespace Swift
+}    // namespace Swift::Builders

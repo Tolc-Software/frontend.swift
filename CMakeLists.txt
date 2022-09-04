@@ -68,6 +68,7 @@ add_library(
   src/Swift/Builders/functionBuilder.cpp
   src/Swift/Builders/moduleBuilder.cpp
   src/Swift/Builders/moduleFileBuilder.cpp
+  src/Swift/Builders/typeBuilder.cpp
   src/Swift/Proxy/attribute.cpp
   src/Swift/Proxy/class.cpp
   src/Swift/Proxy/enum.cpp
@@ -76,7 +77,6 @@ add_library(
   src/Swift/Proxy/module.cpp
   src/Swift/Proxy/moduleFile.cpp
   src/Swift/getName.cpp
-  src/Swift/types.cpp
 
   src/Frontend/Objc/frontend.cpp
   src/Objc/utility.cpp

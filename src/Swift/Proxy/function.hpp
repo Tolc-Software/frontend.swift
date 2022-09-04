@@ -46,6 +46,8 @@ public:
 
 	std::string getArgumentNames() const;
 
+	void setCallFrom(std::string const& callFrom);
+
 private:
 	std::string getArguments() const;
 
@@ -58,12 +60,16 @@ private:
 	std::string m_objcName;
 	// The name of the class this function will be added to
 	std::string m_className;
+	// The thing we are calling the function from.
+	// E.g. be "m_object." or "MyLibNS."
+	std::string m_callFrom;
 
 	std::string m_documentation;
 	std::string m_returnType;
 
 	std::vector<Argument> m_arguments;
 	bool m_isStatic;
+
 	bool m_isConstructor;
 };
 }    // namespace Swift::Proxy

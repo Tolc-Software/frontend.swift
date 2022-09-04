@@ -19,22 +19,16 @@ std::string Function::getFunctionDeclaration() const {
 }
 
 std::string Function::getFunctionCall() const {
-	if (m_isStatic) {
-		return fmt::format(R"({objcClassName}.{name}({arguments}))",
-		                   fmt::arg("objcClassName", m_objcName),
-		                   fmt::arg("name", m_name),
-		                   fmt::arg("arguments", getArgumentNames()));
-	}
-	// Class function
-	return fmt::format("m_object.{name}({arguments})",
-	                   fmt::arg("name", m_name),
+	return fmt::format(R"({callFrom}.{objcName}({arguments}))",
+	                   fmt::arg("callFrom", m_callFrom),
+	                   fmt::arg("objcName", m_objcName),
 	                   fmt::arg("arguments", getArgumentNames()));
 }
 
 std::string Function::getFunctionBody() const {
 	if (m_isConstructor) {
-		return fmt::format(R"(m_object = {objcClassName}({arguments}))",
-		                   fmt::arg("objcClassName", "NotImplemented"),
+		return fmt::format(R"(m_object = {functionCall}({arguments}))",
+		                   fmt::arg("functionCall", getFunctionCall()),
 		                   fmt::arg("arguments", getArgumentNames()));
 	}
 
@@ -67,9 +61,9 @@ extension {className} {{
 
 Function::Function(std::string const& name,
                    std::string const& objcName,
-                   std::string const& className)
-    : m_name(name), m_objcName(objcName), m_className(className),
-      m_returnType(), m_arguments({}), m_isStatic(false),
+                   std::string const& extensionClassName)
+    : m_name(name), m_objcName(objcName), m_className(extensionClassName),
+      m_callFrom(), m_returnType(), m_arguments({}), m_isStatic(false),
       m_isConstructor(false) {}
 
 void Function::addArgument(Argument const& argument) {
@@ -123,5 +117,9 @@ std::string Function::getArguments() const {
 
 std::string Function::getName() const {
 	return m_name;
+}
+
+void Function::setCallFrom(std::string const& callFrom) {
+	m_callFrom = callFrom;
 }
 }    // namespace Swift::Proxy

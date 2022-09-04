@@ -47,7 +47,10 @@ public:
 	};
 
 	void addArgument(Argument const& arg);
+	std::vector<Argument> const& getArguments() const;
+
 	void setAsStandalone();
+	bool isStandalone() const;
 
 private:
 	std::string getFunctionCall() const;

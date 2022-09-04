@@ -195,4 +195,14 @@ Objc::Proxy::Type const& Function::getReturnType() const {
 std::string Function::getCppName() const {
 	return m_fullyQualifiedName;
 }
+
+std::vector<Objc::Proxy::Function::Argument> const&
+Function::getArguments() const {
+	return m_arguments;
+}
+
+bool Function::isStandalone() const {
+	return m_isStandalone;
+}
+
 }    // namespace Objc::Proxy

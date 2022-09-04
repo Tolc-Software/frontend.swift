@@ -55,8 +55,8 @@ assert(m.meaningOfLife() == 42)
 	std::string moduleName = "m";
 	auto stage =
 	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
-	stage.keepAliveAfterTest();
-	REQUIRE(stage.runTest(cppCode, objcTestCode, "objc") == 0);
+	// stage.keepAliveAfterTest();
+	// REQUIRE(stage.runTest(cppCode, objcTestCode, "objc") == 0);
 	REQUIRE(stage.runTest(cppCode, swiftTestCode, "swift") == 0);
 
 	stage.exportAsExample("Functions");
