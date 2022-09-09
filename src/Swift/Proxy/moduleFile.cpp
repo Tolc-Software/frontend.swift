@@ -38,12 +38,11 @@ std::filesystem::path ModuleFile::getFilepath() const {
 }
 
 std::string ModuleFile::getSwift() const {
-	std::string swift = fmt::format(R"(public class {libraryName} {{}})",
+	std::string swift = fmt::format(R"(public class {libraryName} {{}}
+)",
 	                                fmt::arg("libraryName", m_libraryName));
 
-	fmt::print("{}\n", m_structures.size());
 	for (auto [structure, index] : m_structures) {
-		fmt::print("{}\n", "Getting structure swift");
 		swift += getSwift(structure, index);
 	}
 

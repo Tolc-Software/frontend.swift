@@ -10,7 +10,8 @@ namespace Swift::Proxy {
 class Class {
 public:
 	explicit Class(std::string const& name,
-	               std::string const& fullyQualifiedName);
+	               std::string const& objcClassName,
+	               std::string const& extending);
 
 	void addEnum(Enum const& e);
 
@@ -48,6 +49,7 @@ private:
 	// User defined name of the class
 	std::string m_name;
 	std::string m_objcClassName;
+	std::string m_extending;
 	std::string m_documentation;
 
 	std::vector<std::string> m_inherited;

@@ -16,7 +16,7 @@ Your internal code can use anything from C++.
 | Namespace                           | ???                                                     |
 | Nested namespace                    | ???                                                     |
 | Class                               | ???                                                     |
-| Public function                     | ???                                                     |
+| Public function                     | Class function                                          |
 | Private function                    | Not converted                                           |
 | Virtual function                    | ???                                                     |
 | Operator                            | ???                                                     |
@@ -27,7 +27,7 @@ Your internal code can use anything from C++.
 | Private member variable             | ???                                                     |
 | Global variable                     | ???                                                     |
 | Global static variable              | ???                                                     |
-| Free function                       | ???                                                     |
+| Free function                       | Static class function**                                 |
 | Overloaded function                 | ???                                                     |
 | Enum                                | ???                                                     |
 | Scoped enum                         | ???                                                     |
@@ -35,6 +35,8 @@ Your internal code can use anything from C++.
 | Specialized class template          | ???                                                     |
 | Specialized function template       | ???                                                     |
 | Documentation                       | ???                                                     |
+
+\*\* Wrapped in a class with a name that starts with the module name.
 
 \*\*\*\* No direct translation to `Swift`. Will not emit warning.
 

@@ -40,6 +40,8 @@ public:
 
 	void setAsConstructor();
 
+	void setAsStandalone();
+
 	void setReturnType(std::string const& type);
 
 	std::string getName() const;
@@ -47,6 +49,9 @@ public:
 	std::string getArgumentNames() const;
 
 	void setCallFrom(std::string const& callFrom);
+
+	// The first argument from Objc constructors are renamed
+	void addConstructorArgName(std::string const& argumentName);
 
 private:
 	std::string getArguments() const;
@@ -64,6 +69,8 @@ private:
 	// E.g. be "m_object." or "MyLibNS."
 	std::string m_callFrom;
 
+	std::string m_constructorArgName;
+
 	std::string m_documentation;
 	std::string m_returnType;
 
@@ -71,5 +78,7 @@ private:
 	bool m_isStatic;
 
 	bool m_isConstructor;
+
+	bool m_isStandalone;
 };
 }    // namespace Swift::Proxy

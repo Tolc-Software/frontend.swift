@@ -1,18 +1,14 @@
 #pragma once
 
+#include "Objc/Proxy/class.hpp"
 #include "Swift/Proxy/class.hpp"
-#include <IR/ir.hpp>
-#include <optional>
 #include <string>
 
 namespace Swift::Builders {
 
 /**
-* Transforms a IR::Struct to a Swift::Proxy::Class
-* NOTE: If the struct does not have an explicit constructor,
-*       the default constructor is added
-* Fails if any member functions takes unique_ptr as an argument
+* Transforms a Objc::Proxy::Class to a Swift::Proxy::Class
 */
-std::optional<Swift::Proxy::Class> buildClass(IR::Struct const& s,
-                                              std::string const& moduleName);
+Swift::Proxy::Class buildClass(Objc::Proxy::Class const& objcClass,
+                               std::string const& moduleName);
 }    // namespace Swift::Builders

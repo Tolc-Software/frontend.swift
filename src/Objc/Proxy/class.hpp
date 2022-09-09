@@ -19,12 +19,16 @@ public:
 	std::string getObjcHeader() const override;
 
 	void addEnum(Enum const& e);
+	std::vector<Enum> const& getEnums() const;
 
 	void addFunction(Function const& function);
+	std::vector<Function> const& getFunctions() const;
 
 	void addConstructor(Function const& constructor);
+	std::vector<Function> const& getConstructors() const;
 
 	void addMemberVariable(Attribute const& variable);
+	std::vector<Attribute> const& getAttributes() const;
 
 	std::string const& getName() const;
 

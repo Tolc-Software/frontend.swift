@@ -27,10 +27,8 @@ createModule(IR::Namespace const& rootNamespace,
 		                             objcFile.getObjcSource()));
 		out.push_back(std::make_pair(objcFile.getBridgingHeaderFile(),
 		                             objcFile.getBridgingHeader()));
-		fmt::print("{}\n", "Managed to get Objc moduleFile");
 		if (auto maybeSwiftFile = ::Swift::Builders::buildModuleFile(
 		        objcFile.getStructures(), moduleName)) {
-			fmt::print("{}\n", "Managed to get Swift moduleFile");
 			auto& swiftFile = maybeSwiftFile.value();
 			out.push_back(std::make_pair(objcFile.getBridgingHeaderFile(),
 			                             objcFile.getBridgingHeader()));

@@ -7,7 +7,20 @@
 
 namespace Swift::Proxy {
 
+std::string wrapInExtension(std::string_view code, std::string_view extension) {
+	return fmt::format(R"(extension {} {{
+{}
+}})",
+	                   extension,
+	                   code);
+}
+
 std::string Function::getFunctionDeclaration() const {
+	if (m_isConstructor) {
+		// init()
+		return fmt::format(R"(public init({arguments}))",
+		                   fmt::arg("arguments", getArguments()));
+	}
 	// public static func f() -> Int32
 	return fmt::format(
 	    R"(public {static}func {functionName}({arguments}){returnType})",
@@ -19,6 +32,11 @@ std::string Function::getFunctionDeclaration() const {
 }
 
 std::string Function::getFunctionCall() const {
+	if (m_isConstructor) {
+		return fmt::format(R"({callFrom}({arguments}))",
+		                   fmt::arg("callFrom", m_callFrom),
+		                   fmt::arg("arguments", getArgumentNames()));
+	}
 	return fmt::format(R"({callFrom}.{objcName}({arguments}))",
 	                   fmt::arg("callFrom", m_callFrom),
 	                   fmt::arg("objcName", m_objcName),
@@ -27,9 +45,8 @@ std::string Function::getFunctionCall() const {
 
 std::string Function::getFunctionBody() const {
 	if (m_isConstructor) {
-		return fmt::format(R"(m_object = {functionCall}({arguments}))",
-		                   fmt::arg("functionCall", getFunctionCall()),
-		                   fmt::arg("arguments", getArgumentNames()));
+		return fmt::format(R"(m_object = {functionCall})",
+		                   fmt::arg("functionCall", getFunctionCall()));
 	}
 
 	// Class function
@@ -43,28 +60,22 @@ std::string Function::getSwift() const {
 	// public func f() -> String {
 	//   return m_object.f()
 	// }
-	fmt::print("{}\n", "Calling getSwift()");
 	auto swift = fmt::format(
-	    R"(
-extension {className} {{
-  {declaration} {{
+	    R"(  {declaration} {{
     {body}
   }}
-}}
 )",
-	    fmt::arg("className", m_className),
 	    fmt::arg("declaration", getFunctionDeclaration()),
 	    fmt::arg("body", getFunctionBody()));
-	fmt::print("{}\n", swift);
-	return swift;
+	return m_isStandalone ? wrapInExtension(swift, m_className) : swift;
 }
 
 Function::Function(std::string const& name,
                    std::string const& objcName,
                    std::string const& extensionClassName)
     : m_name(name), m_objcName(objcName), m_className(extensionClassName),
-      m_callFrom(), m_returnType(), m_arguments({}), m_isStatic(false),
-      m_isConstructor(false) {}
+      m_callFrom(), m_constructorArgName(), m_returnType(), m_arguments({}),
+      m_isStatic(false), m_isConstructor(false), m_isStandalone(false) {}
 
 void Function::addArgument(Argument const& argument) {
 	m_arguments.push_back(argument);
@@ -89,11 +100,16 @@ void Function::setDocumentation(std::string const& documentation) {
 std::string Function::getArgumentNames() const {
 	std::vector<std::string> names;
 	// The first argument is special in Objc
+	// but not for the translated constructor
+	// it's almost like a pure Swift function
+	// where initWithInt becomes
+	// init(int: i)
+	// So you have to provide int
 	bool isFirst = true;
 	for (auto const& arg : m_arguments) {
 		std::string pre = arg.name + ": ";
 		if (isFirst) {
-			pre = "";
+			pre = m_isConstructor ? m_constructorArgName + ": " : "";
 		}
 		names.push_back(fmt::format(
 		    "{pre}{name}", fmt::arg("pre", pre), fmt::arg("name", arg.name)));
@@ -121,5 +137,12 @@ std::string Function::getName() const {
 
 void Function::setCallFrom(std::string const& callFrom) {
 	m_callFrom = callFrom;
+}
+
+void Function::setAsStandalone() {
+	m_isStandalone = true;
+}
+void Function::addConstructorArgName(std::string const& argumentName) {
+	m_constructorArgName = argumentName;
 }
 }    // namespace Swift::Proxy

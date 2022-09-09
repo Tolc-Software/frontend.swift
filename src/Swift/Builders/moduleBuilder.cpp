@@ -45,22 +45,6 @@ buildModule(IR::Namespace const& ns, std::string const& rootModuleName) {
 		builtModule.addEnum(Swift::Builders::buildEnum(e));
 	}
 
-	for (auto const& cls : ns.m_structs) {
-		if (auto maybeC = Swift::Builders::buildClass(cls, rootModuleName)) {
-			auto c = maybeC.value();
-			builtModule.addClass(c);
-		} else {
-			return std::nullopt;
-		}
-	}
-
-	for (auto const& subNamespace : ns.m_namespaces) {
-		builtModule.addSubmodule(
-		    subNamespace.m_name,
-		    getVariableName(subNamespace.m_representation, rootModuleName),
-		    subNamespace.m_documentation);
-	}
-
 	return builtModule;
 }
 }    // namespace Swift::Builders

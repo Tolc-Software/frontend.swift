@@ -177,4 +177,16 @@ std::string const& Class::getCppClassName() const {
 	return m_fullyQualifiedName;
 };
 
+std::vector<Function> const& Class::getFunctions() const {
+	return m_functions;
+}
+
+std::vector<Function> const& Class::getConstructors() const {
+	return m_constructors;
+}
+
+std::vector<Attribute> const& Class::getAttributes() const {
+	return m_memberVariables;
+}
+
 }    // namespace Objc::Proxy

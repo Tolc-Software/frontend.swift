@@ -10,7 +10,7 @@ std::string
 joinFunctions(std::vector<Swift::Proxy::Function> const& functions) {
 	std::string out;
 	for (auto const& f : functions) {
-		out += f.getSwift();
+		out += f.getSwift() + '\n';
 	}
 	return out;
 }
@@ -19,13 +19,15 @@ joinFunctions(std::vector<Swift::Proxy::Function> const& functions) {
 std::string Class::getSwift() const {
 	std::string out =
 	    fmt::format(R"(
+extension {extending} {{
 public class {className} {{
-    private var m_object: {objcClassName}
+  private var m_object: {objcClassName}
 
-{constructors}
-{functions}
-{memberVariables}
-}})",
+{constructors}{functions}{memberVariables}
+  }}
+}}
+)",
+	                fmt::arg("extending", m_extending),
 	                fmt::arg("className", m_name),
 	                fmt::arg("objcClassName", m_objcClassName),
 	                fmt::arg("constructors", joinFunctions(m_constructors)),
@@ -35,9 +37,11 @@ public class {className} {{
 	return out;
 }
 
-Class::Class(std::string const& name, std::string const& objcClassName)
-    : m_name(name), m_objcClassName(objcClassName), m_constructors(),
-      m_functions(), m_memberVariables(), m_enums(),
+Class::Class(std::string const& name,
+             std::string const& objcClassName,
+             std::string const& extending)
+    : m_name(name), m_objcClassName(objcClassName), m_extending(extending),
+      m_constructors(), m_functions(), m_memberVariables(), m_enums(),
       m_isManagedByShared(false) {}
 
 void Class::addEnum(Enum const& e) {

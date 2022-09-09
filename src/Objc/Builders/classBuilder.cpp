@@ -148,7 +148,8 @@ Objc::Proxy::Class buildClass(IR::Struct const& cppClass, Objc::Cache& cache) {
 	if (cppClass.m_hasImplicitDefaultConstructor) {
 		auto constructor = Objc::Proxy::Function("init",
 		                                         cppClass.m_name,
-		                                         objcClass.getName(),
+		                                         cppClass.m_representation +
+		                                             "::" + cppClass.m_name,
 		                                         objcClass.getName(),
 		                                         cppClass.m_representation);
 		Objc::Proxy::Type returnType;

@@ -1,13 +1,16 @@
 #pragma once
 
-#include <IR/ir.hpp>
 #include <string>
-#include <vector>
 
 namespace Swift {
-std::string getClassName(std::string const& cppClassName,
-                         std::vector<IR::Type> const& cppTemplateArgs);
 
-std::string getFunctionName(IR::Function const& cppFunction,
-                            bool isConstructor);
+struct SplitData {
+	std::string m_name;
+	std::string m_objcPrefix;
+	std::string m_swiftPrefix;
+};
+
+SplitData splitIntoNames(std::string const& fullyQualifiedName,
+                         std::string const& libraryName);
+
 }    // namespace Swift

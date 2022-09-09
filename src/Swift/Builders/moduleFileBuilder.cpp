@@ -1,6 +1,7 @@
 #include "Swift/Builders/moduleFileBuilder.hpp"
 #include "Objc/Proxy/class.hpp"
 #include "Objc/Proxy/structure.hpp"
+#include "Swift/Builders/classBuilder.hpp"
 #include "Swift/Builders/functionBuilder.hpp"
 #include "Swift/Builders/moduleBuilder.hpp"
 #include "Swift/Proxy/moduleFile.hpp"
@@ -27,6 +28,10 @@ buildModuleFile(std::vector<Objc::Proxy::Structure const*> const& structures,
 		using Kind = Objc::Proxy::Structure::Kind;
 		switch (structure->m_kind) {
 			case Kind::Class: {
+				rootFile.addClass(buildClass(
+				    static_cast<Objc::Proxy::Class const&>(*structure),
+				    moduleName));
+				break;
 				break;
 			}
 			case Kind::Namespace: {

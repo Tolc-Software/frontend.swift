@@ -1,39 +1,30 @@
 #include "Swift/getName.hpp"
-#include "ObjcSwift/Helpers/typeToStringBuilder.hpp"
-#include "ObjcSwift/Helpers/types.hpp"
-#include <IR/ir.hpp>
-#include <numeric>
+#include "ObjcSwift/Helpers/split.hpp"
+#include <fmt/format.h>
 #include <string>
-#include <vector>
 
 namespace Swift {
-namespace {
-std::string getParameterString(std::vector<IR::Type> const& parameters) {
-	return std::accumulate(parameters.begin(),
-	                       parameters.end(),
-	                       std::string() /* Start with empty string */,
-	                       [](std::string soFar, IR::Type const& current) {
-		                       return std::move(soFar) +
-		                              ObjcSwift::Helpers::buildTypeString(
-		                                  current);
-	                       });
-}
 
-}    // namespace
+SplitData splitIntoNames(std::string const& fullyQualifiedName,
+                         std::string const& libraryName) {
+	SplitData data;
 
-std::string getClassName(std::string const& cppClassName,
-                         std::vector<IR::Type> const& cppTemplateArgs) {
-	return ObjcSwift::Helpers::removeCppTemplate(cppClassName).first +
-	       getParameterString(cppTemplateArgs);
-}
-
-std::string getFunctionName(IR::Function const& cppFunction,
-                            bool isConstructor) {
-	if (!isConstructor) {
-		return ObjcSwift::Helpers::removeCppTemplate(cppFunction.m_name).first;
+	auto splitted = ObjcSwift::Helpers::split(fullyQualifiedName, "::");
+	if (splitted.size() == 1) {
+		data.m_name = splitted[0];
+		data.m_objcPrefix = libraryName;
+		data.m_swiftPrefix = libraryName;
 	} else {
-		return "init";
+		data.m_name = splitted.back();
+		// Remove the name
+		splitted.pop_back();
+		splitted.push_front(libraryName);
+		data.m_objcPrefix = fmt::format("{}", fmt::join(splitted, ""));
+		data.m_swiftPrefix = fmt::format("{}", fmt::join(splitted, "."));
 	}
+
+	return data;
 }
+
 }    // namespace Swift
 
