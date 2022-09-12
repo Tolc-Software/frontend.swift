@@ -9,7 +9,13 @@ namespace Swift::Proxy {
 */
 class Attribute {
 public:
-	Attribute(std::string const& name, std::string const& fullyQualifiedName);
+	Attribute(std::string const& name, std::string const& typeName);
+
+	void addGetter(std::string const& body);
+
+	void addSetter(std::string const& body);
+
+	void setAsStatic();
 
 	/**
 	* Creates a string corresponding to the pybind11 conversion of this attribute.
@@ -21,6 +27,10 @@ public:
 private:
 	// The user defined name of the enum
 	std::string m_name;
-	std::string m_fullyQualifiedName;
+	std::string m_typeName;
+	std::string m_getter;
+	std::string m_setter;
+
+	bool m_isStatic;
 };
 }    // namespace Swift::Proxy

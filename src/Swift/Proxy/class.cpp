@@ -17,22 +17,22 @@ joinFunctions(std::vector<Swift::Proxy::Function> const& functions) {
 }    // namespace
 
 std::string Class::getSwift() const {
-	std::string out =
-	    fmt::format(R"(
-extension {extending} {{
-public class {className} {{
-  private var m_object: {objcClassName}
+	std::string out = fmt::format(
+	    R"(extension {extending} {{
+  public class {className} {{
+    private var m_object: {objcClassName}
 
 {constructors}{functions}{memberVariables}
   }}
 }}
+
 )",
-	                fmt::arg("extending", m_extending),
-	                fmt::arg("className", m_name),
-	                fmt::arg("objcClassName", m_objcClassName),
-	                fmt::arg("constructors", joinFunctions(m_constructors)),
-	                fmt::arg("functions", joinFunctions(m_functions)),
-	                fmt::arg("memberVariables", joinMemberVariables()));
+	    fmt::arg("extending", m_extending),
+	    fmt::arg("className", m_name),
+	    fmt::arg("objcClassName", m_objcClassName),
+	    fmt::arg("constructors", joinFunctions(m_constructors)),
+	    fmt::arg("functions", joinFunctions(m_functions)),
+	    fmt::arg("memberVariables", joinMemberVariables()));
 
 	return out;
 }
@@ -56,8 +56,8 @@ void Class::addConstructor(Function const& constructor) {
 	m_constructors.push_back(constructor);
 }
 
-void Class::addMemberVariable(MemberVariable const& variable) {
-	m_memberVariables.push_back(variable);
+void Class::addAttribute(Attribute const& attribute) {
+	m_memberVariables.push_back(attribute);
 }
 
 std::string const& Class::getName() const {
@@ -80,28 +80,7 @@ void Class::setInherited(std::vector<std::string> const& inherited) {
 std::string Class::joinMemberVariables() const {
 	std::string out;
 	for (auto const& m : m_memberVariables) {
-		auto access = m.m_isStatic ? m_objcClassName : "m_object";
-		out += fmt::format(R"(
-    public {static}var {name}: {type} {{
-        get {{
-            return {access}.{name}
-        }}
-)",
-		                   fmt::arg("static", m.m_isStatic ? "static " : ""),
-		                   fmt::arg("name", m.m_name),
-		                   fmt::arg("type", m.m_type),
-		                   fmt::arg("access", access));
-		if (!m.m_isConst) {
-			// Not const -> Add a setter
-			out += fmt::format(R"(
-        set(new{name}) {{
-            {access}.{name} = new{name}
-        }}
-)",
-			                   fmt::arg("name", m.m_name),
-			                   fmt::arg("access", access));
-		}
-		out += "    }\n";
+		out += m.getSwift();
 	}
 	return out;
 }

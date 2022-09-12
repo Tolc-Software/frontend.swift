@@ -12,14 +12,14 @@ SplitData splitIntoNames(std::string const& fullyQualifiedName,
 	auto splitted = ObjcSwift::Helpers::split(fullyQualifiedName, "::");
 	if (splitted.size() == 1) {
 		data.m_name = splitted[0];
-		data.m_objcPrefix = libraryName;
+		data.m_objcPrefix = "_" + libraryName;
 		data.m_swiftPrefix = libraryName;
 	} else {
 		data.m_name = splitted.back();
 		// Remove the name
 		splitted.pop_back();
 		splitted.push_front(libraryName);
-		data.m_objcPrefix = fmt::format("{}", fmt::join(splitted, ""));
+		data.m_objcPrefix = fmt::format("_{}", fmt::join(splitted, ""));
 		data.m_swiftPrefix = fmt::format("{}", fmt::join(splitted, "."));
 	}
 

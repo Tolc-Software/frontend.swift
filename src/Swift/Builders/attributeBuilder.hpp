@@ -1,13 +1,16 @@
 #pragma once
 
+#include "Objc/Proxy/attribute.hpp"
 #include "Swift/Proxy/attribute.hpp"
 #include <IR/ir.hpp>
+#include <string>
 
 namespace Swift::Builders {
 
 /**
-* Transforms a IR::Variable to a Swift::Proxy::Attribute
+* Transforms a Objc::Proxy::Attribute to a Swift::Proxy::Attribute
 */
-Swift::Proxy::Attribute buildAttribute(std::string const& parentNamespace,
-                                       IR::Variable const& v);
+Swift::Proxy::Attribute
+buildAttribute(Objc::Proxy::Attribute const& objcAttribute,
+               std::string const& callFrom);
 }    // namespace Swift::Builders

@@ -11,20 +11,20 @@ Your internal code can use anything from C++.
 
 ## Conversion tables ##
 
-| C++                                 | Objective-C translation                                 |
+| C++                                 | Swift translation                                       |
 |:----------------------------------- |:------------------------------------------------------- |
 | Namespace                           | ???                                                     |
 | Nested namespace                    | ???                                                     |
-| Class                               | ???                                                     |
+| Class                               | Class                                                   |
 | Public function                     | Class function                                          |
 | Private function                    | Not converted                                           |
 | Virtual function                    | ???                                                     |
 | Operator                            | ???                                                     |
-| Static member function              | ???                                                     |
-| Static member variable              | ???                                                     |
-| Public const member variable        | ???                                                     |
-| Public non const member variable    | ???                                                     |
-| Private member variable             | ???                                                     |
+| Static member function              | Static class function                                   |
+| Static member variable              | Static class variable                                   |
+| Public const member variable        | Readonly property                                       |
+| Public non const member variable    | Readwrite property                                      |
+| Private member variable             | Not converted                                           |
 | Global variable                     | ???                                                     |
 | Global static variable              | ???                                                     |
 | Free function                       | Static class function**                                 |
@@ -40,7 +40,7 @@ Your internal code can use anything from C++.
 
 \*\*\*\* No direct translation to `Swift`. Will not emit warning.
 
-| C++ operator      | Objective-C operator  |
+| C++ operator      | Swift operator        |
 |:----------------- |:--------------------- |
 | operator+         | ???                   |
 | operator-         | ???                   |
@@ -67,7 +67,7 @@ Your internal code can use anything from C++.
 | operator--        | Not converted         |
 
 
-| C++ Standard library class      | Objective-C translation                                                           |
+| C++ Standard library class      | Swift translation                                                                 |
 |:------------------------------- |:--------------------------------------------------------------------------------- |
 | std::array                      | ???                                                                               |
 | std::complex                    | ???                                                                               |
@@ -100,7 +100,7 @@ Your internal code can use anything from C++.
 
 \* After using a `shared_ptr`, the object is now always managed by a `shared_ptr`.
 
-| C++ builtin type           | Objective-C translation  |
+| C++ builtin type           | Swift translation        |
 |:-------------------------- |:------------------------ |
 | bool                       | ???                      |
 | char                       | ???                      |

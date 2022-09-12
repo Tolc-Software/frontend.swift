@@ -85,6 +85,7 @@ std::string Attribute::getPropertyOptions() const {
 		// Memory management
 		options.push_back("strong");
 	}
+
 	if (m_isConst) {
 		options.push_back("readonly");
 	} else {
@@ -115,11 +116,31 @@ void Attribute::setAsStatic() {
 	m_isStatic = true;
 }
 
+bool Attribute::isStatic() const {
+	return m_isStatic;
+}
+
+bool Attribute::isConst() const {
+	return m_isConst;
+}
+
 void Attribute::setAsObject() {
 	m_isObject = true;
 }
 
 void Attribute::setAsStandalone() {
 	m_isStandalone = true;
+}
+
+bool Attribute::isStandalone() const {
+	return m_isStandalone;
+}
+
+Objc::Proxy::Type const& Attribute::getType() const {
+	return m_type;
+}
+
+std::string const& Attribute::getName() const {
+	return m_name;
 }
 }    // namespace Objc::Proxy

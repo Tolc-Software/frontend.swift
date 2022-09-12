@@ -1,4 +1,5 @@
 #include "Swift/Builders/classBuilder.hpp"
+#include "Swift/Builders/attributeBuilder.hpp"
 #include "Swift/Builders/functionBuilder.hpp"
 #include "Swift/getName.hpp"
 #include <string>
@@ -19,6 +20,11 @@ Swift::Proxy::Class buildClass(Objc::Proxy::Class const& objcClass,
 
 	for (auto const& function : objcClass.getFunctions()) {
 		swiftClass.addFunction(buildFunction(function, moduleName));
+	}
+
+	for (auto const& attribute : objcClass.getAttributes()) {
+		swiftClass.addAttribute(
+		    buildAttribute(attribute, splitted.m_objcPrefix + splitted.m_name));
 	}
 
 	return swiftClass;

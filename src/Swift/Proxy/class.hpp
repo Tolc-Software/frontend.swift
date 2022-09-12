@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Swift/Proxy/attribute.hpp"
 #include "Swift/Proxy/enum.hpp"
 #include "Swift/Proxy/function.hpp"
 #include <string>
@@ -19,17 +20,7 @@ public:
 
 	void addConstructor(Function const& constructor);
 
-	struct MemberVariable {
-		// User defined name of the member variable
-		std::string m_name;
-		// Swift type
-		std::string m_type;
-		std::string m_documentation;
-		bool m_isConst;
-		bool m_isStatic;
-	};
-
-	void addMemberVariable(MemberVariable const& variable);
+	void addAttribute(Attribute const& attribute);
 
 	std::string const& getName() const;
 
@@ -55,7 +46,7 @@ private:
 	std::vector<std::string> m_inherited;
 	std::vector<Function> m_constructors;
 	std::vector<Function> m_functions;
-	std::vector<MemberVariable> m_memberVariables;
+	std::vector<Attribute> m_memberVariables;
 	std::vector<Enum> m_enums;
 
 	bool m_isManagedByShared;

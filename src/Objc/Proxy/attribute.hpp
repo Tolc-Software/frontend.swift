@@ -17,12 +17,23 @@ struct Attribute : public Structure {
 	std::string getObjcHeader() const override;
 	std::string getObjcSource() const override;
 
+	std::string const& getName() const;
+
 	void setType(Objc::Proxy::Type const& type);
+	Objc::Proxy::Type const& getType() const;
+
 	void setDocumentation(std::string const& documentation);
+
 	void setAsConst();
+	bool isConst() const;
+
 	void setAsStatic();
+	bool isStatic() const;
+
 	void setAsObject();
+
 	void setAsStandalone();
+	bool isStandalone() const;
 
 private:
 	// private?

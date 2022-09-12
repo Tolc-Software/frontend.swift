@@ -23,14 +23,13 @@ Swift::Proxy::Function buildFunction(Objc::Proxy::Function const& objcFunction,
 
 	if (objcFunction.isStandalone()) {
 		swiftFunction.setAsStandalone();
-		swiftFunction.setCallFrom("_" + splitted.m_objcPrefix);
+		swiftFunction.setCallFrom(splitted.m_objcPrefix);
 	} else {
 		if (objcFunction.isConstructor()) {
-			swiftFunction.setCallFrom("_" + splitted.m_objcPrefix);
+			swiftFunction.setCallFrom(splitted.m_objcPrefix);
 		} else {
-			swiftFunction.setCallFrom(objcFunction.isStatic() ?
-                                          "_" + splitted.m_objcPrefix :
-                                          "m_object");
+			swiftFunction.setCallFrom(
+			    objcFunction.isStatic() ? splitted.m_objcPrefix : "m_object");
 		}
 	}
 

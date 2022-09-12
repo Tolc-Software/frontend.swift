@@ -14,7 +14,6 @@ TEST_CASE("Classes", "[classes]") {
 	//
 	// Instantiation (must be in a source file):
 	stage.addSrcFile("test.cpp", "int const WithStatic::answer;");
-	stage.keepAliveAfterTest();
 
 	auto cppCode = R"(
 class WithConstructor {
@@ -114,8 +113,7 @@ assert(member.i == 5);
 assert(member.phi == 1.618);
 )";
 
-	stage.keepAliveAfterTest();
-	// REQUIRE(stage.runTest(cppCode, objCTestCode, "objc") == 0);
+	REQUIRE(stage.runTest(cppCode, objCTestCode, "objc") == 0);
 	REQUIRE(stage.runTest(cppCode, swiftTestCode, "swift") == 0);
 
 	stage.exportAsExample("Classes");

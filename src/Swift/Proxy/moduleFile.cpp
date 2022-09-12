@@ -39,6 +39,7 @@ std::filesystem::path ModuleFile::getFilepath() const {
 
 std::string ModuleFile::getSwift() const {
 	std::string swift = fmt::format(R"(public class {libraryName} {{}}
+
 )",
 	                                fmt::arg("libraryName", m_libraryName));
 
