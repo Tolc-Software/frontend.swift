@@ -97,6 +97,12 @@ std::string Attribute::getPropertyOptions() const {
 		options.push_back("class");
 	}
 
+	switch (m_type.m_nullability) {
+		case Proxy::Nullability::Nonnull: options.push_back("nonnull"); break;
+		case Proxy::Nullability::Nullable: options.push_back("nullable"); break;
+		case Proxy::Nullability::NotApplicable: break;
+	}
+
 	return fmt::format("({})", fmt::join(options, ", "));
 }
 

@@ -37,7 +37,7 @@ int complexFunction() {
 
 )";
 
-	auto objcTestCode = R"(
+	[[maybe_unused]] auto objcTestCode = R"(
 // Namespaces corresponds to classes
 // with {library name} + join(namespaces)
 // where functions are static class functions
@@ -48,10 +48,20 @@ NSString* lifeProTips = [mMyLibWeAreGoingPrettyDeep meaningOfLife];
 assert([lifeProTips isEqualToString:@"42"]);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+	[[maybe_unused]] auto swiftTestCode = R"(
+// Namespaces corresponds to classes
+// with {library name} + join(namespaces, '.')
+// where free functions are static class functions
+assert(m.MyLib.complexFunction() == 5);
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+// You can nest namespaces arbitrarily deep
+var lifeProTips: String = m.MyLib.We.Are.Going.Pretty.Deep.meaningOfLife();
+assert(lifeProTips == "42");
+)";
+
+	stage.keepAliveAfterTest();
+	// REQUIRE(stage.runTest(cppCode, objcTestCode, "objc") == 0);
+	REQUIRE(stage.runTest(cppCode, swiftTestCode, "swift") == 0);
 
 	stage.exportAsExample("Namespaces");
 }

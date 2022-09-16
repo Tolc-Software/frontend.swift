@@ -1,5 +1,6 @@
 #include "Objc/Proxy/function.hpp"
 #include "Objc/Proxy/type.hpp"
+#include "Objc/getName.hpp"
 #include "Objc/utility.hpp"
 #include "ObjcSwift/Helpers/getDocumentationParameter.hpp"
 #include "ObjcSwift/Helpers/string.hpp"
@@ -40,7 +41,7 @@ std::string getDeclarationArguments(
 		}
 		isFirst = false;
 		out += fmt::format("({type}){name} ",
-		                   fmt::arg("type", arg.m_type.m_name()),
+		                   fmt::arg("type", getNullableName(arg.m_type)),
 		                   fmt::arg("name", arg.m_name));
 	}
 	if (!arguments.empty()) {
@@ -57,7 +58,7 @@ std::string Function::getFunctionDeclaration() const {
 	return fmt::format(
 	    R"({static}({returnType}) {functionName}{arguments})",
 	    fmt::arg("static", m_isStatic ? "+" : "-"),
-	    fmt::arg("returnType", m_returnType.m_name()),
+	    fmt::arg("returnType", getNullableName(m_returnType)),
 	    fmt::arg("functionName", m_name),
 	    fmt::arg("arguments", arguments.empty() ? arguments : ':' + arguments));
 }

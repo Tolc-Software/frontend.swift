@@ -21,7 +21,7 @@ namespace Nested {
 }
 )";
 
-	auto objcTestCode = R"(
+	[[maybe_unused]] auto objcTestCode = R"(
 // Starts at 0 and can be changed
 assert(m.i == 0);
 m.i = 5;
@@ -37,10 +37,25 @@ assert([mNested.s isEqualToString:@"Hello World"]);
 assert([mNested.constant isEqualToString:@"A constant"]);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+	auto swiftTestCode = R"(
+// Starts at 0 and can be changed
+assert(m.i == 0);
+m.i = 5;
+assert(m.i == 5);
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+// Nested with the same name
+assert(m.Nested.life == 42);
+
+// Strings also work
+assert(m.Nested.s == "Hello World");
+
+// And string_view
+assert(m.Nested.constant == "A constant");
+)";
+
+	stage.keepAliveAfterTest();
+	// REQUIRE(stage.runTest(cppCode, objcTestCode, "objc") == 0);
+	REQUIRE(stage.runTest(cppCode, swiftTestCode, "swift") == 0);
 
 	stage.exportAsExample("Global Variables");
 }

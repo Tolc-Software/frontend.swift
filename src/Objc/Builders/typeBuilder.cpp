@@ -13,19 +13,16 @@
 
 namespace Objc::Builders {
 
-std::string
-getNullable(IR::BaseType base, bool hasPointers, Objc::Proxy::Type& type) {
+Proxy::Nullability getNullable(IR::BaseType base, bool hasPointers) {
 	using IR::BaseType;
 	switch (base) {
 		case BaseType::String:
 		case BaseType::StringView:
 		case BaseType::FilesystemPath: {
 			if (hasPointers) {
-				type.m_isNullable = true;
-				return "nullable ";
+				return Proxy::Nullability::Nullable;
 			}
-			type.m_isNullable = false;
-			return "nonnull ";
+			return Proxy::Nullability::Nonnull;
 		}
 		case BaseType::Bool:
 		case BaseType::Char16_t:
@@ -47,13 +44,11 @@ getNullable(IR::BaseType base, bool hasPointers, Objc::Proxy::Type& type) {
 		case BaseType::UnsignedShortInt:
 		case BaseType::Void:
 		case BaseType::Wchar_t: {
-			return "";
+			return Proxy::Nullability::NotApplicable;
 		}
 	}
 }
-std::string getNullable(IR::ContainerType container,
-                        bool hasPointers,
-                        Objc::Proxy::Type& type) {
+Proxy::Nullability getNullable(IR::ContainerType container, bool hasPointers) {
 	using IR::ContainerType;
 	switch (container) {
 		case ContainerType::Array:
@@ -68,17 +63,14 @@ std::string getNullable(IR::ContainerType container,
 		case ContainerType::Set:
 		case ContainerType::UnorderedSet: {
 			if (hasPointers) {
-				type.m_isNullable = true;
-				return "nullable ";
+				return Proxy::Nullability::Nullable;
 			}
-			type.m_isNullable = false;
-			return "nonnull ";
+			return Proxy::Nullability::Nonnull;
 		}
 		case ContainerType::Optional:
 		case ContainerType::SharedPtr:
 		case ContainerType::UniquePtr: {
-			type.m_isNullable = true;
-			return "nullable ";
+			return Proxy::Nullability::Nullable;
 		}
 		case ContainerType::UnorderedMultiSet:
 		case ContainerType::Queue:
@@ -94,7 +86,7 @@ std::string getNullable(IR::ContainerType container,
 		case ContainerType::Greater:
 		case ContainerType::Hash:
 		case ContainerType::Less: {
-			return "";
+			return Proxy::Nullability::NotApplicable;
 		}
 	}
 }
@@ -103,15 +95,18 @@ Objc::Proxy::Type buildType(IR::Type const& type, Objc::Cache& cache) {
 	Objc::Proxy::Type t;
 	t.m_cppType = &type;
 	if (auto baseType = std::get_if<IR::Type::Value>(&type.m_type)) {
-		auto name = getNullable(baseType->m_base, type.m_numPointers != 0, t) +
-		            Objc::getBaseName(baseType->m_base);
+		auto name = Objc::getBaseName(baseType->m_base);
+		t.m_nullability =
+		    getNullable(baseType->m_base, type.m_numPointers != 0);
 		t.m_name = [name]() {
 			return name;
 		};
 		t.m_conversions =
 		    Objc::Conversions::getBaseTypeConversions(baseType->m_base, cache);
 	} else if (auto enumType = std::get_if<IR::Type::EnumValue>(&type.m_type)) {
-		t.m_isNullable = type.m_numPointers != 0;
+		t.m_nullability = type.m_numPointers != 0 ?
+                              Proxy::Nullability::Nullable :
+                              Proxy::Nullability::Nonnull;
 		auto name =
 		    Objc::getEnumName(enumType->m_representation, cache.m_moduleName);
 		t.m_name = [name]() {
@@ -124,8 +119,9 @@ Objc::Proxy::Type buildType(IR::Type const& type, Objc::Cache& cache) {
 	} else if (auto container =
 	               std::get_if<IR::Type::Container>(&type.m_type)) {
 		auto name =
-		    getNullable(container->m_container, type.m_numPointers != 0, t) +
 		    Objc::getContainerName(*container, cache.m_moduleName);
+		t.m_nullability =
+		    getNullable(container->m_container, type.m_numPointers != 0);
 		t.m_name = [name]() {
 			return name;
 		};
@@ -133,14 +129,13 @@ Objc::Proxy::Type buildType(IR::Type const& type, Objc::Cache& cache) {
 		    type, *container, cache);
 	} else if (auto userDefined =
 	               std::get_if<IR::Type::UserDefined>(&type.m_type)) {
-		t.m_isNullable = type.m_numPointers != 0;
-		t.m_name = [nullable = t.m_isNullable,
-		            cppClass = userDefined->m_representation,
-		            &cache]() {
+		t.m_nullability = type.m_numPointers != 0 ?
+                              Proxy::Nullability::Nullable :
+                              Proxy::Nullability::Nonnull;
+		t.m_name = [cppClass = userDefined->m_representation, &cache]() {
 			if (auto objcClass = cache.m_cppToObjcClassNames.find(cppClass);
 			    objcClass != cache.m_cppToObjcClassNames.end()) {
-				return nullable ? "nullable " + objcClass->second + '*' :
-                                  "nonnull " + objcClass->second + '*';
+				return objcClass->second + '*';
 			}
 			spdlog::error(
 			    "Couldn't find the Objective-C class name of C++ class {}",

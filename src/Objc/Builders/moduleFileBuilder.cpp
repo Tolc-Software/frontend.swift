@@ -2,6 +2,7 @@
 #include "Objc/Builders/attributeBuilder.hpp"
 #include "Objc/Builders/classBuilder.hpp"
 #include "Objc/Builders/enumBuilder.hpp"
+#include "Objc/Builders/functionBuilder.hpp"
 #include "Objc/Builders/moduleBuilder.hpp"
 #include "Objc/Proxy/moduleFile.hpp"
 #include "Objc/cache.hpp"
@@ -10,7 +11,6 @@
 #include <IR/ir.hpp>
 #include <optional>
 #include <queue>
-#include <set>
 #include <spdlog/spdlog.h>
 #include <string>
 

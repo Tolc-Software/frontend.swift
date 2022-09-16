@@ -1,18 +1,18 @@
 #pragma once
 
-#include "Swift/Builders/functionBuilder.hpp"
+#include "Objc/Proxy/class.hpp"
 #include "Swift/Proxy/module.hpp"
-#include <IR/ir.hpp>
-#include <optional>
+#include "Swift/cache.hpp"
+#include <vector>
 
 namespace Swift::Builders {
 
 /**
-* Build proxy module from a namespace
-* NOTE: Does not traverse the structure,
-*       but adds the children of ns as submodules
-* Fails if any functions takes unique_ptr as an argument
+* Build modules from a Objc class
+* May contain multiple modules since empty namespaces are not converted in Objc
+* Meaning there will be MyLib.Hello.Inner where only MyLib and Inner are defined in Objc.
+* In Swift we need all three
 */
-std::optional<Swift::Proxy::Module>
-buildModule(IR::Namespace const& ns, std::string const& rootModuleName);
+std::vector<Swift::Proxy::Module>
+buildModules(Objc::Proxy::Class const& objcClass, Swift::Cache& cache);
 }    // namespace Swift::Builders

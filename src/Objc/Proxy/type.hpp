@@ -8,6 +8,16 @@
 
 namespace Objc::Proxy {
 
+enum class Nullability {
+	// if NSString* cannot be nil
+	Nullable,
+	// if NSString* can be nil
+	Nonnull,
+	// For a simple builtin type
+	// such as bool
+	NotApplicable
+};
+
 struct Type {
 	// Function that returns the name of the type.
 	// The Objective-C type might not be known
@@ -19,6 +29,6 @@ struct Type {
 	Objc::Conversions::Conversion m_conversions;
 
 	IR::Type const* m_cppType = nullptr;
-	bool m_isNullable = false;
+	Nullability m_nullability = Nullability::NotApplicable;
 };
 }    // namespace Objc::Proxy

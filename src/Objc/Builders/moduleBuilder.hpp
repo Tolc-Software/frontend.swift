@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Objc/Builders/functionBuilder.hpp"
 #include "Objc/Proxy/class.hpp"
 #include "Objc/cache.hpp"
 #include <IR/ir.hpp>

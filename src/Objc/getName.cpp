@@ -254,4 +254,16 @@ std::string getContainerName(IR::Type::Container const& container,
 		}
 	}
 }
+std::string getNullableName(Objc::Proxy::Type const& type) {
+	switch (type.m_nullability) {
+		case Objc::Proxy::Nullability::Nullable:
+			// Do when Objc::Proxy::Nullability::Nullable
+			return "nullable " + type.m_name();
+		case Objc::Proxy::Nullability::Nonnull:
+			// Do when Objc::Proxy::Nullability::Nonnull
+			return "nonnull " + type.m_name();
+		case Objc::Proxy::Nullability::NotApplicable: break;
+	}
+	return type.m_name();
+}
 }    // namespace Objc

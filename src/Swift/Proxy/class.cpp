@@ -18,14 +18,14 @@ joinFunctions(std::vector<Swift::Proxy::Function> const& functions) {
 
 std::string Class::getSwift() const {
 	std::string out = fmt::format(
-	    R"(extension {extending} {{
+	    R"(
+extension {extending} {{
   public class {className} {{
     private var m_object: {objcClassName}
 
 {constructors}{functions}{memberVariables}
   }}
 }}
-
 )",
 	    fmt::arg("extending", m_extending),
 	    fmt::arg("className", m_name),

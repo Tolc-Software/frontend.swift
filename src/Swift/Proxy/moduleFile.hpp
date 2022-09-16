@@ -4,6 +4,7 @@
 #include "Swift/Proxy/class.hpp"
 #include "Swift/Proxy/enum.hpp"
 #include "Swift/Proxy/function.hpp"
+#include "Swift/Proxy/module.hpp"
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -28,7 +29,7 @@ public:
 	std::filesystem::path getBridgingHeaderFile() const;
 	std::string getBridgingHeader() const;
 
-	void addModule(Class const& module);
+	void addModule(Module const& module);
 	void addClass(Class const& cls);
 	void addFunction(Function const& function);
 	void addEnum(Enum const& e);
@@ -55,7 +56,7 @@ private:
 	// Will be put one after each other
 	std::vector<std::pair<Structure, size_t>> m_structures;
 
-	std::vector<Class> m_modules;
+	std::vector<Module> m_modules;
 	std::vector<Class> m_classes;
 	std::vector<Function> m_functions;
 	std::vector<Enum> m_enums;

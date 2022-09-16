@@ -1,6 +1,7 @@
 #pragma once
 
 #include <IR/ir.hpp>
+#include <Objc/Proxy/type.hpp>
 #include <string>
 #include <vector>
 
@@ -28,4 +29,6 @@ std::string getContainedTypeName(IR::Type const& type,
                                  std::string const& moduleName);
 
 std::string getBaseName(IR::BaseType type);
+
+std::string getNullableName(Objc::Proxy::Type const& type);
 }    // namespace Objc

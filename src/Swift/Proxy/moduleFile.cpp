@@ -54,7 +54,7 @@ std::filesystem::path ModuleFile::getSwiftFile() const {
 	return m_libraryName + "_swift.swift";
 }
 
-void ModuleFile::addModule(Class const& module) {
+void ModuleFile::addModule(Module const& module) {
 	m_modules.push_back(module);
 	addStructure(Structure::Module, m_modules.size() - 1);
 }

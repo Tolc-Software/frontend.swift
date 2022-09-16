@@ -8,9 +8,11 @@
 namespace Swift::Proxy {
 
 std::string wrapInExtension(std::string_view code, std::string_view extension) {
-	return fmt::format(R"(extension {} {{
+	return fmt::format(R"(
+extension {} {{
 {}
-}})",
+}}
+)",
 	                   extension,
 	                   code);
 }
@@ -63,8 +65,7 @@ std::string Function::getSwift() const {
 	auto swift = fmt::format(
 	    R"(  {declaration} {{
     {body}
-  }}
-)",
+  }})",
 	    fmt::arg("declaration", getFunctionDeclaration()),
 	    fmt::arg("body", getFunctionBody()));
 	return m_isStandalone ? wrapInExtension(swift, m_className) : swift;

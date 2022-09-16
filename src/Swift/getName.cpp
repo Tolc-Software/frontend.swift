@@ -1,9 +1,31 @@
 #include "Swift/getName.hpp"
 #include "ObjcSwift/Helpers/split.hpp"
 #include <fmt/format.h>
+#include <numeric>
 #include <string>
+#include <vector>
 
 namespace Swift {
+
+std::vector<std::string>
+splitIntoModules(std::string const& fullyQualifiedName) {
+	std::vector<std::string> modules;
+
+	auto splitted = ObjcSwift::Helpers::split(fullyQualifiedName, "::");
+
+	// E.g.
+	//   splitted = {"Very", "Long", "Namespacy"}
+	//  = modules = {"Very", "Very::Long", "Very::Long::Namespacy"}
+	std::partial_sum(
+	    splitted.begin(),
+	    splitted.end(),
+	    std::back_inserter(modules),
+	    [](std::string const& soFar, std::string const& nextNamespace) {
+		    return soFar + "::" + nextNamespace;
+	    });
+
+	return modules;
+}
 
 SplitData splitIntoNames(std::string const& fullyQualifiedName,
                          std::string const& libraryName) {

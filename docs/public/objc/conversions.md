@@ -7,7 +7,7 @@ Not converted means there will be no automatic translation to a corresponding la
 Note that any restriction this poses only applies to the public interface of your code (e.g. your public headers).
 Your internal code can use anything from C++.
 
-`???` is a pending implementation.
+`???` is pending implementation.
 
 ## Conversion tables ##
 
