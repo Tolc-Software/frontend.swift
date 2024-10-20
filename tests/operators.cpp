@@ -1,15 +1,18 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/files.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Operators", "[operators]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Operators", "[operators]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 
 class MyClass {
@@ -49,7 +52,7 @@ public:
 };
 )";
 
-	auto pythonTestCode = R"(
+  auto pythonTestCode = R"(
 my_class = m.MyClass(10)
 self.assertEqual(my_class.value, 10)
 
@@ -92,8 +95,8 @@ self.assertEqual(my_class(100), 100)
 self.assertEqual(my_class("The inner value is: "), "The inner value is: 0")
 )";
 
-	auto errorCode = stage.runTest(cppCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("Operators");
+  stage.exportAsExample("Operators");
 }

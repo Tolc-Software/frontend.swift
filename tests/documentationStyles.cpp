@@ -1,15 +1,18 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/files.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Classes", "[documentationStyles]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Classes", "[documentationStyles]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 // One line comment
 class OneLiner {};
 
@@ -35,7 +38,7 @@ enum class BareMulti {
 };
 )";
 
-	auto objcTestCode = R"(
+  auto objcTestCode = R"(
 // These types of documentations are supported for:
 //   Classes
 //   Member variables
@@ -43,10 +46,10 @@ enum class BareMulti {
 //   Functions
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+  [[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	// stage.exportAsExample("Documentation Styles");
+  // stage.exportAsExample("Documentation Styles");
 }

@@ -1,15 +1,18 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/files.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Virtual inheritence", "[virtualInheritence]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Virtual inheritence", "[virtualInheritence]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 
 class Animal {
@@ -38,7 +41,7 @@ std::string call_sound(Animal *animal) {
 }
 )";
 
-	auto pythonTestCode = R"(
+  auto pythonTestCode = R"(
 fido = m.Dog()
 grumpy = True
 
@@ -65,8 +68,8 @@ self.assertEqual(whiskers.sound(1, not grumpy), "meow! ")
 self.assertEqual(m.call_sound(whiskers), "meow! meow! meow! ")
 )";
 
-	auto errorCode = stage.runTest(cppCode, pythonTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, pythonTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("Overriding virtual in python");
+  stage.exportAsExample("Overriding virtual in python");
 }

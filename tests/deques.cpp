@@ -1,14 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Using std::deques", "[deques]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Using std::deques", "[deques]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 #include <deque>
 
@@ -21,7 +24,7 @@ surround(std::deque<std::string> d,
 }
 )";
 
-	auto objcTestCode = R"(
+  auto objcTestCode = R"(
 // std::deque corresponds to NSArray
 NSArray* myDeque = @[@"middle"];
 NSArray* surroundedDeque =
@@ -38,10 +41,10 @@ assert([[surroundedDeque objectAtIndex:2]
   isEqualToString:@"surrounded"]);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+  [[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("std::deque");
+  stage.exportAsExample("std::deque");
 }

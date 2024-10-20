@@ -1,14 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Smart pointers of custom types work", "[smartPointers]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Smart pointers of custom types work", "[smartPointers]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <memory>
 
 struct Data {
@@ -41,7 +44,7 @@ int consumeSharedData(std::shared_ptr<SharedData> data) {
 }
 )";
 
-	auto objcTestCode = R"(
+  auto objcTestCode = R"(
 // std::unique_ptr acts as a normal value
 mData* data = [m createData];
 assert(data.i == 5);
@@ -71,10 +74,10 @@ assert([m consumeSharedData:sharedData] == 30);
 NSLog(@"%i", sharedData.i);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+  [[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("Smart Pointers");
+  stage.exportAsExample("Smart Pointers");
 }

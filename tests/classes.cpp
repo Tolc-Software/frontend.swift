@@ -1,21 +1,24 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/files.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Classes", "[classes]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
-	// Add instantiation in a source file.
-	// This cannot be just declared, must be instantiated
-	// And https://en.cppreference.com/w/cpp/language/static
-	//
-	// Instantiation (must be in a source file):
-	stage.addSrcFile("test.cpp", "int const WithStatic::answer;");
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Classes", "[classes]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+  // Add instantiation in a source file.
+  // This cannot be just declared, must be instantiated
+  // And https://en.cppreference.com/w/cpp/language/static
+  //
+  // Instantiation (must be in a source file):
+  stage.addSrcFile("test.cpp", "int const WithStatic::answer;");
+
+  auto cppCode = R"(
 class WithConstructor {
 public:
   explicit WithConstructor() : m_v(10) {}
@@ -51,7 +54,7 @@ public:
 };
 )";
 
-	[[maybe_unused]] auto objCTestCode = R"(
+  [[maybe_unused]] auto objCTestCode = R"(
 // Constructors are overloaded with their argument types
 mWithConstructor* ten = [[mWithConstructor alloc] init];
 assert([ten getV] == 10);
@@ -82,7 +85,7 @@ assert(member.i == 5);
 assert(member.phi == 1.618);
 )";
 
-	auto swiftTestCode = R"(
+  auto swiftTestCode = R"(
 // Constructors in swift
 // does not need different names
 var ten: m.WithConstructor = m.WithConstructor()
@@ -113,8 +116,8 @@ assert(member.i == 5);
 assert(member.phi == 1.618);
 )";
 
-	REQUIRE(stage.runTest(cppCode, objCTestCode, "objc") == 0);
-	REQUIRE(stage.runTest(cppCode, swiftTestCode, "swift") == 0);
+  REQUIRE(stage.runTest(cppCode, objCTestCode, "objc") == 0);
+  REQUIRE(stage.runTest(cppCode, swiftTestCode, "swift") == 0);
 
-	stage.exportAsExample("Classes");
+  stage.exportAsExample("Classes");
 }

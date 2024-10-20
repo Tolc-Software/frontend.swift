@@ -1,14 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Specialized templates", "[templates]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Specialized templates", "[templates]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <array>
 #include <map>
 #include <string>
@@ -39,7 +42,7 @@ template class MyClass<int>;
 template class MyClass<std::array<int, 3>>;
 )";
 
-	auto objcTestCode = R"(
+  auto objcTestCode = R"(
 // getSomething<std::string>
 NSString* hi = [m getSomethingString:@"Hi"];
 assert([hi isEqualToString:@"Hi"]);
@@ -73,10 +76,10 @@ assert([[arr objectAtIndex:1] intValue] == 1);
 assert([[arr objectAtIndex:2] intValue] == 2);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+  [[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("Templates");
+  stage.exportAsExample("Templates");
 }

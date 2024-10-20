@@ -1,14 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Using std::unordered_maps", "[unordered_maps]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Using std::unordered_maps", "[unordered_maps]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 #include <unordered_map>
 
@@ -18,7 +21,7 @@ getUnordered() {
 }
 )";
 
-	auto objcTestCode = R"(
+  auto objcTestCode = R"(
 // std::unordered_map translates to a NSDictionary
 NSDictionary* dict = [m getUnordered];
 assert([dict count] == 1);
@@ -27,10 +30,10 @@ assert(n != nil);
 assert([n intValue] == 1);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+  [[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("std::unordered_map");
+  stage.exportAsExample("std::unordered_map");
 }

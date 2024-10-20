@@ -96,7 +96,7 @@ enable_sanitizers(Frontend.swift)
 target_link_libraries(
   Frontend.swift
   PUBLIC IR::IR
-  PRIVATE fmt::fmt)
+  PRIVATE fmt::fmt spdlog::spdlog)
 
 target_include_directories(Frontend.swift PRIVATE src)
 target_include_directories(

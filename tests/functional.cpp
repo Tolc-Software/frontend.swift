@@ -1,14 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Taking functions as arguments", "[functional]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Taking functions as arguments", "[functional]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <functional>
 #include <vector>
 
@@ -31,7 +34,7 @@ int accumulateArrayOfFunctions(std::vector<std::function<int()>> arrayToSum) {
 }
 )";
 
-	auto objcTestCode = R"(
+  auto objcTestCode = R"(
 def callback(i):
   return i
 
@@ -51,11 +54,10 @@ result1 = {moduleName}.accumulateArrayOfFunctions([fiver, fiver])
 self.assertEqual(result1, 10)
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+  [[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("std::function");
+  stage.exportAsExample("std::function");
 }
-

@@ -1,15 +1,18 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
+
+#include <string>
 
 TEST_CASE("std::filesystem::path gets converted to pathlib.Path",
           "[filesystem_paths]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
 
-	auto cppCode = R"(
+  auto cppCode = R"(
 #include <filesystem>
 #include <vector>
 
@@ -33,7 +36,7 @@ joinPaths(std::vector<std::filesystem::path> arrayToSum) {
 }
 )";
 
-	auto objcTestCode = R"(
+  auto objcTestCode = R"(
 // std::filesystem::path corresponds to NSString
 NSString* path = @"Hello/my/name/is/Tolc";
 
@@ -49,10 +52,10 @@ NSString* joined = [m joinPaths:paths];
 assert([joined isEqualToString:@"to/the/heart"]);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+  [[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("std::filesystem::path");
+  stage.exportAsExample("std::filesystem::path");
 }

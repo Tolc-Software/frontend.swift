@@ -1,15 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Global variables are converted",
-          "[globalVariables]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Global variables are converted", "[globalVariables]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 #include <string_view>
 
@@ -21,7 +23,7 @@ namespace Nested {
 }
 )";
 
-	[[maybe_unused]] auto objcTestCode = R"(
+  [[maybe_unused]] auto objcTestCode = R"(
 // Starts at 0 and can be changed
 assert(m.i == 0);
 m.i = 5;
@@ -37,7 +39,7 @@ assert([mNested.s isEqualToString:@"Hello World"]);
 assert([mNested.constant isEqualToString:@"A constant"]);
 )";
 
-	auto swiftTestCode = R"(
+  auto swiftTestCode = R"(
 // Starts at 0 and can be changed
 assert(m.i == 0);
 m.i = 5;
@@ -53,9 +55,9 @@ assert(m.Nested.s == "Hello World");
 assert(m.Nested.constant == "A constant");
 )";
 
-	stage.keepAliveAfterTest();
-	// REQUIRE(stage.runTest(cppCode, objcTestCode, "objc") == 0);
-	REQUIRE(stage.runTest(cppCode, swiftTestCode, "swift") == 0);
+  stage.keepAliveAfterTest();
+  // REQUIRE(stage.runTest(cppCode, objcTestCode, "objc") == 0);
+  REQUIRE(stage.runTest(cppCode, swiftTestCode, "swift") == 0);
 
-	stage.exportAsExample("Global Variables");
+  stage.exportAsExample("Global Variables");
 }

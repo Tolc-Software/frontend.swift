@@ -1,14 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Simple valarrays", "[valarrays]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Simple valarrays", "[valarrays]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <valarray>
 
 std::valarray<int> getIt() {
@@ -16,7 +19,7 @@ std::valarray<int> getIt() {
 }
 )";
 
-	auto objcTestCode = R"(
+  auto objcTestCode = R"(
 // std::valarray corresponds to NSArray
 NSArray* v = [m getIt];
 assert([v count] == 3);
@@ -27,10 +30,10 @@ assert([[v objectAtIndex:1] intValue] == 1);
 assert([[v objectAtIndex:2] intValue] == 2);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+  [[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("std::valarray");
+  stage.exportAsExample("std::valarray");
 }

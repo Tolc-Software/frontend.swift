@@ -1,14 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("User defined classes", "[userDefined]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("User defined classes", "[userDefined]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 
 class MyClass {
@@ -45,7 +48,7 @@ Point2d getMiddle(std::pair<Point2d, Point2d> p) {
 }
 )";
 
-	auto objcTestCode = R"(
+  auto objcTestCode = R"(
 NSString* phrase = @"Hello from Objective-C";
 mMyClass* myClass = [m buildMyClass:phrase];
 assert([[myClass getS] isEqualToString:phrase]);
@@ -68,10 +71,10 @@ assert(middle.x == 2);
 assert(middle.y == 0);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+  [[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("Passing classes between languages");
+  stage.exportAsExample("Passing classes between languages");
 }

@@ -1,14 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Using std::tuples", "[tuples]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Using std::tuples", "[tuples]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 #include <tuple>
 
@@ -21,7 +24,7 @@ std::tuple<int, std::string> sumInts(std::tuple<int, int, std::string> t) {
 }
 )";
 
-	auto objcTestCode = R"(
+  auto objcTestCode = R"(
 // std::tuple corresponds to a NSArray
 // with the same amount of values
 NSArray* toSum = [NSArray
@@ -50,10 +53,10 @@ assert([[summed objectAtIndex:1] isEqualToString:@"Hello"]);
 }
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+  [[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("std::tuple");
+  stage.exportAsExample("std::tuple");
 }

@@ -1,14 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Using std::vectors", "[vectors]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Using std::vectors", "[vectors]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <algorithm>
 #include <vector>
 
@@ -32,7 +35,7 @@ double sum(std::vector<double> const& numbers) {
 
 )";
 
-	auto objcTestCode = R"(
+  auto objcTestCode = R"(
 // std::vector corresponds to NSArray
 NSArray* v = [m f];
 assert([v count] == 3);
@@ -50,10 +53,10 @@ NSArray<NSNumber*>* toSum = @[@(1.1), @(2.2), @(3.3)];
 assert([m sum:toSum] == 6.6);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+  [[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("std::vector");
+  stage.exportAsExample("std::vector");
 }

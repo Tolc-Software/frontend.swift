@@ -1,14 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Classes", "[namespaces]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Classes", "[namespaces]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 
 class SimpleMember {
@@ -40,7 +43,7 @@ namespace MyLib {
 }
 )";
 
-	auto objcTestCode = R"(
+  auto objcTestCode = R"(
 // Mutable member variables can be changed
 mSimpleMember* simpleMember = [[mSimpleMember alloc] init];
 assert([simpleMember.myString isEqualToString:@"Hello"]);
@@ -54,10 +57,10 @@ mMyLibNested* nested = [[mMyLibNested alloc] init];
 assert(nested.d == 4.3);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+  [[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("Member Variables");
+  stage.exportAsExample("Member Variables");
 }

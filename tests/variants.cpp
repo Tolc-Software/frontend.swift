@@ -1,14 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Using std::variants", "[variants]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Using std::variants", "[variants]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 #include <variant>
 
@@ -39,7 +42,7 @@ public:
 
 )";
 
-	auto pythonTestCode = fmt::format(R"(
+  auto pythonTestCode = fmt::format(R"(
 # std::variant translates to one of the values in python
 number = 6
 withNumber = {moduleName}.WithMember(number)
@@ -53,10 +56,10 @@ self.assertEqual(with_function.getFive(), 5)
 self.assertEqual(with_function.getHello(), "Hello")
 self.assertEqual(with_function.getTrue(), True)
 )",
-	                                  fmt::arg("moduleName", moduleName));
+                                    fmt::arg("moduleName", moduleName));
 
-	auto errorCode = stage.runTest(cppCode, pythonTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, pythonTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("std::variant");
+  stage.exportAsExample("std::variant");
 }

@@ -1,14 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("The order should reflect the code and not IR", "[order]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("The order should reflect the code and not IR", "[order]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <filesystem>
 #include <string>
 
@@ -24,7 +27,7 @@ int answer(Deep::MeaningOfLife m) {
 }
 )";
 
-	auto objcTestCode = R"(
+  auto objcTestCode = R"(
 // Object defined in nested namespace
 mDeepMeaningOfLife* meaning = [[mDeepMeaningOfLife alloc] init];
 
@@ -35,8 +38,8 @@ mDeepMeaningOfLife* meaning = [[mDeepMeaningOfLife alloc] init];
 assert([m answer:meaning] == 42);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+  [[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
+  REQUIRE(errorCode == 0);
 }

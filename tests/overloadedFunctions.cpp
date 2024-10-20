@@ -1,14 +1,17 @@
 #include "TestStage/paths.hpp"
 #include "TestUtil/objcSwiftStage.hpp"
-#include <catch2/catch.hpp>
+
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
-TEST_CASE("Overloaded functions", "[overloadedFunctions]") {
-	std::string moduleName = "m";
-	auto stage =
-	    TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+#include <string>
 
-	auto cppCode = R"(
+TEST_CASE("Overloaded functions", "[overloadedFunctions]") {
+  std::string moduleName = "m";
+  auto stage =
+      TestUtil::ObjcSwiftStage(TestStage::getRootStagePath(), moduleName);
+
+  auto cppCode = R"(
 #include <string>
 
 // Overloaded free functions
@@ -43,7 +46,7 @@ private:
 };
 )";
 
-	auto objcTestCode = R"(
+  auto objcTestCode = R"(
 // Overloaded functions work the same as in C++
 // Free function overload
 assert([[m sayHello] isEqualToString:@"Hello!"]);
@@ -59,11 +62,10 @@ assert([[overload getStuff] isEqualToString:@"Stuff"]);
 assert([[overload getStuffString:@"Other"] isEqualToString:@"Other"]);
 )";
 
-	[[maybe_unused]] auto swiftTestCode = R"()";
+  [[maybe_unused]] auto swiftTestCode = R"()";
 
-	auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
-	REQUIRE(errorCode == 0);
+  auto errorCode = stage.runTest(cppCode, objcTestCode, "objc");
+  REQUIRE(errorCode == 0);
 
-	stage.exportAsExample("Overloaded Functions");
+  stage.exportAsExample("Overloaded Functions");
 }
-

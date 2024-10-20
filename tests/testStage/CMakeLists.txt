@@ -14,7 +14,10 @@ project(
   LANGUAGES ${frontend_languages})
 
 if(NOT language)
-  message(FATAL_ERROR "language not set. Define it while configuring this project with -Dlanguage=objc")
+  message(
+    FATAL_ERROR
+      "language not set. Define it while configuring this project with -Dlanguage=objc"
+  )
 endif()
 
 # Export compile flags to compile_commands.json database. Useful for linters and
@@ -25,8 +28,7 @@ enable_language(OBJC)
 enable_language(OBJCXX)
 enable_language(Swift)
 
-# Get the variable 'target_name'
-# NOTE: This will be generated for each test
+# Get the variable 'target_name' NOTE: This will be generated for each test
 include(cmake/TargetName.cmake)
 
 # The users C++ library
@@ -37,8 +39,8 @@ target_include_directories(${target_name} INTERFACE include)
 set_target_properties(
   ${target_name}
   PROPERTIES CXX_STANDARD_REQUIRED ON
-  CXX_EXTENSIONS OFF
-  CXX_STANDARD 17)
+             CXX_EXTENSIONS OFF
+             CXX_STANDARD 17)
 
 if("${language}" STREQUAL swift)
   # When outputting Swift, the middle Objective-C layer is "hidden"
@@ -55,8 +57,7 @@ add_library(${objc_target} ${src}/${objc_target}.mm)
 target_include_directories(${objc_target} PUBLIC ${src})
 target_link_libraries(${objc_target} PRIVATE ${target_name})
 
-# NOTE: Take the CXX version of the incoming library
-#       and use it as the standard
+# NOTE: Take the CXX version of the incoming library and use it as the standard
 set_property(TARGET ${objc_target} PROPERTY OBJCXX_STANDARD 17)
 
 include(CTest)
@@ -66,27 +67,24 @@ if("${language}" STREQUAL swift)
   set(swift_target ${target_name}_swift)
   add_library(${swift_target} ${src}/${swift_target}.swift)
   target_link_libraries(${swift_target} PRIVATE ${objc_target})
-  set_property(TARGET ${swift_target}
+  set_property(
+    TARGET ${swift_target}
     APPEND_STRING
     PROPERTY
-    COMPILE_FLAGS
-    "-import-objc-header ${CMAKE_CURRENT_LIST_DIR}/${src}/${objc_target}-Bridging-Header.h")
+      COMPILE_FLAGS
+      "-import-objc-header ${CMAKE_CURRENT_LIST_DIR}/${src}/${objc_target}-Bridging-Header.h"
+  )
   set_target_properties(${swift_target} PROPERTIES OUTPUT_NAME ${target_name})
 
   # The ObjcSwift exposed layer
-  add_executable(swifty
-    tests/main.swift)
-  target_link_libraries(swifty PRIVATE
-    ${swift_target})
-  add_test(NAME swifty
-    COMMAND swifty)
+  add_executable(swifty tests/main.swift)
+  target_link_libraries(swifty PRIVATE ${swift_target})
+  add_test(NAME swifty COMMAND swifty)
 
 else()
   # # The Objective-C exposed layer
   add_executable(objecty tests/main.mm)
   target_link_libraries(objecty PRIVATE ${objc_target})
   target_link_libraries(objecty PRIVATE "-framework Foundation")
-  add_test(NAME objecty
-    COMMAND objecty)
+  add_test(NAME objecty COMMAND objecty)
 endif()
-
